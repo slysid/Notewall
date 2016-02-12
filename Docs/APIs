@@ -1,0 +1,98 @@
+
+/api/notes/all
+
+{
+	
+	"133453" : [
+
+		{
+		    "noteType" : "Free",
+		    "noteFont" : "Verdana",
+		    "textColor" : "Black",
+		    "textSize" : "19"
+		},
+
+		{
+		    "noteType" : "Free",
+		    "noteFont" : "Verdana",
+		    "textColor" : "Black",
+		    "textSize" : "19"
+		},
+
+		{
+		    "noteType" : "Free",
+		    "noteFont" : "Verdana",
+		    "textColor" : "Black",
+		    "textSize" : "19"
+		},
+	],
+
+	"133454" : [
+
+		{
+		    "noteType" : "Free",
+		    "noteFont" : "Verdana",
+		    "textColor" : "Black",
+		    "textSize" : "19"
+		},
+
+		{
+		    "noteType" : "Free",
+		    "noteFont" : "Verdana",
+		    "textColor" : "Black",
+		    "textSize" : "19"
+		},
+
+		{
+		    "noteType" : "Free",
+		    "noteFont" : "Verdana",
+		    "textColor" : "Black",
+		    "textSize" : "19"
+		},
+	]
+}
+
+
+api/notes/<ownerid>
+{
+	
+	"133453" : [
+
+		{
+		    "noteType" : "Free",
+		    "noteFont" : "Verdana",
+		    "textColor" : "Black",
+		    "textSize" : "19"
+		},
+
+		{
+		    "noteType" : "Free",
+		    "noteFont" : "Verdana",
+		    "textColor" : "Black",
+		    "textSize" : "19"
+		},
+
+		{
+		    "noteType" : "Free",
+		    "noteFont" : "Verdana",
+		    "textColor" : "Black",
+		    "textSize" : "19"
+		},
+	],
+}
+
+
+api/notes/<ownerid>/favs
+
+{
+	
+	"133453" : [
+
+		{
+		    "noteType" : "Free",
+		    "noteFont" : "Verdana",
+		    "textColor" : "Black",
+		    "textSize" : "19"
+		}
+	],
+}

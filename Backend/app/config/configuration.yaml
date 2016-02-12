@@ -1,0 +1,6 @@
+#Configuration for Pinnit
+#
+# Author: Bharath Kumar
+
+mongodb:
+    uri: 'mongodb://localhost:27017/pinit'

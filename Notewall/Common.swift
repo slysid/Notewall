@@ -1,0 +1,219 @@
+//
+//  Common.swift
+//  Notewall
+//
+//  Created by Bharath on 22/01/16.
+//  Copyright © 2016 Bharath. All rights reserved.
+//
+
+import Foundation
+import UIKit
+
+
+extension Int
+{
+    static func random(range: Range<Int> ) -> Int
+    {
+        var offset = 0
+        
+        if range.startIndex < 0   // allow negative ranges
+        {
+            offset = abs(range.startIndex)
+        }
+        
+        let mini = UInt32(range.startIndex + offset)
+        let maxi = UInt32(range.endIndex   + offset)
+        
+        return Int(mini + arc4random_uniform(maxi - mini)) - offset
+    }
+}
+
+
+class Common {
+    
+    static let sharedCommon = Common()
+    var config:NSMutableDictionary?
+    
+    init() {
+        
+        
+    }
+    
+    func calculateDimensionForDevice(val:CGFloat) -> CGFloat {
+        
+        if kDevice == kPhone {
+            
+            return val
+        }
+        else {
+            
+            return val * 2.0
+        }
+    }
+    
+    func textToImage(drawText: NSString, inImage: UIImage, atPoint:CGPoint, preferredFont:String?, preferredFontSize:CGFloat?,preferredFontColor:UIColor?)->UIImage{
+        
+        var font:String?
+        var fontSize:CGFloat = kStickyNoteFontSize
+        var fontColor:UIColor = kDefaultFontColor
+        
+        if (preferredFont == nil) {
+            
+            font = kDefaultFont
+        }
+        else {
+            
+            font = preferredFont
+        }
+        
+        if (preferredFontSize != nil) {
+            
+            fontSize = preferredFontSize!
+        }
+        
+        if (preferredFontColor != nil) {
+            
+            fontColor = preferredFontColor!
+        }
+        
+        
+        
+        let textFont: UIFont = UIFont(name: font!, size: fontSize)!
+        let textFontAttributes = [
+            NSFontAttributeName: textFont,
+            NSForegroundColorAttributeName: fontColor,
+        ]
+        
+        UIGraphicsBeginImageContext(inImage.size)
+        let imgRect = CGRectMake(0, 0, inImage.size.width, inImage.size.height)
+        inImage.drawInRect(imgRect)
+        //let rect: CGRect = CGRectMake(atPoint.x, atPoint.y, inImage.size.width, inImage.size.height)
+        let rect: CGRect = CGRectInset(imgRect, 38, 38)
+        drawText.drawInRect(rect, withAttributes: textFontAttributes)
+        let newImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return newImage
+        
+    }
+    
+    func ageOfApplication() -> NSTimeInterval {
+        
+        return NSDate().timeIntervalSinceDate(Common.sharedCommon.config!["loggedinDate"] as! NSDate)
+    }
+    
+    func formPostURLRequest(path:String) -> NSMutableURLRequest {
+        
+        let postURL = NSURL(string:kHttpProtocol + "://" + kHttpHost + ":5000" + path)
+        let postRequest = NSMutableURLRequest(URL: postURL!)
+        return postRequest
+    }
+    
+    func formPostBody(data:NSDictionary?) -> NSData? {
+        
+        do {
+            
+            let postBody =  try NSJSONSerialization.dataWithJSONObject(data!, options: NSJSONWritingOptions())
+            
+            return postBody
+            
+        } catch {
+            
+            return nil
+        }
+        
+    }
+    
+    
+    func postRequestAndHadleResponse(path :kAllowedPaths, body:NSDictionary?, replace:NSDictionary?, completion : (Bool,NSDictionary) -> Void) {
+        
+        if kRunMode == kRunModes.modeDebug {
+            
+            switch path {
+                
+            case .kPathHealth:
+                completion(true,kDebugHealthResponse)
+            case .kPathGetAllNotes:
+                completion(true,kDebugAllNotesResponse)
+            default: break
+                
+                
+            }
+        }
+        else {
+            
+            let pathAttributes = kHttpPaths[path.hashValue]
+            let method = pathAttributes["method"]
+            var endpoint = pathAttributes["path"]
+            
+            if (replace != nil) {
+                
+                print(replace!)
+                
+                let keys = NSArray(array:replace!.allKeys)
+                
+                for key in keys {
+                    
+                    endpoint = endpoint!.stringByReplacingOccurrencesOfString(key as! String, withString: replace!.objectForKey(key) as! String, options: NSStringCompareOptions.LiteralSearch, range: nil)
+                }
+            }
+            
+            let restRequest = formPostURLRequest(endpoint!)
+            restRequest.HTTPMethod = method!
+            
+            
+            if ((method == "POST" || method == "PUT" || method == "DELETE") && body != nil) {
+                
+                let postBody = formPostBody(body)
+                
+                if (postBody == nil) {
+                    
+                    print("Error in serializing post body")
+                }
+                else {
+                    
+                    restRequest.HTTPBody = postBody!
+                    restRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                }
+            }
+            
+            
+            let config = NSURLSessionConfiguration.defaultSessionConfiguration()
+            let session = NSURLSession(configuration: config)
+            let task = session.dataTaskWithRequest(restRequest) { (data, response, error) -> Void in
+                
+                if (error != nil) {
+                    
+                    let responseDict = NSDictionary(objects: [error!.description], forKeys: ["error"])
+                    completion(false,responseDict)
+                }
+                else {
+                    
+                    do {
+                        
+                        let jsonResponse = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.MutableContainers)
+                        completion(true,jsonResponse as! NSDictionary)
+                        
+                    }
+                    catch let err as NSError{
+                        
+                        let responseDict = NSDictionary(objects: [err.userInfo], forKeys: ["error"])
+                        completion(false,responseDict)
+                        
+                    }
+                }
+            }
+            
+            task.resume()
+            
+        }
+        
+        
+    }
+    
+    func formColorWithRGB(RGB:Array<CGFloat>) -> UIColor {
+        
+        return UIColor(red: RGB[0], green: RGB[1], blue: RGB[2], alpha: 1.0)
+    }
+    
+}
