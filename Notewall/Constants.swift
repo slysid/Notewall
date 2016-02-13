@@ -31,7 +31,7 @@ enum kRunModes {
 
 let kPhone = "phone"
 let kPad = "pad"
-let kNoteDim:CGFloat = 85.0
+let kNoteDim:CGFloat = 100.0
 let kBlownupNoteDim:CGFloat = 300.0
 let kMinRequiredCharacters = 0
 let kDefaultFont = "Helvetica"
@@ -85,7 +85,7 @@ let kLoginTextFieldWidth:CGFloat = kScreenWidth * 0.65
 
 let kRunMode = kRunModes.modeLive
 let kHttpProtocol = "http"
-let kHttpHost = "192.168.0.12"
+let kHttpHost = "qacloud.accedo.tv"
 let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/owner/register", "method" : "POST" ],
                   ["path" : "/api/notes/all", "method" : "POST"],
@@ -117,36 +117,7 @@ let kDebugAllNotesResponse = [ "data" : [
                                          "noteTextFontSize":30.0,
                                          "noteType":"noteBlue1.png",
                                          "exclusions": [],
-                                         "owners" : []],
-    ["notedID" : "56bb9dbe8b634e5bbaae4f5c",
-        "notepinned":false,
-        "noteText":"debugNote2",
-        "noteTextColor":[255.0,0.0,0.0],
-        "noteTextFont" : "Chalkduster",
-        "noteTextFontSize":30.0,
-        "noteType":"noteBlue1.png",
-        "exclusions": [],
-        "owners" : []],
-    
-    ["notedID" : "56bb9dbe8b634e5bbaae4f5d",
-        "notepinned":false,
-        "noteText":"debugNote2",
-        "noteTextColor":[255.0,0.0,0.0],
-        "noteTextFont" : "Chalkduster",
-        "noteTextFontSize":30.0,
-        "noteType":"noteBlue1.png",
-        "exclusions": [],
-        "owners" : []],
-    
-    ["notedID" : "56bb9dbe8b634e5bbaae4f5e",
-        "notepinned":false,
-        "noteText":"debugNote2",
-        "noteTextColor":[255.0,0.0,0.0],
-        "noteTextFont" : "Chalkduster",
-        "noteTextFontSize":30.0,
-        "noteType":"noteBlue1.png",
-        "exclusions": [],
-        "owners" : []]
+                                         "owners" : []]
     
     ]]
 

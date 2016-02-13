@@ -75,6 +75,9 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     func loadMainView() {
         
+        self.blownUpCount = 0
+        self.blownUpCenterX = kScreenWidth * 0.5
+        
         masterView = UIView(frame: CGRectMake(0,0,self.bgScrollView!.contentSize.width,self.bgScrollView!.contentSize.height))
         masterView!.backgroundColor = UIColor.clearColor()
         bgScrollView!.addSubview(masterView!)
@@ -85,6 +88,15 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         backgroundImage!.addGestureRecognizer(newNoteTap)
         backgroundImage!.image = UIImage(named: self.backgroundImageName!)
         self.masterView!.addSubview(backgroundImage!)
+        
+        if (self.dataSourceAPI == kAllowedPaths.kPathGetFavNotesForOwner) {
+            
+            self.backgroundImage!.userInteractionEnabled = false
+        }
+        else {
+            
+            self.backgroundImage!.userInteractionEnabled = true
+        }
         
         logOutButton = CloseView(frame: CGRectMake(kScreenWidth - (1.5 * Common.sharedCommon.calculateDimensionForDevice(30)), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
         logOutButton!.image = UIImage(named: "logout.png")
@@ -121,6 +133,10 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 }
                 
             }
+            else {
+                
+                Common.sharedCommon.showMessageViewWithMessage(self, message: "Network Error",startTimer:false)
+            }
         }
     }
     
@@ -147,10 +163,23 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             favButton!.addGestureRecognizer(tap)
         }
         
+       /* if (noteLifeLabel == nil) {
+            
+            let width = Common.sharedCommon.calculateDimensionForDevice(100)
+            let height = Common.sharedCommon.calculateDimensionForDevice(50)
+            self.noteLifeLabel = UILabel(frame: CGRectMake(0,0,width,height))
+            self.noteLifeLabel!.center = CGPointMake(kScreenWidth - (width * 0.5), kScreenHeight - (1.5 * height))
+            self.noteLifeLabel!.backgroundColor = UIColor.clearColor()
+            self.noteLifeLabel!.textAlignment = NSTextAlignment.Left
+            self.noteLifeLabel!.font = UIFont(name: "chalkduster", size: 11.0)
+            self.noteLifeLabel!.textColor = UIColor.whiteColor()
+            self.masterView!.addSubview(self.noteLifeLabel!)
+        } */
+        
         self.setFavImage(note)
+        //self.noteLifeLabel!.text = note.stickyNoteDeletionDate!
         
-        
-        let v = Note(frame: note.frame, wallnote:note)
+        let v = Note(frame: note.frame, wallnote:note, expiryDate:note.stickyNoteDeletionDate!)
         v.noteDelegate = self
         v.sourceWallNote = note
         self.view.addSubview(v)
@@ -166,7 +195,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 v.frame = CGRectMake(0, 0, Common.sharedCommon.calculateDimensionForDevice(kBlownupNoteDim), Common.sharedCommon.calculateDimensionForDevice(kBlownupNoteDim))
                 let center = CGPointMake(self.blownUpCenterX, kScreenHeight * 0.5)
                 v.center = center
-                self.bgScrollView!.zoomToRect(self.view.frame, animated: true)
+                //self.bgScrollView!.zoomToRect(self.view.frame, animated: true)
                 self.masterView!.alpha = 0.4
                 self.logOutButton!.hidden = true
             
@@ -210,8 +239,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         let data = ["ownerid" : Common.sharedCommon.config!["ownerId"] as! String]
         
-        print(data)
-        
         Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathRemoveNote, body: data, replace: paramData, completion: { (result, response) -> Void in
             
             if (result == true) {
@@ -241,11 +268,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     func postAWallNote(noteType: String?, noteText: String, noteFont: String, noteFontSize:CGFloat, noteFontColor:Array<CGFloat>) {
         
-        let RBGColor = Common.sharedCommon.formColorWithRGB(noteFontColor)
-        let note = WallNote(frame: CGRectMake(100, 30, Common.sharedCommon.calculateDimensionForDevice(kNoteDim), Common.sharedCommon.calculateDimensionForDevice(kNoteDim)), noteType: noteType, noteText: noteText, noteFont: noteFont, noteFontSize:noteFontSize, noteFontColor:RBGColor)
-        note.wallnoteDelegate = self
-        self.masterView!.addSubview(note)
-        
         let ownerID = Common.sharedCommon.config!["ownerId"] as! String
         var data = [String:AnyObject]()
         data = ["ownerid" : ownerID as String, "notetype" : noteType! as String, "notetext" : noteText as String, "notetextfont" : noteFont as String, "notetextfontsize" : noteFontSize as CGFloat, "notepinned": false, "notetextcolor" : noteFontColor]
@@ -256,28 +278,15 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     
-                    UIView.animateWithDuration(2.0, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
-                        
-                        note.alpha = 0.0
-                        
-                        if (self.messageView != nil) {
-                            
-                            self.messageView!.removeFromSuperview()
-                            self.messageView = nil
-                        }
-                        
-                        
-                        }) { (Bool) -> Void in
-                            
-                            UIView.animateWithDuration(2.0, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
-                                
-                                note.alpha = 1.0
-                                
-                                }, completion: { (Bool) -> Void in
-                                    
-                            })
-                            
-                    }
+                    let newNote = response["data"]![0]
+                    let RBGColor = Common.sharedCommon.formColorWithRGB(noteFontColor)
+                    let note = WallNote(frame: CGRectMake(100, 30, Common.sharedCommon.calculateDimensionForDevice(kNoteDim), Common.sharedCommon.calculateDimensionForDevice(kNoteDim)), noteType: noteType, noteText: noteText, noteFont: noteFont, noteFontSize:noteFontSize, noteFontColor:RBGColor)
+                    note.stickyNoteID = newNote["noteID"] as? String
+                    note.favedOwners = newNote["owners"] as? Array<String>
+                    note.stickyNoteCreationDate = newNote["creationDate"] as? String
+                    note.stickyNoteDeletionDate = newNote["deletionDate"] as? String
+                    note.wallnoteDelegate = self
+                    self.masterView!.addSubview(note)
 
                     
                 })
@@ -353,6 +362,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             let note = WallNote(frame: CGRectMake(xPoint,yPoint,0,0), noteType:noteType, noteText: noteText, noteFont:noteTextFont, noteFontSize:noteTextFontSize, noteFontColor:Common.sharedCommon.formColorWithRGB(noteTextColor))
             note.stickyNoteID = printNote["noteID"] as? String
             note.favedOwners = printNote["owners"] as? Array<String>
+            note.stickyNoteCreationDate = printNote["creationDate"] as? String
+            note.stickyNoteDeletionDate = printNote["deletionDate"] as? String
             note.wallnoteDelegate = self
             self.masterView!.addSubview(note)
             
@@ -373,18 +384,55 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
         else {
             
-            if (messageView == nil) {
-                
-                let dim = Common.sharedCommon.calculateDimensionForDevice(40)
-                messageView = UILabel(frame: CGRectMake(0,(kScreenHeight * 0.5) - (dim * 0.5),kScreenWidth,dim))
-                messageView!.font = UIFont(name: "chalkduster", size: 33.0)
-                messageView!.textAlignment = NSTextAlignment.Center
-                messageView!.textColor = UIColor.whiteColor()
-                messageView!.text = "NO NOTES"
-                self.masterView!.addSubview(messageView!)
-            }
+            
+            self.showNoNotes()
         }
         
+    }
+    
+    func removeExistingNotes() {
+        
+        self.masterView!.alpha = 1.0
+        for v in self.masterView!.subviews {
+            
+            if v is Note || v is WallNote {
+                
+                v.removeFromSuperview()
+            }
+            
+        }
+        
+        if (messageView != nil) {
+            
+            messageView!.removeFromSuperview()
+            messageView = nil
+        }
+        
+        if (favButton != nil) {
+            
+            favButton?.removeFromSuperview()
+            favButton = nil
+        }
+        
+      /*  if (noteLifeLabel != nil) {
+            
+            noteLifeLabel!.removeFromSuperview()
+            noteLifeLabel = nil
+        } */
+    }
+    
+    func showNoNotes() {
+        
+        if (messageView == nil) {
+            
+            let dim = Common.sharedCommon.calculateDimensionForDevice(40)
+            messageView = UILabel(frame: CGRectMake(0,(kScreenHeight * 0.5) - (dim * 0.5),kScreenWidth,dim))
+            messageView!.font = UIFont(name: "chalkduster", size: 33.0)
+            messageView!.textAlignment = NSTextAlignment.Center
+            messageView!.textColor = UIColor.whiteColor()
+            messageView!.text = "NO NOTES"
+            self.masterView!.addSubview(messageView!)
+        }
     }
 
     
@@ -419,74 +467,44 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             self.setFavImage(note!)
         }
         
+        if (self.dataSourceAPI == kAllowedPaths.kPathGetFavNotesForOwner) {
+            
+            let ownerID = Common.sharedCommon.config!["ownerId"] as! String
+            if (note.sourceWallNote!.favedOwners!.contains(ownerID) == false) {
+                
+                note.sourceWallNote!.removeFromSuperview()
+            }
+            
+            if (self.notesDataList.count == 0) {
+                
+                self.showNoNotes()
+            }
+        }
+        
         if (self.blownUpCount == 0) {
             
-            self.masterView!.alpha = 1.0
-            self.blownUpCenterX = kScreenWidth * 0.5
-            self.favButton!.removeFromSuperview()
-            self.favButton = nil
-            self.allBlownUpNotes.removeAll()
-            self.logOutButton!.hidden = false
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                
+                self.bgScrollView!.zoomToRect(self.view.frame, animated: true)
+                self.masterView!.alpha = 1.0
+                self.blownUpCenterX = kScreenWidth * 0.5
+                self.favButton!.removeFromSuperview()
+                self.favButton = nil
+                //self.noteLifeLabel!.removeFromSuperview()
+                //self.noteLifeLabel = nil
+                self.allBlownUpNotes.removeAll()
+                self.logOutButton!.hidden = false
+                
+            })
         }
     }
     
     func changeNoteWall() {
         
-        self.masterView!.alpha = 1.0
-        for v in self.view!.subviews {
-            
-            if v is Note {
-                
-                v.removeFromSuperview()
-            }
-        }
-        
-        if (messageView != nil) {
-            
-            messageView!.removeFromSuperview()
-            messageView = nil
-        }
-        
-        if (favButton != nil) {
-            
-            favButton?.removeFromSuperview()
-            favButton = nil
-        }
-        
-        
+        self.removeExistingNotes()
         self.moveWall()
         
     }
-    
-    
-   /* func animateNoteRemovalFromWall() {
-        
-        if allNotes.count > 0 {
-            
-            let moveNote:WallNote = allNotes[allNotes.count - 1]
-            
-            UIView.animateWithDuration(0.001, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
-                
-                let blownFrame = CGRectInset(moveNote.frame, -10, -10)
-                moveNote.frame = blownFrame
-                
-                }, completion: { (Bool) -> Void in
-                    
-                    moveNote.removeFromSuperview()
-                    self.allNotes.removeAtIndex(self.allNotes.count - 1)
-                    
-                    if (self.allNotes.count > 0) {
-                        
-                        self.animateNoteRemovalFromWall()
-                    }
-                    else if (self.allNotes.count == 0) {
-                        
-                        self.moveWall()
-                    }
-            })
-        }
-        
-    } */
     
     func moveWall() {
         
@@ -524,11 +542,11 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         let data = ["ownerid" : ownerID]
         
+        
         Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathAddNoteToFav, body: data, replace: paramData) { (result, response) -> Void in
             
             if (result == true) {
                 
-                self.fillInDataSource(false)
                 
                 if (note.favedOwners!.contains(ownerID) == true) {
                     
@@ -541,6 +559,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 }
                 
                 self.setFavImage(note)
+                self.fillInDataSource(false)
                 
             }
         }

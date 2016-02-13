@@ -432,7 +432,7 @@ class Compose:UIViewController,UITextViewDelegate,UIScrollViewDelegate,ComposeNo
         self.notesImageView!.image = nil
         let imageFileName = kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex]
         
-        let preImg = Common.sharedCommon.textToImage(enteredText!, inImage: UIImage(named: imageFileName)!, atPoint: CGPointMake(0, 0), preferredFont:kSupportedFonts[selectedFontIndex], preferredFontSize: kFontSizes[selectedFontSizeIndex],preferredFontColor: Common.sharedCommon.formColorWithRGB(kFontColor[selectedFontColorIndex]))
+        let preImg = Common.sharedCommon.textToImage(enteredText!, inImage: UIImage(named: imageFileName)!, atPoint: CGPointMake(0, 0), preferredFont:kSupportedFonts[selectedFontIndex], preferredFontSize: kFontSizes[selectedFontSizeIndex],preferredFontColor: Common.sharedCommon.formColorWithRGB(kFontColor[selectedFontColorIndex]),addExpiry:false,expiryDate:nil)
         
         self.notesImageView!.image = preImg
     }

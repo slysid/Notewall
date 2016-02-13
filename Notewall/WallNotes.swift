@@ -22,6 +22,8 @@ class WallNote:UIImageView {
     var stickyNoteFont:String?
     var stickyNoteFontSize:CGFloat?
     var stickyNoteFontColor:UIColor?
+    var stickyNoteCreationDate:String?
+    var stickyNoteDeletionDate:String?
     var noteTag:Int = 0
     var isAlreadyBlownUp:Bool = false
     var wallnoteDelegate:WallNoteDelegate?
@@ -71,7 +73,7 @@ class WallNote:UIImageView {
         
         
         let rawImage = UIImage(named: stickyNoteType!)
-        let textWrittenImage = Common.sharedCommon.textToImage(stickyNoteText!, inImage: rawImage!, atPoint: CGPointMake(5,10),preferredFont:noteFont,preferredFontSize:noteFontSize,preferredFontColor:stickyNoteFontColor)
+        let textWrittenImage = Common.sharedCommon.textToImage(stickyNoteText!, inImage: rawImage!, atPoint: CGPointMake(5,10),preferredFont:noteFont,preferredFontSize:noteFontSize,preferredFontColor:stickyNoteFontColor,addExpiry:false,expiryDate:nil)
         
         self.image = textWrittenImage
         self.userInteractionEnabled = true

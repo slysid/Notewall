@@ -5,6 +5,7 @@ from app import Configuration
 from app.models.Notes import Notes
 from app.models.Owners import Owners
 from datetime import datetime, timedelta
+from time import strftime
 import uuid
 import hashlib
 
@@ -44,11 +45,13 @@ class NoteQueries():
                          doc['notePinned'] = note.notePinned
                          doc['owners'] = note.favedOwners
                          doc['exclusions'] = note.excludedOwners
+                         doc['creationDate'] = note.creationDate
+                         doc['deletionDate'] = note.noteDeletionDate
                          allNotes.append(doc)
           except Exception, e:
                print str(e)
                return {"data" : []}
-              
+          
           return {"data" : allNotes }
      
      
@@ -68,6 +71,9 @@ class NoteQueries():
                          doc['noteTextFont'] = note.noteTextFont
                          doc['notePinned'] = note.notePinned
                          doc['owners'] = note.favedOwners
+                         doc['exclusions'] = note.excludedOwners
+                         doc['creationDate'] = note.creationDate
+                         doc['deletionDate'] = note.noteDeletionDate
                          allNotes.append(doc)
           except Exception, e:
                print str(e)
@@ -97,6 +103,9 @@ class NoteQueries():
                               doc['noteTextFont'] = note.noteTextFont
                               doc['notePinned'] = note.notePinned
                               doc['owners'] = note.favedOwners
+                              doc['exclusions'] = note.excludedOwners
+                              doc['creationDate'] = note.creationDate
+                              doc['deletionDate'] = note.noteDeletionDate
                               allNotes.append(doc)
           except Exception, e:
                print str(e)
@@ -226,13 +235,27 @@ class NoteQueries():
                note.excludedOwners = []
                note.favedOwners = []
         
-               note.save()
+               newNote = note.save()
+               
+               doc = {}
+               doc['noteID'] = str(newNote.id)
+               doc['noteType'] = newNote.noteType
+               doc['noteText'] = newNote.noteText
+               doc['noteTextColor'] = newNote.noteTextColor
+               doc['noteTextFontSize'] = newNote.noteTextFontSize
+               doc['noteTextFont'] = newNote.noteTextFont
+               doc['notePinned'] = newNote.notePinned
+               doc['owners'] = newNote.favedOwners
+               doc['exclusions'] = newNote.excludedOwners
+               doc['creationDate'] = newNote.creationDate
+               doc['deletionDate'] = newNote.noteDeletionDate
+               
           except Exception,e:
                print str(e)
                data = {"data" : {"error" : "Error in posting note"}}
                return data
           
-          return {"data" : {"success":"OK"}}
+          return {"data" : [doc]}
           
      
 

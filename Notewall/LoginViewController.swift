@@ -245,7 +245,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
                         
                     }) */
                     
-                    Common.sharedCommon.showMessageViewWithMessage(self, message: error)
+                    Common.sharedCommon.showMessageViewWithMessage(self, message: error,startTimer:true)
                 }
                 
             }
@@ -258,7 +258,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
 
                 }
                 
-                Common.sharedCommon.showMessageViewWithMessage(self, message: "Network Error")
+                Common.sharedCommon.showMessageViewWithMessage(self, message: "Network Error", startTimer:true)
                 
             }
         }
@@ -323,7 +323,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
             
             self.stopAnimating()
             Common.sharedCommon.config!["loggedInMode"] = kLoggedInYetToLogin
-            Common.sharedCommon.showMessageViewWithMessage(self, message: "Google Authentication Error")
+            Common.sharedCommon.showMessageViewWithMessage(self, message: "Google Authentication Error",startTimer:true)
         }
     }
     

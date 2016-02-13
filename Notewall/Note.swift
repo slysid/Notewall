@@ -23,12 +23,13 @@ class Note:UIImageView {
     var noteTag:Int = 0
     var sourceWallNote:WallNote?
     
-    init(frame: CGRect, wallnote:WallNote) {
+    init(frame: CGRect, wallnote:WallNote,expiryDate:String) {
         
         super.init(frame: frame)
         
         let rawImage = UIImage(named: wallnote.stickyNoteType!)
-        let textWrittenImage = Common.sharedCommon.textToImage(wallnote.stickyNoteText!, inImage: rawImage!, atPoint: CGPointMake(0, 0),preferredFont: wallnote.stickyNoteFont!,preferredFontSize:wallnote.stickyNoteFontSize, preferredFontColor:wallnote.stickyNoteFontColor)
+        //let noteText = wallnote.stickyNoteDeletionDate! + (wallnote.stickyNoteText! as String)
+        let textWrittenImage = Common.sharedCommon.textToImage(wallnote.stickyNoteText! as String, inImage: rawImage!, atPoint: CGPointMake(0, 0),preferredFont: wallnote.stickyNoteFont!,preferredFontSize:wallnote.stickyNoteFontSize, preferredFontColor:wallnote.stickyNoteFontColor,addExpiry:true,expiryDate:expiryDate)
         self.image = textWrittenImage
         self.userInteractionEnabled = true
         self.noteTag = wallnote.noteTag

@@ -54,11 +54,12 @@ class Common:NSObject {
         }
     }
     
-    func textToImage(drawText: NSString, inImage: UIImage, atPoint:CGPoint, preferredFont:String?, preferredFontSize:CGFloat?,preferredFontColor:UIColor?)->UIImage{
+    func textToImage(drawText: NSString, inImage: UIImage, atPoint:CGPoint, preferredFont:String?, preferredFontSize:CGFloat?,preferredFontColor:UIColor?, addExpiry:Bool, expiryDate:String?)->UIImage{
         
         var font:String?
         var fontSize:CGFloat = kStickyNoteFontSize
         var fontColor:UIColor = kDefaultFontColor
+        var msg:NSMutableAttributedString?
         
         if (preferredFont == nil) {
             
@@ -79,20 +80,38 @@ class Common:NSObject {
             fontColor = preferredFontColor!
         }
         
-        
-        
         let textFont: UIFont = UIFont(name: font!, size: fontSize)!
         let textFontAttributes = [
             NSFontAttributeName: textFont,
             NSForegroundColorAttributeName: fontColor,
         ]
         
+        if (addExpiry == false) {
+            
+            msg = NSMutableAttributedString(string: drawText as String, attributes: textFontAttributes)
+        }
+        else {
+            
+            let dateText = expiryDate! + " \n"
+            let dateTextFont: UIFont = UIFont(name:"Arial",size:8.0)!
+            let dateTextFontAttributes = [
+                NSFontAttributeName: dateTextFont,
+                NSForegroundColorAttributeName: fontColor,
+            ]
+            
+            msg = NSMutableAttributedString(string: dateText, attributes: dateTextFontAttributes)
+            let msg1 = NSMutableAttributedString(string: drawText as String, attributes: textFontAttributes)
+            msg!.appendAttributedString(msg1)
+        }
+        
+        
         UIGraphicsBeginImageContext(inImage.size)
-        let imgRect = CGRectMake(0, 0, inImage.size.width, inImage.size.height)
+        let imgRect = CGRectMake(0,0,inImage.size.width,inImage.size.height)
         inImage.drawInRect(imgRect)
         //let rect: CGRect = CGRectMake(atPoint.x, atPoint.y, inImage.size.width, inImage.size.height)
         let rect: CGRect = CGRectInset(imgRect, 38, 38)
-        drawText.drawInRect(rect, withAttributes: textFontAttributes)
+        //drawText.drawInRect(rect, withAttributes: textFontAttributes)
+        msg!.drawInRect(rect)
         let newImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
@@ -220,12 +239,16 @@ class Common:NSObject {
         return UIColor(red: RGB[0], green: RGB[1], blue: RGB[2], alpha: 1.0)
     }
     
-    func showMessageViewWithMessage(controller:UIViewController,message:String) {
+    func showMessageViewWithMessage(controller:UIViewController,message:String,startTimer:Bool) {
         
         
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
             
-            self.timer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: Common.sharedCommon, selector: "updateTimer", userInfo: nil, repeats: true)
+            if (startTimer == true) {
+                
+                self.timer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: Common.sharedCommon, selector: "updateTimer", userInfo: nil, repeats: true)
+            }
+            
             
             self.messageView = MessageView(frame: CGRectMake(0,0,kScreenWidth,Common.sharedCommon.calculateDimensionForDevice(70)))
             self.messageView!.center = CGPointMake(kScreenWidth * 0.5, kScreenHeight * 0.75)
