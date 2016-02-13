@@ -10,9 +10,11 @@ import datetime
 notes = Blueprint('notes',__name__)
 noteQueries = NoteQueries()
     
-
-@notes.route('/notes/all',methods=["POST"])
-def allnotes():
+def validatePostParam():
+    
+    response = None
+    postdata = None
+    ownerid = None
     
     try:
         if type(request.data) == str:
@@ -20,14 +22,22 @@ def allnotes():
         else:
             postdata = request.data
     except:
-        data = {"data" : {"error" : "Missing post body"}}
-        return jsonify(data)
+        response = {"data" : {"error" : "Missing post body"}}
     
     try:
         ownerid = postdata['ownerid']
     except:
-        data = {"data" : {"error" : "Missing ownerid"}}
-        return jsonify(data)
+        response = {"data" : {"error" : "Missing ownerid"}}
+    
+    return (response,postdata,ownerid)
+
+@notes.route('/notes/all',methods=["POST"])
+def allnotes():
+    
+    response, postdata, ownerid = validatePostParam()
+    
+    if response != None:
+        return jsonify(response)
     
     data = noteQueries.getAllNotes(ownerid)
     return jsonify(data)
@@ -36,20 +46,10 @@ def allnotes():
 @notes.route('/notes/all/owner',methods=["POST"])
 def notesForOwner():
     
-    try:
-        if type(request.data) == str:
-             postdata = json.loads(request.data)
-        else:
-            postdata = request.data
-    except:
-        data = {"data" : {"error" : "Missing post body"}}
-        return jsonify(data)
+    response, postdata, ownerid = validatePostParam()
     
-    try:
-        ownerid = postdata['ownerid']
-    except:
-        data = {"data" : {"error" : "Missing ownerid"}}
-        return jsonify(data)
+    if response != None:
+        return jsonify(response)
     
     data = noteQueries.getAllNotesForOwner(ownerid)
     return jsonify(data)
@@ -57,20 +57,10 @@ def notesForOwner():
 @notes.route('/notes/<noteid>/favorite',methods=["PUT"])
 def addNotesToFavorite(noteid):
      
-     try:
-        if type(request.data) == str:
-             postdata = json.loads(request.data)
-        else:
-            postdata = request.data
-     except:
-        data = {"data" : {"error" : "Missing post body"}}
-        return jsonify(data)
+     response, postdata, ownerid = validatePostParam()
     
-     try:
-        ownerid = postdata['ownerid']
-     except:
-        data = {"data" : {"error" : "Missing ownerid"}}
-        return jsonify(data)
+     if response != None:
+        return jsonify(response)
 
      data = noteQueries.addNotesToFav(noteid,ownerid)
      return jsonify(data)
@@ -78,20 +68,10 @@ def addNotesToFavorite(noteid):
 @notes.route('/notes/<noteid>/remove',methods=["DELETE"])
 def removeNoteForOwner(noteid):
     
-    try:
-        if type(request.data) == str:
-             postdata = json.loads(request.data)
-        else:
-            postdata = request.data
-    except:
-        data = {"data" : {"error" : "Missing post body"}}
-        return jsonify(data)
+    response, postdata, ownerid = validatePostParam()
     
-    try:
-        ownerid = postdata['ownerid']
-    except:
-        data = {"data" : {"error" : "Missing ownerid"}}
-        return jsonify(data)
+    if response != None:
+        return jsonify(response)
     
     data = noteQueries.removeNoteForOwner(noteid,ownerid)
     return jsonify(data)
@@ -99,14 +79,11 @@ def removeNoteForOwner(noteid):
 
 @notes.route('/notes/post', methods =["POST"])
 def postNewNote():
-    try:
-        if type(request.data) == str:
-             postdata = json.loads(request.data)
-        else:
-            postdata = request.data
-    except:
-        data = {"data" : {"error" : "Missing post body"}}
-        return jsonify(data)
+    
+    response, postdata, ownerid = validatePostParam()
+    
+    if response != None:
+        return jsonify(response)
     
     data = noteQueries.postNewNote(postdata)
     return jsonify(data)
@@ -114,20 +91,10 @@ def postNewNote():
 @notes.route('/notes/all/favs',methods=["POST"])
 def getFavNotes():
     
-    try:
-        if type(request.data) == str:
-             postdata = json.loads(request.data)
-        else:
-            postdata = request.data
-    except:
-        data = {"data" : {"error" : "Missing post body"}}
-        return jsonify(data)
+    response, postdata, ownerid = validatePostParam()
     
-    try:
-        ownerid = postdata['ownerid']
-    except:
-        data = {"data" : {"error" : "Missing ownerid"}}
-        return jsonify(data)
+    if response != None:
+        return jsonify(response)
     
     data = noteQueries.getAllFavNotesForOwner(ownerid)
     return jsonify(data)
