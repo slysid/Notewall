@@ -61,6 +61,7 @@
 		8ECE6A811C5E3A7600B3B8BA /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ECE6A801C5E3A7600B3B8BA /* FileHandler.swift */; };
 		8ECE6A831C5E3B0D00B3B8BA /* Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8ECE6A821C5E3B0D00B3B8BA /* Config.plist */; };
 		8ECE6A8D1C5E865D00B3B8BA /* bg1.png in Resources */ = {isa = PBXBuildFile; fileRef = 8ECE6A8C1C5E865D00B3B8BA /* bg1.png */; };
+		8EDBC96F1C6F6ABE0016A5E2 /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EDBC96E1C6F6ABE0016A5E2 /* MessageView.swift */; };
 		8EEDD63B1C6D303200DE5CC2 /* addfav.png in Resources */ = {isa = PBXBuildFile; fileRef = 8EEDD6391C6D303200DE5CC2 /* addfav.png */; };
 		8EEDD63C1C6D303200DE5CC2 /* removefav.png in Resources */ = {isa = PBXBuildFile; fileRef = 8EEDD63A1C6D303200DE5CC2 /* removefav.png */; };
 		C14E958E234CED877FAA8E53 /* Pods_Pinwall.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 699E10DB47D50E381FC76201 /* Pods_Pinwall.framework */; };
@@ -147,6 +148,7 @@
 		8ECE6A801C5E3A7600B3B8BA /* FileHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHandler.swift; sourceTree = "<group>"; };
 		8ECE6A821C5E3B0D00B3B8BA /* Config.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Config.plist; sourceTree = "<group>"; };
 		8ECE6A8C1C5E865D00B3B8BA /* bg1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bg1.png; sourceTree = "<group>"; };
+		8EDBC96E1C6F6ABE0016A5E2 /* MessageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
 		8EEDD6391C6D303200DE5CC2 /* addfav.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = addfav.png; sourceTree = "<group>"; };
 		8EEDD63A1C6D303200DE5CC2 /* removefav.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = removefav.png; sourceTree = "<group>"; };
 		A9CD683E62626D33C9F5865F /* Pods-Pinwall.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Pinwall.release.xcconfig"; path = "Pods/Target Support Files/Pods-Pinwall/Pods-Pinwall.release.xcconfig"; sourceTree = "<group>"; };
@@ -292,6 +294,7 @@
 				8EA8C0041C678DD10034D50B /* ComposeNote.swift */,
 				8EA8C0081C6A83CD0034D50B /* CustomTextField.swift */,
 				8EA8C00A1C6A898D0034D50B /* CloseView.swift */,
+				8EDBC96E1C6F6ABE0016A5E2 /* MessageView.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -617,6 +620,7 @@
 				8E64D7181C515D86001CF659 /* NotewallController.swift in Sources */,
 				8E37A22A1C55168A002E776F /* SettingsScroll.swift in Sources */,
 				8EA8C0051C678DD10034D50B /* ComposeNote.swift in Sources */,
+				8EDBC96F1C6F6ABE0016A5E2 /* MessageView.swift in Sources */,
 				8E37A2261C54EF55002E776F /* ComposeNoteController.swift in Sources */,
 				8E64D7361C52D2C6001CF659 /* Note.swift in Sources */,
 				8EA8C00B1C6A898D0034D50B /* CloseView.swift in Sources */,

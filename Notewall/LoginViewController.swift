@@ -72,19 +72,10 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
             
             textField.resignFirstResponder()
             
-            if (activity == nil) {
-                
-                activity = UIActivityIndicatorView(frame: CGRectMake(0,0,40,40))
-                activity!.center = CGPointMake(password!.center.x, password!.center.y + password!.frame.size.height)
-            }
-            
-            self.view!.addSubview(activity!)
-            //NSThread.detachNewThreadSelector("startAnimating", toTarget: self, withObject: nil)
-            self.activity!.startAnimating()
-            
             let email = self.userName!.text!
             let pass = self.password!.text!
             
+            self.startAnimating()
             self.validateAndRegisterLogin(email, pass: pass, loggedInMode: kLoggedinThroughMail)
             
             return true
@@ -97,9 +88,21 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
     
     func startAnimating() {
         
+        if (activity == nil) {
+            
+            activity = UIActivityIndicatorView(frame: CGRectMake(0,0,40,40))
+            activity!.center = CGPointMake(kScreenWidth * 0.5, kScreenHeight * 0.75)
+            self.view!.addSubview(activity!)
+        }
+        
+        
+        
         if (self.activity != nil) {
             
-            self.activity!.startAnimating()
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                
+                self.activity!.startAnimating()
+            })
         }
     }
     
@@ -107,10 +110,13 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         
         if (self.activity != nil) {
             
-            self.activity!.stopAnimating()
-            self.activity!.hidden = true
-            self.activity!.removeFromSuperview()
-            self.activity = nil
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                
+                self.activity!.stopAnimating()
+                self.activity!.hidden = true
+                self.activity!.removeFromSuperview()
+                self.activity = nil
+            })
         }
        
     }
@@ -135,6 +141,8 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
     
     func gButtonTapped() {
         
+        Common.sharedCommon.config!["loggedInMode"] = kLoggedinThroughGoogle
+        self.startAnimating()
         GIDSignIn.sharedInstance().signIn()
     }
     
@@ -200,7 +208,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
             
             if (self.activity != nil) {
                 
-                self.performSelectorOnMainThread("stopAnimating", withObject: nil, waitUntilDone: false)
+                self.stopAnimating()
                 
             }
             
@@ -224,7 +232,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
                     
                     let error = respData["error"] as! String
                     
-                    let alert = UIAlertController(title: "ERROR", message: error, preferredStyle: UIAlertControllerStyle.Alert)
+                   /* let alert = UIAlertController(title: "ERROR", message: error, preferredStyle: UIAlertControllerStyle.Alert)
                     let alertOK = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
                         
                          alert.dismissViewControllerAnimated(true, completion: { () -> Void in
@@ -235,13 +243,23 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
                     alert.addAction(alertOK)
                     self.presentViewController(alert, animated: true, completion: { () -> Void in
                         
-                    })
+                    }) */
+                    
+                    Common.sharedCommon.showMessageViewWithMessage(self, message: error)
                 }
                 
             }
             else {
                 
-                print(response["error"])
+                if (Common.sharedCommon.config?["loggedInMode"] as? String == kLoggedinThroughGoogle ) {
+                    
+                        Common.sharedCommon.config!["loggedInMode"] = kLoggedInYetToLogin
+                        GIDSignIn.sharedInstance().signOut()
+
+                }
+                
+                Common.sharedCommon.showMessageViewWithMessage(self, message: "Network Error")
+                
             }
         }
         
@@ -298,22 +316,14 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         
         if (error == nil) {
             
-           /* Common.sharedCommon.config!["loggedInMode"] = kLoggedinThroughGoogle
-            Common.sharedCommon.config!["userID"] = user.userID
-            Common.sharedCommon.config!["token"] = user.authentication.idToken
-            Common.sharedCommon.config!["name"] = user.profile.name
-            Common.sharedCommon.config!["email"] = user.profile.email
-            Common.sharedCommon.config!["isLoggedIn"] = true
-            Common.sharedCommon.config!["loggedinDate"] = NSDate()
-            
-            FileHandler.sharedHandler.writeToFileWithData(Common.sharedCommon.config!, filename: "Config") */
-            
             self.validateAndRegisterLogin(user.profile.email, pass: nil, loggedInMode: kLoggedinThroughGoogle)
             
         }
         else {
             
-            print("Google Signin Error")
+            self.stopAnimating()
+            Common.sharedCommon.config!["loggedInMode"] = kLoggedInYetToLogin
+            Common.sharedCommon.showMessageViewWithMessage(self, message: "Google Authentication Error")
         }
     }
     

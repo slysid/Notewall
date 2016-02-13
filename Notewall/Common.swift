@@ -29,12 +29,15 @@ extension Int
 }
 
 
-class Common {
+class Common:NSObject {
     
     static let sharedCommon = Common()
     var config:NSMutableDictionary?
+    var timerCount:Int = 0
+    var timer:NSTimer?
+    var messageView:MessageView?
     
-    init() {
+    override init() {
         
         
     }
@@ -179,6 +182,7 @@ class Common {
             
             
             let config = NSURLSessionConfiguration.defaultSessionConfiguration()
+            config.timeoutIntervalForRequest = 5.0
             let session = NSURLSession(configuration: config)
             let task = session.dataTaskWithRequest(restRequest) { (data, response, error) -> Void in
                 
@@ -214,6 +218,34 @@ class Common {
     func formColorWithRGB(RGB:Array<CGFloat>) -> UIColor {
         
         return UIColor(red: RGB[0], green: RGB[1], blue: RGB[2], alpha: 1.0)
+    }
+    
+    func showMessageViewWithMessage(controller:UIViewController,message:String) {
+        
+        
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            
+            self.timer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: Common.sharedCommon, selector: "updateTimer", userInfo: nil, repeats: true)
+            
+            self.messageView = MessageView(frame: CGRectMake(0,0,kScreenWidth,Common.sharedCommon.calculateDimensionForDevice(70)))
+            self.messageView!.center = CGPointMake(kScreenWidth * 0.5, kScreenHeight * 0.75)
+            self.messageView!.text = message
+            controller.view.addSubview(self.messageView!)
+            
+        })
+        
+    }
+    
+    func updateTimer() {
+        
+        self.timerCount = self.timerCount + 1
+        
+        if (self.timerCount >= 3) {
+            
+            self.timer!.invalidate()
+            self.timerCount = 0
+            self.messageView!.removeFromSuperview()
+        }
     }
     
 }

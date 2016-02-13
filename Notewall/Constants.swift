@@ -80,17 +80,12 @@ let kFontSizes:Array<CGFloat> = [15.0,16.0,17.0,18.0,19.0,20.0,21.0,22.0,23.0,24
 
 let kFontColor:Array<Array<CGFloat>> = [[0.0,0.0,0.0], [255.0,0.0,0.0],[0.0,255.0,0.0],[255.0,255.0,0.0],[96.0,96.0,96.0]]
 
-let kStickyNoteTexts = ["Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed at ante. Mauris eleifend, quam a vulputate dictum, massa quam dapibus leo, eget vulputate orci purus ut lorem. In fringilla mi in ligula. Pellentesque aliquam quam vel dolor. Nunc adipiscing. Sed quam odio, tempus ac, aliquam molestie, varius ac, tellus. Vestibulum ut nulla aliquam risus rutrum interdum. Pellentesque lorem. Curabitur sit amet erat quis risus feugiat viverra. Pellentesque augue justo, sagittis et, lacinia at, venenatis non, arcu. Nunc nec libero. In cursus dictum risus. Etiam tristique nisl a nulla. Ut a orci. Curabitur dolor nunc, egestas at, accumsan at, malesuada nec, magna.",
-    "Nulla facilisi. Nunc volutpat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Ut sit amet orci vel mauris blandit vehicula. Nullam quis enim. Integer dignissim viverra velit. Curabitur in odio. In hac habitasse platea dictumst. Ut consequat, tellus eu volutpat varius, justo orci elementum dolor, sed imperdiet nulla tellus ut diam. Vestibulum ipsum ante, malesuada quis, tempus ac, placerat sit amet, elit.","Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed at ante. Mauris eleifend, quam a vulputate dictum, massa quam dapibus leo, eget vulputate orci purus ut lorem. In fringilla mi in ligula. Pellentesque aliquam quam vel dolor. Nunc adipiscing. Sed quam odio, tempus ac, aliquam molestie, varius ac, tellus. Vestibulum ut nulla aliquam risus rutrum interdum. Pellentesque lorem. Curabitur sit amet erat quis risus feugiat viverra. Pellentesque augue justo, sagittis et, lacinia at, venenatis non, arcu. Nunc nec libero. In cursus dictum risus. Etiam tristique nisl a nulla. Ut a orci. Curabitur dolor nunc, egestas at, accumsan at, malesuada nec, magna.",
-    "Nulla facilisi. Nunc volutpat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Ut sit amet orci vel mauris blandit vehicula. Nullam quis enim. Integer dignissim viverra velit. Curabitur in odio. In hac habitasse platea dictumst. Ut consequat, tellus eu volutpat varius, justo orci elementum dolor, sed imperdiet nulla tellus ut diam. Vestibulum ipsum ante, malesuada quis, tempus ac, placerat sit amet, elit.","Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed at ante. Mauris eleifend, quam a vulputate dictum, massa quam dapibus leo, eget vulputate orci purus ut lorem. In fringilla mi in ligula. Pellentesque aliquam quam vel dolor. Nunc adipiscing. Sed quam odio, tempus ac, aliquam molestie, varius ac, tellus. Vestibulum ut nulla aliquam risus rutrum interdum. Pellentesque lorem. Curabitur sit amet erat quis risus feugiat viverra. Pellentesque augue justo, sagittis et, lacinia at, venenatis non, arcu. Nunc nec libero. In cursus dictum risus. Etiam tristique nisl a nulla. Ut a orci. Curabitur dolor nunc, egestas at, accumsan at, malesuada nec, magna.",
-    "Nulla facilisi. Nunc volutpat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Ut sit amet orci vel mauris blandit vehicula. Nullam quis enim. Integer dignissim viverra velit. Curabitur in odio. In hac habitasse platea dictumst. Ut consequat, tellus eu volutpat varius, justo orci elementum dolor, sed imperdiet nulla tellus ut diam. Vestibulum ipsum ante, malesuada quis, tempus ac, placerat sit amet, elit."]
-
 let kStickyNoteFontSize:CGFloat = 28.0
 let kLoginTextFieldWidth:CGFloat = kScreenWidth * 0.65
 
 let kRunMode = kRunModes.modeLive
 let kHttpProtocol = "http"
-let kHttpHost = "qacloud.accedo.tv"
+let kHttpHost = "192.168.0.12"
 let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/owner/register", "method" : "POST" ],
                   ["path" : "/api/notes/all", "method" : "POST"],
@@ -110,7 +105,9 @@ let kDebugAllNotesResponse = [ "data" : [
                                           "noteTextColor":[255.0,0.0,0.0],
                                           "noteTextFont" : "Chalkduster",
                                           "noteTextFontSize":30.0,
-                                          "noteType":"noteBlue1.png"],
+                                          "noteType":"noteBlue1.png",
+                                          "exclusions": [],
+                                          "owners" : []],
     
                                          ["notedID" : "56bb9dbe8b634e5bbaae4f5b",
                                          "notepinned":false,
@@ -118,7 +115,38 @@ let kDebugAllNotesResponse = [ "data" : [
                                          "noteTextColor":[255.0,0.0,0.0],
                                          "noteTextFont" : "Chalkduster",
                                          "noteTextFontSize":30.0,
-                                         "noteType":"noteBlue1.png"]
+                                         "noteType":"noteBlue1.png",
+                                         "exclusions": [],
+                                         "owners" : []],
+    ["notedID" : "56bb9dbe8b634e5bbaae4f5c",
+        "notepinned":false,
+        "noteText":"debugNote2",
+        "noteTextColor":[255.0,0.0,0.0],
+        "noteTextFont" : "Chalkduster",
+        "noteTextFontSize":30.0,
+        "noteType":"noteBlue1.png",
+        "exclusions": [],
+        "owners" : []],
+    
+    ["notedID" : "56bb9dbe8b634e5bbaae4f5d",
+        "notepinned":false,
+        "noteText":"debugNote2",
+        "noteTextColor":[255.0,0.0,0.0],
+        "noteTextFont" : "Chalkduster",
+        "noteTextFontSize":30.0,
+        "noteType":"noteBlue1.png",
+        "exclusions": [],
+        "owners" : []],
+    
+    ["notedID" : "56bb9dbe8b634e5bbaae4f5e",
+        "notepinned":false,
+        "noteText":"debugNote2",
+        "noteTextColor":[255.0,0.0,0.0],
+        "noteTextFont" : "Chalkduster",
+        "noteTextFontSize":30.0,
+        "noteType":"noteBlue1.png",
+        "exclusions": [],
+        "owners" : []]
     
     ]]
 
