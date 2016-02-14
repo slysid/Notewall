@@ -558,7 +558,7 @@ class Compose:UIViewController,UITextViewDelegate,UIScrollViewDelegate,ComposeNo
             
             if (composeDelegate != nil) {
                 
-                self.composeDelegate!.postAWallNote(stickyNotes[selectedNoteIndex], noteText: enteredText!, noteFont: kSupportedFonts[selectedFontIndex], noteFontSize: kFontSizes[selectedFontSizeIndex], noteFontColor: kFontColor[selectedFontColorIndex])
+                self.composeDelegate!.postAWallNote(kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex] as String, noteText: enteredText!, noteFont: kSupportedFonts[selectedFontIndex], noteFontSize: kFontSizes[selectedFontSizeIndex], noteFontColor: kFontColor[selectedFontColorIndex])
             }
             
             self.dismissViewControllerAnimated(true) { () -> Void in
