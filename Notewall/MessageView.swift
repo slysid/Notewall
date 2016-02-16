@@ -18,6 +18,8 @@ class MessageView:UILabel {
         self.font = UIFont(name: "chalkduster", size: 33.0)
         self.textAlignment = NSTextAlignment.Center
         self.textColor = UIColor.whiteColor()
+        self.numberOfLines = 0
+        self.lineBreakMode = NSLineBreakMode.ByWordWrapping
     }
 
     required init?(coder aDecoder: NSCoder) {

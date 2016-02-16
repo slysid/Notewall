@@ -24,6 +24,7 @@ class Compose:UIViewController,UITextViewDelegate,UIScrollViewDelegate,ComposeNo
     var noteFontsScroll:SettingsScroll?
     var noteFontSizeScroll:SettingsScroll?
     var noteFontColorScroll:SettingsScroll?
+    var postButton:CustomButton?
     var textField:UITextView?
     var enteredText:String?
     var selectedNoteIndex:Int = 0
@@ -43,6 +44,11 @@ class Compose:UIViewController,UITextViewDelegate,UIScrollViewDelegate,ComposeNo
     var stickyNotes:Array<String> = []
     var noteAdjustment:CGFloat = 40.0
     
+    var views:[String:UIImageView]?
+    var metrics:[String:CGFloat]?
+    var notesHConstraint:[NSLayoutConstraint]?
+    var notesVConstraint:[NSLayoutConstraint]?
+    
     override func viewDidLoad() {
         
         for noteTypes in kPinNotes {
@@ -57,6 +63,21 @@ class Compose:UIViewController,UITextViewDelegate,UIScrollViewDelegate,ComposeNo
     
     override func didReceiveMemoryWarning() {
         
+    }
+    
+    override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+        
+        super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+        
+        coordinator.animateAlongsideTransition({ (UIViewControllerTransitionCoordinatorContext) -> Void in
+            
+            
+            
+            }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
+                
+                self.calculateConstraints()
+                
+        }
     }
     
     //UIScrollView Delegate Methods
@@ -276,10 +297,13 @@ class Compose:UIViewController,UITextViewDelegate,UIScrollViewDelegate,ComposeNo
         }
     }
     
-    func composeNewNote() {
+    func composeNewNote_old() {
         
         newNoteView = UIView(frame: self.view.frame)
+        newNoteView!.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
+        
         let bgImage = UIImageView(frame: self.view.frame)
+        bgImage.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
         bgImage.image = UIImage(named: kDefaultBGImageName)
         bgImage.userInteractionEnabled = true
         self.newNoteView!.addSubview(bgImage)
@@ -300,66 +324,33 @@ class Compose:UIViewController,UITextViewDelegate,UIScrollViewDelegate,ComposeNo
         let buttonHeight = Common.sharedCommon.calculateDimensionForDevice(35)
         
         
-        var xOffset = kScreenWidth * 0.5 - (buttonWidth * 0.5)
+        var xOffset = UIScreen.mainScreen().bounds.width * 0.5 - (buttonWidth * 0.5)
         var yOffset = Common.sharedCommon.calculateDimensionForDevice(10)
-        let postButton = CustomButton(frame: CGRectMake(xOffset, yOffset, buttonWidth, buttonHeight), buttonTitle: kButtonPostText, normalColor: UIColor.redColor(), highlightColor: UIColor.blackColor())
-        postButton.addTarget(self, action: "postTapped:", forControlEvents: UIControlEvents.TouchUpInside)
-        self.newNoteView!.addSubview(postButton)
+        self.postButton = CustomButton(frame: CGRectMake(xOffset, yOffset, buttonWidth, buttonHeight), buttonTitle: kButtonPostText, normalColor: UIColor.redColor(), highlightColor: UIColor.blackColor())
+        self.postButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(UIViewAutoresizing.FlexibleTopMargin).union(.FlexibleBottomMargin)
+        self.postButton!.addTarget(self, action: "postTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        self.newNoteView!.addSubview(self.postButton!)
         
-        /*let closeImage = UIImageView(frame: CGRectMake(kScreenWidth - Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
-        closeImage.image = UIImage(named: "close.png")
-        closeImage.userInteractionEnabled = true
-        self.newNoteView!.addSubview(closeImage)
-        let closeImgTap = UITapGestureRecognizer(target: self, action: "cancelTapped:")
-        closeImage.addGestureRecognizer(closeImgTap) */
         
-        let closeImage = CloseView(frame: CGRectMake(kScreenWidth - Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
+        let closeImage = CloseView(frame: CGRectMake(UIScreen.mainScreen().bounds.width - Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
+        closeImage.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
         closeImage.closeViewDelegate = self
         self.newNoteView!.addSubview(closeImage)
         
         
         xOffset = 10.0
-        yOffset = kScreenHeight * 0.15
+        yOffset = UIScreen.mainScreen().bounds.width * 0.15
         
         var frameRect = CGRectMake(xOffset,yOffset,Common.sharedCommon.calculateDimensionForDevice(100),Common.sharedCommon.calculateDimensionForDevice(120))
         
         noteTypesScroll = SettingsScroll(frame: frameRect, fillSettings: stickyNotes, contentTypeTitle: "NOTES")
         noteTypesScroll!.scrollView!.delegate = self
         noteTypesScroll!.hidden = false
-        self.newNoteView!.addSubview(noteTypesScroll!)
+        //self.newNoteView!.addSubview(noteTypesScroll!)
         
         xOffset = self.noteTypesScroll!.frame.origin.x + self.noteTypesScroll!.frame.size.width + Common.sharedCommon.calculateDimensionForDevice(10)
         yOffset = Common.sharedCommon.calculateDimensionForDevice(30)
         let width = kScreenWidth - (xOffset * 2)
-        
-       /* notesImageView = UIImageView(frame: CGRectMake(xOffset,yOffset,width,width * 0.90))
-        notesImageView!.image = UIImage(named: stickyNotes[0])
-        notesImageView!.userInteractionEnabled = true
-        self.newNoteView!.addSubview(notesImageView!)
-        let noteTap = UITapGestureRecognizer(target: self, action: "dimissKeyboard")
-        notesImageView!.addGestureRecognizer(noteTap)
-        orgNotePosition = notesImageView!.frame
-        orgNoteCenter = notesImageView!.center
-        let noteSwipe = UISwipeGestureRecognizer(target: self, action: "noteSwiped")
-        noteSwipe.direction = .Down
-        notesImageView!.addGestureRecognizer(noteSwipe)
-        
-       /* xOffset = self.noteTypesScroll!.frame.origin.x + self.noteTypesScroll!.frame.size.width + Common.sharedCommon.calculateDimensionForDevice(10)
-        yOffset = Common.sharedCommon.calculateDimensionForDevice(50)
-        width = kScreenWidth - (xOffset * 2) */
-        let textFieldFrame = CGRectInset(notesImageView!.frame, Common.sharedCommon.calculateDimensionForDevice(40), Common.sharedCommon.calculateDimensionForDevice(40))
-        
-        //textField = UITextView(frame: CGRectMake(xOffset,yOffset,width,width))
-        textField = UITextView(frame: textFieldFrame)
-        textField!.delegate = self
-        textField!.backgroundColor = UIColor.clearColor()
-        textField!.textColor = Common.sharedCommon.formColorWithRGB(kFontColor[0])
-        textField!.font = UIFont(name: "Chalkduster", size: kFontSizes[selectedFontSizeIndex])
-        self.newNoteView!.addSubview(textField!)
-        textField!.becomeFirstResponder()
-        textField!.hidden = false
-        //self.enteredText = "Hello"
-        //self.showPreviewImage() */
         
         let noteFrame = CGRectMake(xOffset,yOffset,width,width * 0.90)
         notesImageView = ComposeNote(frame: noteFrame, withImage: stickyNotes[0], withFontIndex:selectedFontSizeIndex)
@@ -378,7 +369,7 @@ class Compose:UIViewController,UITextViewDelegate,UIScrollViewDelegate,ComposeNo
         noteFontsScroll = SettingsScroll(frame: frameRect, fillSettings: kSupportedFonts, contentTypeTitle:"FONTS")
         noteFontsScroll!.scrollView!.delegate = self
         noteFontsScroll!.hidden = false
-        self.newNoteView!.addSubview(noteFontsScroll!)
+        //self.newNoteView!.addSubview(noteFontsScroll!)
         
         
         xOffset = self.noteTypesScroll!.frame.origin.x
@@ -388,7 +379,7 @@ class Compose:UIViewController,UITextViewDelegate,UIScrollViewDelegate,ComposeNo
         noteFontSizeScroll = SettingsScroll(frame: frameRect, fillSettings: kFontSizes, contentTypeTitle:"SIZE")
         noteFontSizeScroll!.scrollView!.delegate = self
         noteFontSizeScroll!.hidden = false
-        self.newNoteView!.addSubview(noteFontSizeScroll!)
+        //self.newNoteView!.addSubview(noteFontSizeScroll!)
         
         
         xOffset = noteFontSizeScroll!.frame.size.width * CGFloat(selectedFontSizeIndex)
@@ -402,11 +393,92 @@ class Compose:UIViewController,UITextViewDelegate,UIScrollViewDelegate,ComposeNo
         noteFontColorScroll = SettingsScroll(frame: frameRect, fillSettings: kFontColor, contentTypeTitle:"COLORS")
         noteFontColorScroll!.scrollView!.delegate = self
         noteFontColorScroll!.hidden = false
-        self.newNoteView!.addSubview(noteFontColorScroll!)
+        //self.newNoteView!.addSubview(noteFontColorScroll!)
         
         self.assignedTextAttributes()
         
     }
+    
+    func composeNewNote() {
+        
+        newNoteView = UIView(frame: self.view.frame)
+        newNoteView!.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
+        
+        let bgImage = UIImageView(frame: self.view.frame)
+        bgImage.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
+        bgImage.image = UIImage(named: kDefaultBGImageName)
+        bgImage.userInteractionEnabled = true
+        self.newNoteView!.addSubview(bgImage)
+        self.view.addSubview(newNoteView!)
+        
+        let tap = UITapGestureRecognizer(target: self, action: "dimissKeyboard")
+        bgImage.addGestureRecognizer(tap)
+        
+        for font in kFontSizes {
+            
+            if (font == 30.0) {
+                
+                selectedFontSizeIndex = kFontSizes.indexOf(font)!
+            }
+        }
+        
+        let buttonWidth = Common.sharedCommon.calculateDimensionForDevice(80)
+        let buttonHeight = Common.sharedCommon.calculateDimensionForDevice(35)
+        
+        
+        let xOffset = UIScreen.mainScreen().bounds.width * 0.5 - (buttonWidth * 0.5)
+        let yOffset = Common.sharedCommon.calculateDimensionForDevice(30)
+        self.postButton = CustomButton(frame: CGRectMake(xOffset, yOffset, buttonWidth, buttonHeight), buttonTitle: kButtonPostText, normalColor: UIColor.redColor(), highlightColor: UIColor.blackColor())
+        self.postButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(UIViewAutoresizing.FlexibleTopMargin).union(.FlexibleBottomMargin)
+        self.postButton!.addTarget(self, action: "postTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        self.newNoteView!.addSubview(self.postButton!)
+        
+        
+        let closeImage = CloseView(frame: CGRectMake(UIScreen.mainScreen().bounds.width - Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
+        closeImage.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
+        closeImage.closeViewDelegate = self
+        self.newNoteView!.addSubview(closeImage)
+        
+        let noteWidth = Common.sharedCommon.calculateDimensionForDevice(300)
+        let noteXOffset = (UIScreen.mainScreen().bounds.width - noteWidth) * 0.5
+        let noteYOffset = self.postButton!.frame.size.height + Common.sharedCommon.calculateDimensionForDevice(30)
+        
+        metrics = ["notedim" : noteWidth,
+            "noteHPadding" : noteXOffset,
+            "noteVPadding" : noteYOffset]
+        
+        let noteFrame = CGRectMake(noteXOffset,noteYOffset,noteWidth,noteWidth)
+        notesImageView = ComposeNote(frame: noteFrame, withImage: stickyNotes[0], withFontIndex:selectedFontSizeIndex)
+        notesImageView!.composeNoteDelegate = self
+        orgNotePosition = notesImageView!.frame
+        orgNoteCenter = notesImageView!.center
+        textField = notesImageView!.composeTextView
+        textField!.delegate = self
+        self.newNoteView!.addSubview(notesImageView!)
+        
+        views = Dictionary(dictionaryLiteral: ("notes",notesImageView!))
+        //self.assignedTextAttributes()
+        self.calculateConstraints()
+        
+    }
+    
+    func calculateConstraints () {
+        
+        if let noteV = self.notesVConstraint, let noteH = self.notesHConstraint {
+            
+            NSLayoutConstraint.deactivateConstraints(noteV)
+            NSLayoutConstraint.deactivateConstraints(noteH)
+
+        }
+        
+        self.notesVConstraint = NSLayoutConstraint.constraintsWithVisualFormat("V:|-noteVPadding-[notes]", options: [], metrics: metrics, views: views!)
+        self.notesHConstraint = NSLayoutConstraint.constraintsWithVisualFormat("H:|-noteHPadding-[notes]", options: [], metrics: metrics, views: views!)
+        
+        NSLayoutConstraint.activateConstraints(self.notesVConstraint!)
+        NSLayoutConstraint.activateConstraints(self.notesHConstraint!)
+        
+    }
+
     
    /* func addTextField() {
         

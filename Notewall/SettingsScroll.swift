@@ -20,6 +20,7 @@ class SettingsScroll:UIView {
         
         self.userInteractionEnabled = true
         self.backgroundColor = UIColor.clearColor()
+        self.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
         
         self.titleLabel = UILabel(frame: CGRectMake(0,0,self.frame.size.width,Common.sharedCommon.calculateDimensionForDevice(20)))
         self.titleLabel!.textAlignment = NSTextAlignment.Center

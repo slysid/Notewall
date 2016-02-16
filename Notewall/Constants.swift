@@ -47,8 +47,8 @@ let kLoggedinThroughGoogle = "GOOGLE"
 let kLoggedinThroughFB = "FB"
 let kLoggedinThroughMail = "Mail"
 
-let kScreenWidth = UIScreen.mainScreen().bounds.size.width
-let kScreenHeight = UIScreen.mainScreen().bounds.size.height
+var kScreenWidth = UIScreen.mainScreen().bounds.size.width
+var kScreenHeight = UIScreen.mainScreen().bounds.size.height
 
 let kDefaultBGImageName = "bg1.png"
 let kBG1:[String:Any] = ["bg":"bg1.png","datasource":kAllowedPaths.kPathGetAllNotes]
@@ -81,7 +81,7 @@ let kFontSizes:Array<CGFloat> = [15.0,16.0,17.0,18.0,19.0,20.0,21.0,22.0,23.0,24
 let kFontColor:Array<Array<CGFloat>> = [[0.0,0.0,0.0], [255.0,0.0,0.0],[0.0,255.0,0.0],[255.0,255.0,0.0],[96.0,96.0,96.0]]
 
 let kStickyNoteFontSize:CGFloat = 28.0
-let kLoginTextFieldWidth:CGFloat = kScreenWidth * 0.65
+let kLoginTextFieldWidth:CGFloat = UIScreen.mainScreen().bounds.size.width * 0.75
 
 let kRunMode = kRunModes.modeLive
 let kHttpProtocol = "http"

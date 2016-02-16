@@ -79,6 +79,7 @@ class WallNote:UIImageView {
         self.userInteractionEnabled = true
         let tap = UITapGestureRecognizer(target: self, action: "wallNoteTapped:")
         self.addGestureRecognizer(tap)
+        self.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
         
        /* let rightSwipe = UISwipeGestureRecognizer(target: self, action: "wallNoteSwipped:")
         rightSwipe.direction = .Right

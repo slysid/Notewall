@@ -33,6 +33,7 @@ class Note:UIImageView {
         self.image = textWrittenImage
         self.userInteractionEnabled = true
         self.noteTag = wallnote.noteTag
+        self.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
         
         /*let tap = UITapGestureRecognizer(target: self, action: "temp:")
         self.addGestureRecognizer(tap)*/

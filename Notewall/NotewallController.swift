@@ -48,6 +48,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.view.addSubview(transImage!)
         
         self.bgScrollView = UIScrollView(frame: self.view.bounds)
+        self.bgScrollView!.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
         self.bgScrollView!.backgroundColor = UIColor.clearColor()
         self.bgScrollView!.contentSize = CGSizeMake(kScreenWidth, kScreenHeight)
         self.bgScrollView!.delegate = self
@@ -79,10 +80,12 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.blownUpCenterX = kScreenWidth * 0.5
         
         masterView = UIView(frame: CGRectMake(0,0,self.bgScrollView!.contentSize.width,self.bgScrollView!.contentSize.height))
+        masterView!.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
         masterView!.backgroundColor = UIColor.clearColor()
         bgScrollView!.addSubview(masterView!)
         
         backgroundImage = UIImageView(frame: self.masterView!.bounds)
+        backgroundImage!.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
         let newNoteTap = UITapGestureRecognizer(target: self, action: "switchToCompose:")
         backgroundImage!.userInteractionEnabled = true
         backgroundImage!.addGestureRecognizer(newNoteTap)
@@ -99,6 +102,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
         
         logOutButton = CloseView(frame: CGRectMake(kScreenWidth - (1.5 * Common.sharedCommon.calculateDimensionForDevice(30)), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
+        logOutButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin
         logOutButton!.image = UIImage(named: "logout.png")
         logOutButton!.closeViewDelegate = self
         self.masterView!.addSubview(logOutButton!)
@@ -158,6 +162,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             favButton = UIImageView(frame: CGRectMake(kScreenWidth - ( 1.5 * favButtonDim), favButtonDim, favButtonDim, favButtonDim))
             favButton!.userInteractionEnabled = true
             self.view.addSubview(favButton!)
+            favButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
             
             let tap = UITapGestureRecognizer(target: self, action: "favButtonTapped")
             favButton!.addGestureRecognizer(tap)
@@ -342,8 +347,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         if (self.notesDataList.count > 0 ){
             
             
-            let xPoint = (kScreenWidth * 0.45) +  CGFloat(Int.random(-150 ... 150))
-            var yPoint = (kScreenHeight * 0.40) + CGFloat(Int.random(-100 ... 100))
+            let xPoint = (UIScreen.mainScreen().bounds.width * 0.45) +  CGFloat(Int.random(-100 ... 50))
+            var yPoint = (UIScreen.mainScreen().bounds.height * 0.50) + CGFloat(Int.random(-100 ... 100))
             
             if yPoint < 40 {
                 

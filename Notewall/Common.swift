@@ -239,6 +239,22 @@ class Common:NSObject {
         return UIColor(red: RGB[0], green: RGB[1], blue: RGB[2], alpha: 1.0)
     }
     
+    
+    func setSizeForDeviceOrientation() {
+        
+        if (UIDevice.currentDevice().orientation == UIDeviceOrientation.Portrait) {
+            
+            kScreenWidth = UIScreen.mainScreen().bounds.size.width
+            kScreenHeight = UIScreen.mainScreen().bounds.size.height
+        }
+        else if (UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeLeft || UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeRight) {
+            
+            kScreenWidth = UIScreen.mainScreen().bounds.size.height
+            kScreenHeight = UIScreen.mainScreen().bounds.size.width
+        }
+        
+    }
+    
     func showMessageViewWithMessage(controller:UIViewController,message:String,startTimer:Bool) {
         
         
@@ -250,8 +266,9 @@ class Common:NSObject {
             }
             
             
-            self.messageView = MessageView(frame: CGRectMake(0,0,kScreenWidth,Common.sharedCommon.calculateDimensionForDevice(70)))
-            self.messageView!.center = CGPointMake(kScreenWidth * 0.5, kScreenHeight * 0.75)
+            self.messageView = MessageView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width,Common.sharedCommon.calculateDimensionForDevice(150)))
+            self.messageView!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin .union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin).union(.FlexibleWidth)
+            self.messageView!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, UIScreen.mainScreen().bounds.size.height * 0.75)
             self.messageView!.text = message
             controller.view.addSubview(self.messageView!)
             

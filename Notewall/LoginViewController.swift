@@ -19,6 +19,10 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
     var password:CustomTextField?
     var closeButton:CloseView?
     var activity:UIActivityIndicatorView?
+    var fbVerticalConstraint:[NSLayoutConstraint]?
+    var googleVerticalConstraint:[NSLayoutConstraint]?
+    var emailVerticalConstraint:[NSLayoutConstraint]?
+    var horizontalConstraint:[NSLayoutConstraint]?
     
     override func viewDidLoad() {
         
@@ -33,33 +37,90 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         
         let bgImage = UIImageView(frame: self.view.frame)
         bgImage.image = UIImage(named: kDefaultBGImageName)
+        bgImage.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
         self.view.addSubview(bgImage)
         
-        let buttonWidth:CGFloat = Common.sharedCommon.calculateDimensionForDevice(50)
-        
-        googleSignButton = UIImageView(frame: CGRectMake(0,0,buttonWidth,buttonWidth))
-        googleSignButton!.center = CGPointMake(kScreenWidth * 0.5, kScreenHeight * 0.5)
+        googleSignButton = UIImageView()
+        googleSignButton!.translatesAutoresizingMaskIntoConstraints = false
         googleSignButton!.image = UIImage(named: "google.png")
         self.view!.addSubview(googleSignButton!)
         googleSignButton!.userInteractionEnabled = true
         let gtap = UITapGestureRecognizer(target: self, action: "gButtonTapped")
         googleSignButton!.addGestureRecognizer(gtap)
         
-        fbSignInButton = UIImageView(frame: CGRectMake(0, 0, buttonWidth, buttonWidth))
-        fbSignInButton!.center = CGPointMake(kScreenWidth * 0.5 - (2 * buttonWidth) - Common.sharedCommon.calculateDimensionForDevice(20) , kScreenHeight * 0.5)
+        fbSignInButton = UIImageView()
+        fbSignInButton!.translatesAutoresizingMaskIntoConstraints = false
         fbSignInButton!.image = UIImage(named: "fb.png")
         self.view!.addSubview(fbSignInButton!)
         fbSignInButton!.userInteractionEnabled = true
         let ftap = UITapGestureRecognizer(target: self, action: "fbButtonTapped")
         fbSignInButton!.addGestureRecognizer(ftap)
         
-        mailSignInButton = UIImageView(frame: CGRectMake(0, 0, buttonWidth, buttonWidth))
-        mailSignInButton!.center = CGPointMake(kScreenWidth * 0.5 + (2 * buttonWidth) + Common.sharedCommon.calculateDimensionForDevice(20) , kScreenHeight * 0.5)
+        mailSignInButton = UIImageView()
+        mailSignInButton!.translatesAutoresizingMaskIntoConstraints = false
         mailSignInButton!.image = UIImage(named: "mail.png")
         self.view!.addSubview(mailSignInButton!)
         mailSignInButton!.userInteractionEnabled = true
         let mtap = UITapGestureRecognizer(target: self, action: "mailButtonTapped")
         mailSignInButton!.addGestureRecognizer(mtap)
+        
+        self.calculateConstraints()
+        
+    }
+    
+    override func viewWillLayoutSubviews() {
+        
+        //Common.sharedCommon.setSizeForDeviceOrientation()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        
+        
+    }
+    
+    override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+        
+        super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+        
+        coordinator.animateAlongsideTransition({ (UIViewControllerTransitionCoordinatorContext) -> Void in
+            
+            
+            
+            }) { (UIViewControllerTransitionCoordinatorContext) -> Void in
+            
+                self.calculateConstraints()
+                
+        }
+    }
+    
+    func calculateConstraints() {
+        
+        let buttonWidth:CGFloat = Common.sharedCommon.calculateDimensionForDevice(60)
+        
+        let views:[String:UIImageView] = Dictionary(dictionaryLiteral: ("fb",fbSignInButton!),("google",googleSignButton!),("email",mailSignInButton!))
+        let metrics = ["dim" : buttonWidth,
+            "horizontalPadding" : (UIScreen.mainScreen().bounds.width - (3 * buttonWidth)) / 4,
+            "verticalPadding" : (UIScreen.mainScreen().bounds.height * 0.5) - (buttonWidth * 0.5)]
+        
+        
+        if let fvertical = fbVerticalConstraint, let gvertical = googleVerticalConstraint, let mvertical = emailVerticalConstraint, let horizontal = horizontalConstraint  {
+            
+            NSLayoutConstraint.deactivateConstraints(fvertical)
+            NSLayoutConstraint.deactivateConstraints(gvertical)
+            NSLayoutConstraint.deactivateConstraints(mvertical)
+            NSLayoutConstraint.deactivateConstraints(horizontal)
+        }
+        
+        fbVerticalConstraint = NSLayoutConstraint.constraintsWithVisualFormat("V:|-verticalPadding-[fb(dim)]", options:[] , metrics: metrics, views: views)
+        googleVerticalConstraint = NSLayoutConstraint.constraintsWithVisualFormat("V:|-verticalPadding-[google(dim)]", options:[] , metrics: metrics, views: views)
+        emailVerticalConstraint = NSLayoutConstraint.constraintsWithVisualFormat("V:|-verticalPadding-[email(dim)]", options:[] , metrics: metrics, views: views)
+        
+        horizontalConstraint = NSLayoutConstraint.constraintsWithVisualFormat("H:|-horizontalPadding-[fb(dim)]-horizontalPadding-[google(dim)]-horizontalPadding-[email(dim)]", options:[] , metrics: metrics, views: views)
+        
+        NSLayoutConstraint.activateConstraints(fbVerticalConstraint!)
+        NSLayoutConstraint.activateConstraints(googleVerticalConstraint!)
+        NSLayoutConstraint.activateConstraints(emailVerticalConstraint!)
+        NSLayoutConstraint.activateConstraints(horizontalConstraint!)
         
     }
     
@@ -161,7 +222,8 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         if (userName == nil) {
             
             userName = CustomTextField(frame: CGRectMake(0,0,kLoginTextFieldWidth,Common.sharedCommon.calculateDimensionForDevice(40)))
-            userName!.center = CGPointMake(kScreenWidth * 0.5, Common.sharedCommon.calculateDimensionForDevice(20) + userName!.frame.size.height * 0.5)
+            userName!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin .union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin).union(.FlexibleWidth)
+            userName!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, Common.sharedCommon.calculateDimensionForDevice(30) + userName!.frame.size.height * 0.5)
             userName!.placeholder = "email"
             userName!.delegate = self
         }
@@ -169,6 +231,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         if (password == nil) {
             
             password = CustomTextField(frame: userName!.frame)
+            password!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin .union(.FlexibleRightMargin).union(.FlexibleBottomMargin).union(.FlexibleWidth)
             password!.center = CGPointMake(userName!.center.x, userName!.center.y + userName!.frame.size.height + Common.sharedCommon.calculateDimensionForDevice(20))
             password!.secureTextEntry = true
             password!.placeholder = "password"
@@ -177,7 +240,8 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         
         if (closeButton == nil) {
             
-            closeButton = CloseView(frame: CGRectMake(kScreenWidth - Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
+            closeButton = CloseView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width - Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
+            closeButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin .union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
             closeButton!.closeViewDelegate = self
         }
         
