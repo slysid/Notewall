@@ -21,7 +21,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var bgScrollView:UIScrollView?
     var masterView:UIView?
     var blownUpCount:Int = 0
-    var blownUpCenterX = kScreenWidth * 0.5
+    var blownUpCenterX = UIScreen.mainScreen().bounds.width * 0.5
     let blowUpXOffset:CGFloat = 25.0
     var backgroundImage:UIImageView?
     var backgroundImageIndex = 0
@@ -35,6 +35,11 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var logOutButton:CloseView?
     var noteWallDelegate:NoteWallProtocolDelegate?
     var messageView:UILabel?
+    var wallTypeNotifyImage:UIImageView?
+    var wallTypeNotifyImageName:String?
+    
+    var screenWidth:CGFloat = UIScreen.mainScreen().bounds.size.width
+    var screenHeight:CGFloat = UIScreen.mainScreen().bounds.size.height
 
     
     override func viewDidLoad() {
@@ -43,27 +48,31 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.view.backgroundColor = UIColor.blackColor()
         self.backgroundImageName = kBackGrounds[backgroundImageIndex]["bg"] as? String
         self.dataSourceAPI = kBackGrounds[backgroundImageIndex]["datasource"] as? kAllowedPaths
+        self.wallTypeNotifyImageName = kBackGrounds[backgroundImageIndex]["icon"] as? String
         
-        transImage = UIImageView(frame: CGRectMake(0, 0, kScreenWidth, kScreenHeight))
+        transImage = UIImageView(frame: CGRectMake(0, 0, UIScreen.mainScreen().bounds.size.width, UIScreen.mainScreen().bounds.size.height))
+        transImage!.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
         self.view.addSubview(transImage!)
         
-        self.bgScrollView = UIScrollView(frame: self.view.bounds)
+       /* self.bgScrollView = UIScrollView(frame: self.view.bounds)
         self.bgScrollView!.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
         self.bgScrollView!.backgroundColor = UIColor.clearColor()
-        self.bgScrollView!.contentSize = CGSizeMake(kScreenWidth, kScreenHeight)
+        self.bgScrollView!.contentSize = self.view.bounds.size
         self.bgScrollView!.delegate = self
         self.bgScrollView!.minimumZoomScale = 1.0
         self.bgScrollView!.maximumZoomScale = 4.0
         self.bgScrollView!.canCancelContentTouches = true
-        self.view.addSubview(self.bgScrollView!)
+        self.view.addSubview(self.bgScrollView!) */
         
         self.loadMainView()
         
     }
     
+    
     override func viewDidAppear(animated: Bool) {
         
         //self.loadMainView()
+        
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -74,48 +83,78 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
     }
     
+    
+    override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+        
+        super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+        
+        screenWidth = size.width
+        screenHeight = size.height
+    }
+    
     func loadMainView() {
         
         self.blownUpCount = 0
-        self.blownUpCenterX = kScreenWidth * 0.5
         
-        masterView = UIView(frame: CGRectMake(0,0,self.bgScrollView!.contentSize.width,self.bgScrollView!.contentSize.height))
+        //masterView = UIView(frame: CGRectMake(0,0,self.bgScrollView!.contentSize.width,self.bgScrollView!.contentSize.height))
+        masterView = UIView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width, UIScreen.mainScreen().bounds.size.height))
         masterView!.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
         masterView!.backgroundColor = UIColor.clearColor()
-        bgScrollView!.addSubview(masterView!)
+        //bgScrollView!.addSubview(masterView!)
+        self.view.addSubview(masterView!)
         
         backgroundImage = UIImageView(frame: self.masterView!.bounds)
         backgroundImage!.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
-        let newNoteTap = UITapGestureRecognizer(target: self, action: "switchToCompose:")
         backgroundImage!.userInteractionEnabled = true
-        backgroundImage!.addGestureRecognizer(newNoteTap)
         backgroundImage!.image = UIImage(named: self.backgroundImageName!)
         self.masterView!.addSubview(backgroundImage!)
         
-        if (self.dataSourceAPI == kAllowedPaths.kPathGetFavNotesForOwner) {
+        let singleTap = UITapGestureRecognizer(target: self, action: "changeNoteWall:")
+        singleTap.numberOfTapsRequired = 1
+        backgroundImage!.addGestureRecognizer(singleTap)
+        
+        let doubleTap = UITapGestureRecognizer(target: self, action: "switchToCompose:")
+        doubleTap.numberOfTapsRequired = 2
+        backgroundImage!.addGestureRecognizer(doubleTap)
+        
+        singleTap.requireGestureRecognizerToFail(doubleTap)
+        
+       /* if (self.dataSourceAPI == kAllowedPaths.kPathGetFavNotesForOwner) {
             
             self.backgroundImage!.userInteractionEnabled = false
         }
         else {
             
             self.backgroundImage!.userInteractionEnabled = true
-        }
+        } */
         
-        logOutButton = CloseView(frame: CGRectMake(kScreenWidth - (1.5 * Common.sharedCommon.calculateDimensionForDevice(30)), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
+        let wallTypeDim = Common.sharedCommon.calculateDimensionForDevice(35)
+        wallTypeNotifyImage = UIImageView(frame: CGRectMake(0,0,wallTypeDim,wallTypeDim))
+        wallTypeNotifyImage!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, wallTypeDim * 0.5)
+        wallTypeNotifyImage!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin)
+        wallTypeNotifyImage!.image = UIImage(named: self.wallTypeNotifyImageName!)
+        self.masterView!.addSubview(wallTypeNotifyImage!)
+        
+        logOutButton = CloseView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width - (1.5 * Common.sharedCommon.calculateDimensionForDevice(30)), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
         logOutButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin
         logOutButton!.image = UIImage(named: "logout.png")
         logOutButton!.closeViewDelegate = self
         self.masterView!.addSubview(logOutButton!)
         
-        let downSwipe = UISwipeGestureRecognizer(target: self, action: "changeNoteWall")
-        downSwipe.direction = .Down
-        self.masterView!.addGestureRecognizer(downSwipe)
+       /* let rightSwipe = UISwipeGestureRecognizer(target: self, action: "changeNoteWall:")
+        rightSwipe.direction = .Right
+        self.masterView!.addGestureRecognizer(rightSwipe)
+        
+        let leftSwipe = UISwipeGestureRecognizer(target: self, action: "changeNoteWall:")
+        leftSwipe.direction = .Left
+        self.masterView!.addGestureRecognizer(leftSwipe) */
         
         //self.showExistingNotes()
         self.fillInDataSource(true)
         
     }
     
+
     func fillInDataSource(refreshUI:Bool) {
         
         let data = ["ownerid" : Common.sharedCommon.config!["ownerId"] as! String]
@@ -159,7 +198,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         if (favButton == nil) {
             
             let favButtonDim = Common.sharedCommon.calculateDimensionForDevice(50)
-            favButton = UIImageView(frame: CGRectMake(kScreenWidth - ( 1.5 * favButtonDim), favButtonDim, favButtonDim, favButtonDim))
+            favButton = UIImageView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width - ( 1.5 * favButtonDim), favButtonDim, favButtonDim, favButtonDim))
             favButton!.userInteractionEnabled = true
             self.view.addSubview(favButton!)
             favButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
@@ -192,13 +231,18 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         UIView.animateWithDuration(0.3, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
             
-                if (self.blownUpCount >= 1) {
+            if (self.blownUpCount == 0) {
+                
+                self.blownUpCenterX = UIScreen.mainScreen().bounds.size.width * 0.5
+                
+            }
+            else if (self.blownUpCount >= 1) {
                 
                     self.blownUpCenterX = self.blownUpCenterX + self.blowUpXOffset
-                }
+            }
             
                 v.frame = CGRectMake(0, 0, Common.sharedCommon.calculateDimensionForDevice(kBlownupNoteDim), Common.sharedCommon.calculateDimensionForDevice(kBlownupNoteDim))
-                let center = CGPointMake(self.blownUpCenterX, kScreenHeight * 0.5)
+                let center = CGPointMake(self.blownUpCenterX, UIScreen.mainScreen().bounds.size.height * 0.5)
                 v.center = center
                 //self.bgScrollView!.zoomToRect(self.view.frame, animated: true)
                 self.masterView!.alpha = 0.4
@@ -225,7 +269,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
             
-                note.center = CGPointMake(note.center.x + kScreenWidth, note.center.y)
+                note.center = CGPointMake(note.center.x + UIScreen.mainScreen().bounds.width, note.center.y)
             
             
             }) { (Bool) -> Void in
@@ -346,14 +390,15 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         if (self.notesDataList.count > 0 ){
             
-            
-            let xPoint = (UIScreen.mainScreen().bounds.width * 0.45) +  CGFloat(Int.random(-100 ... 50))
-            var yPoint = (UIScreen.mainScreen().bounds.height * 0.50) + CGFloat(Int.random(-100 ... 100))
+            let dim = Common.sharedCommon.calculateDimensionForDevice(kNoteDim)
+            let xPoint = (screenWidth * 0.50) +  CGFloat(Int.random(-50 ... 50))
+            var yPoint = (screenHeight * 0.50) + CGFloat(Int.random(-30 ... 30))
             
             if yPoint < 40 {
                 
                 yPoint = 40
             }
+            
             
             let printNote = notesDataList[0]
             let noteText = printNote["noteText"] as! String
@@ -363,8 +408,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             let noteTextColor = printNote["noteTextColor"] as! Array<CGFloat>
             
             
-            let dim = Common.sharedCommon.calculateDimensionForDevice(kNoteDim)
-            let note = WallNote(frame: CGRectMake(xPoint,yPoint,0,0), noteType:noteType, noteText: noteText, noteFont:noteTextFont, noteFontSize:noteTextFontSize, noteFontColor:Common.sharedCommon.formColorWithRGB(noteTextColor))
+            let note = WallNote(frame: CGRectMake(0,0,dim,dim), noteType:noteType, noteText: noteText, noteFont:noteTextFont, noteFontSize:noteTextFontSize, noteFontColor:Common.sharedCommon.formColorWithRGB(noteTextColor))
+            note.center = CGPointMake(xPoint,yPoint)
             note.stickyNoteID = printNote["noteID"] as? String
             note.favedOwners = printNote["owners"] as? Array<String>
             note.stickyNoteCreationDate = printNote["creationDate"] as? String
@@ -372,19 +417,25 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             note.wallnoteDelegate = self
             self.masterView!.addSubview(note)
             
-            UIView.animateWithDuration(0.00001, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
+            dispatch_async(dispatch_get_main_queue()) { () -> Void in
                 
-                note.frame = CGRectMake(xPoint, yPoint, dim, dim)
-                
-                }, completion: { (Bool) -> Void in
+                UIView.animateWithDuration(0.00001, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
+
                     
-                    if (self.notesDataList.count > 1) {
+                    note.frame = CGRectMake(note.frame.origin.x, note.frame.origin.y, dim, dim)
+                    note.center = CGPointMake(xPoint,yPoint)
+                    
+                    }, completion: { (Bool) -> Void in
                         
-                        self.notesDataList.removeFirst()
-                        self.showExistingNotes()
-                    }
-                    
-            })
+                        if (self.notesDataList.count > 1) {
+                            
+                            self.notesDataList.removeFirst()
+                            self.showExistingNotes()
+                        }
+                        
+                })
+                
+            }
             
         }
         else {
@@ -431,7 +482,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         if (messageView == nil) {
             
             let dim = Common.sharedCommon.calculateDimensionForDevice(40)
-            messageView = UILabel(frame: CGRectMake(0,(kScreenHeight * 0.5) - (dim * 0.5),kScreenWidth,dim))
+            messageView = UILabel(frame: CGRectMake(0,(UIScreen.mainScreen().bounds.size.height * 0.5) - (dim * 0.5),UIScreen.mainScreen().bounds.size.width,dim))
+            messageView!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
             messageView!.font = UIFont(name: "chalkduster", size: 33.0)
             messageView!.textAlignment = NSTextAlignment.Center
             messageView!.textColor = UIColor.whiteColor()
@@ -441,20 +493,24 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     }
 
     
-    func switchToCompose(sender:UIImageView) {
+    func switchToCompose(sender:UITapGestureRecognizer) {
         
-        if (self.allBlownUpNotes.count == 0) {
+        if (sender.numberOfTapsRequired == 2 && self.dataSourceAPI != kAllowedPaths.kPathGetFavNotesForOwner) {
             
-            let compose:Compose = Compose()
-            compose.composeDelegate = self
-            self.presentViewController(compose, animated: true) { () -> Void in
+            if (self.allBlownUpNotes.count == 0) {
+                
+                let compose:Compose = Compose()
+                compose.composeDelegate = self
+                self.presentViewController(compose, animated: true) { () -> Void in
+                    
+                }
+            }
+            else {
+                
                 
             }
         }
-        else {
-            
-           
-        }
+        
         
     }
     
@@ -490,7 +546,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 
-                self.bgScrollView!.zoomToRect(self.view.frame, animated: true)
+                //self.bgScrollView!.zoomToRect(self.view.frame, animated: true)
                 self.masterView!.alpha = 1.0
                 self.blownUpCenterX = kScreenWidth * 0.5
                 self.favButton!.removeFromSuperview()
@@ -504,20 +560,34 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
     }
     
-    func changeNoteWall() {
+    func changeNoteWall(sender:UITapGestureRecognizer) {
         
         self.removeExistingNotes()
-        self.moveWall()
+        self.moveWall(sender.numberOfTapsRequired)
         
     }
     
-    func moveWall() {
+    /* func moveWall(numberOfTaps:Int) {
         
-        self.backgroundImageIndex = self.backgroundImageIndex + 1
+        if (direction == UISwipeGestureRecognizerDirection.Right) {
+            
+            self.backgroundImageIndex = self.backgroundImageIndex + 1
+        }
+        else {
+            
+            self.backgroundImageIndex = self.backgroundImageIndex - 1
+        }
+        
+        
         if (self.backgroundImageIndex >= kBackGrounds.count) {
             
             self.backgroundImageIndex = 0
         }
+        else if (self.backgroundImageIndex < 0 ) {
+            
+            self.backgroundImageIndex = kBackGrounds.count - 1
+        }
+        
         self.backgroundImageName = kBackGrounds[self.backgroundImageIndex]["bg"] as? String
         self.dataSourceAPI = kBackGrounds[self.backgroundImageIndex]["datasource"] as? kAllowedPaths
         
@@ -525,7 +595,50 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
             
-            self.masterView!.center = CGPointMake(self.masterView!.center.x, self.masterView!.center.y + kScreenHeight)
+            if (direction == UISwipeGestureRecognizerDirection.Right) {
+                
+                self.masterView!.center = CGPointMake(self.masterView!.center.x + UIScreen.mainScreen().bounds.size.width, self.masterView!.center.y)
+            }
+            else {
+                
+                self.masterView!.center = CGPointMake(self.masterView!.center.x - UIScreen.mainScreen().bounds.size.width, self.masterView!.center.y)
+            }
+            
+            
+            }) { (Bool) -> Void in
+                
+                self.masterView!.removeFromSuperview()
+                self.masterView = nil
+                self.loadMainView()
+                self.transImage!.image = nil
+                
+                
+        }
+    } */
+    
+    func moveWall(numberOfTaps:Int) {
+        
+        self.backgroundImageIndex = self.backgroundImageIndex + 1
+        
+        
+        if (self.backgroundImageIndex >= kBackGrounds.count) {
+            
+            self.backgroundImageIndex = 0
+        }
+        else if (self.backgroundImageIndex < 0 ) {
+            
+            self.backgroundImageIndex = kBackGrounds.count - 1
+        }
+        
+        self.backgroundImageName = kBackGrounds[self.backgroundImageIndex]["bg"] as? String
+        self.dataSourceAPI = kBackGrounds[self.backgroundImageIndex]["datasource"] as? kAllowedPaths
+        self.wallTypeNotifyImageName = kBackGrounds[self.backgroundImageIndex]["icon"] as? String
+        
+        transImage!.image = UIImage(named: self.backgroundImageName!)
+        
+        UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
+            
+               self.masterView!.center = CGPointMake(self.masterView!.center.x + UIScreen.mainScreen().bounds.size.width, self.masterView!.center.y)
             
             }) { (Bool) -> Void in
                 

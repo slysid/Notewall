@@ -81,23 +81,6 @@ class WallNote:UIImageView {
         self.addGestureRecognizer(tap)
         self.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
         
-       /* let rightSwipe = UISwipeGestureRecognizer(target: self, action: "wallNoteSwipped:")
-        rightSwipe.direction = .Right
-        self.addGestureRecognizer(rightSwipe)
-        
-        let leftSwipe = UISwipeGestureRecognizer(target: self, action: "wallNoteSwipped:")
-        leftSwipe.direction = .Left
-        self.addGestureRecognizer(leftSwipe)
-        
-        let upSwipe = UISwipeGestureRecognizer(target: self, action: "wallNoteSwipped:")
-        upSwipe.direction = .Up
-        self.addGestureRecognizer(upSwipe)
-        
-        let downSwipe = UISwipeGestureRecognizer(target: self, action: "wallNoteSwipped:")
-        downSwipe.direction = .Down
-        self.addGestureRecognizer(downSwipe) */
-        
-        
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -113,44 +96,6 @@ class WallNote:UIImageView {
             wallnoteDelegate!.blowupWallNote(self)
         }
         
-    }
-    
-    func wallNoteSwipped(sender:UISwipeGestureRecognizer) {
-        
-        var currentCenter = self.center
-        let offset:CGFloat = Common.sharedCommon.calculateDimensionForDevice(75)
-        
-        switch sender.direction {
-            
-        case UISwipeGestureRecognizerDirection.Left:
-            currentCenter.x = currentCenter.x - offset
-        case UISwipeGestureRecognizerDirection.Right:
-            currentCenter.x = currentCenter.x + offset
-        case UISwipeGestureRecognizerDirection.Up:
-            currentCenter.y = currentCenter.y - offset
-        case UISwipeGestureRecognizerDirection.Down:
-            currentCenter.y = currentCenter.y + offset
-        default:
-            currentCenter = self.center
-        }
-        
-        if (currentCenter.x < (self.frame.size.width * 0.05) || currentCenter.x > kScreenWidth - 10) {
-            
-            currentCenter = self.center
-        }
-        
-        if (currentCenter.y < (self.frame.size.height * 0.05) || currentCenter.y > kScreenHeight - 10) {
-            
-            currentCenter = self.center
-        }
-        
-        UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
-            
-               self.center = currentCenter
-            
-            }) { (Bool) -> Void in
-                
-        }
     }
     
     func blowUpAttributes(note:WallNote) {

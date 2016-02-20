@@ -62,14 +62,16 @@ class MainController:UIViewController,NoteWallProtocolDelegate {
         
         if (Common.sharedCommon.config!["isLoggedIn"]!.boolValue == true) {
             
-            if(Common.sharedCommon.ageOfApplication() < kTimeoutApp) {
+            self.signInApplication()
+            
+           /* if(Common.sharedCommon.ageOfApplication() < kTimeoutApp) {
                 
                 self.signInApplication()
             }
             else {
                 
                 self.handleLogout()
-            }
+            } */
         }
         else {
             

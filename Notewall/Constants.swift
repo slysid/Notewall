@@ -29,6 +29,12 @@ enum kRunModes {
     case modeDebug
 }
 
+enum kComposeTypes {
+    
+    case kComposeNote
+    case kComposePicture
+}
+
 let kPhone = "phone"
 let kPad = "pad"
 let kNoteDim:CGFloat = 100.0
@@ -51,9 +57,9 @@ var kScreenWidth = UIScreen.mainScreen().bounds.size.width
 var kScreenHeight = UIScreen.mainScreen().bounds.size.height
 
 let kDefaultBGImageName = "bg1.png"
-let kBG1:[String:Any] = ["bg":"bg1.png","datasource":kAllowedPaths.kPathGetAllNotes]
-let kBG2:[String:Any] = ["bg":"bg2.jpg","datasource":kAllowedPaths.kPathGetNotesForOwner]
-let kBG3:[String:Any] = ["bg":"bg3.jpg","datasource":kAllowedPaths.kPathGetFavNotesForOwner]
+let kBG1:[String:Any] = ["bg":"bg1.png","datasource":kAllowedPaths.kPathGetAllNotes,"icon":"notes.png"]
+let kBG2:[String:Any] = ["bg":"bg2.jpg","datasource":kAllowedPaths.kPathGetNotesForOwner,"icon":"my.png"]
+let kBG3:[String:Any] = ["bg":"bg3.jpg","datasource":kAllowedPaths.kPathGetFavNotesForOwner,"icon":"heart.png"]
 let kBackGrounds = [kBG1,kBG2,kBG3]
 
 /*let kStickyNotes = ["noteBlue1.png",
@@ -67,6 +73,9 @@ let kPinNotes = [
 ["noteBlue3.png","noteGreen3.png","notePink3.png","noteWhite3.png","noteYellow3.png"],
 ["noteBlue4.png","noteGreen4.png","notePink4.png","noteWhite4.png","noteYellow4.png"],
 ]
+
+let kComposeTypesData = [["icon": "noteBlue1.png"],
+                          ["icon":"camera.png"]]
 
 let kDefaultNoteType = kPinNotes[0][0]
 
