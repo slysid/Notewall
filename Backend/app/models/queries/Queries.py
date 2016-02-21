@@ -89,11 +89,11 @@ class NoteQueries():
           
           try:
                
-               for o in Owners.objects(Q(id=ownerid) & Q(noteDeletionDate__gt=datetime.now())):
+               for o in Owners.objects(id=ownerid):
                     notesList = o.favorites
                
                for noteid in notesList:
-                    for note in Notes.objects(id=noteid):
+                    for note in Notes.objects(Q(id=noteid) & Q(noteDeletionDate__gt=datetime.now())):
                               doc = {}
                               doc['noteID'] = str(note.id)
                               doc['noteType'] = note.noteType
