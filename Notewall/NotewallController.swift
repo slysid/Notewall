@@ -27,9 +27,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var backgroundImageIndex = 0
     var dataSourceAPI:kAllowedPaths?
     var backgroundImageName:String?
-    var allNotes:Array<WallNote> = []
     var allBlownUpNotes:Array<WallNote> = []
-    var allNotesCount = 75
     var notesDataList:Array<Dictionary<String,AnyObject>> = []
     var favButton:UIImageView?
     var logOutButton:CloseView?
@@ -151,6 +149,10 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         //self.showExistingNotes()
         self.fillInDataSource(true)
+        
+        /*let textWrittenImage = TextNote(frame: CGRectMake(20,20,100,100), withImageName: "noteBlue1.png", withText: "Hello bharath what is this. today is sunday and tmrw is monday", preferredFont: "chalkduster", preferredFontSize: 10.0, preferredFontColor: UIColor.blackColor(), addExpiry: true, expiryDate: "11-02-2016")
+        
+        self.masterView!.addSubview(textWrittenImage)*/
         
     }
     
@@ -387,6 +389,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     }
     
     func showExistingNotes() {
+        
         
         if (self.notesDataList.count > 0 ){
             

@@ -105,7 +105,8 @@ class Common:NSObject {
         }
         
         
-        UIGraphicsBeginImageContext(inImage.size)
+        //UIGraphicsBeginImageContext(inImage.size)
+        UIGraphicsBeginImageContextWithOptions(inImage.size,false,0.0)
         let imgRect = CGRectMake(0,0,inImage.size.width,inImage.size.height)
         inImage.drawInRect(imgRect)
         //let rect: CGRect = CGRectMake(atPoint.x, atPoint.y, inImage.size.width, inImage.size.height)
@@ -118,6 +119,7 @@ class Common:NSObject {
         return newImage
         
     }
+    
     
     func ageOfApplication() -> NSTimeInterval {
         
