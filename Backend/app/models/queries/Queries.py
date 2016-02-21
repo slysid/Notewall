@@ -60,7 +60,7 @@ class NoteQueries():
           allNotes = []
           
           try:
-               for note in Notes.objects(ownerId=ownerid):
+               for note in Notes.objects(Q(ownerId=ownerid) & Q(noteDeletionDate__gt=datetime.now())):
                     if ownerid not in note.excludedOwners:
                          doc = {}
                          doc['noteID'] = str(note.id)
@@ -89,7 +89,7 @@ class NoteQueries():
           
           try:
                
-               for o in Owners.objects(id=ownerid):
+               for o in Owners.objects(Q(id=ownerid) & Q(noteDeletionDate__gt=datetime.now())):
                     notesList = o.favorites
                
                for noteid in notesList:
