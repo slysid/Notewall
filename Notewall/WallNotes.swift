@@ -28,54 +28,103 @@ class WallNote:UIImageView {
     var isAlreadyBlownUp:Bool = false
     var wallnoteDelegate:WallNoteDelegate?
     var favedOwners:Array<String>?
+    var polaroid:UIImageView?
+    var isNote = true
+    var imageFileName:String?
+    var imageThumbData:NSData?
     
-    init(frame: CGRect, noteType:String?, noteText:String, noteFont:String?, noteFontSize:CGFloat?,noteFontColor:UIColor?) {
+    init(frame: CGRect, noteType:String?, noteText:String, noteFont:String?, noteFontSize:CGFloat?,noteFontColor:UIColor?, isNote:Bool, imageFileName:String?) {
         
         super.init(frame: frame)
         
-        if (noteType != nil) {
+        self.isNote = isNote
+        
+        if (isNote == true) {
             
-            stickyNoteType = noteType
+            if (noteType != nil) {
+                
+                stickyNoteType = noteType
+            }
+            else {
+                
+                stickyNoteType = kDefaultNoteType
+            }
+            
+            stickyNoteText = noteText
+            
+            if (noteFont != nil) {
+                
+                stickyNoteFont = noteFont
+            }
+            else {
+                
+                stickyNoteFont = kDefaultFont
+            }
+            
+            if (noteFontSize != nil) {
+                
+                stickyNoteFontSize = noteFontSize
+            }
+            else {
+                
+                stickyNoteFontSize = kStickyNoteFontSize
+            }
+            
+            if (noteFontColor != nil) {
+                
+                stickyNoteFontColor = noteFontColor
+            }
+            else {
+                
+                stickyNoteFontColor = kDefaultFontColor
+            }
+            
+            
+            let rawImage = UIImage(named: stickyNoteType!)
+            let textWrittenImage = Common.sharedCommon.textToImage(stickyNoteText!, inImage: rawImage!, atPoint: CGPointMake(5,10),preferredFont:noteFont,preferredFontSize:noteFontSize,preferredFontColor:stickyNoteFontColor,addExpiry:false,expiryDate:nil)
+            self.image = textWrittenImage
+            
         }
         else {
             
-            stickyNoteType = kDefaultNoteType
-        }
-        
-        stickyNoteText = noteText
-        
-        if (noteFont != nil) {
+            self.backgroundColor = UIColor.whiteColor()
+            let thumbName = "THUMB_" + imageFileName!
+            self.imageFileName = imageFileName!
             
-            stickyNoteFont = noteFont
-        }
-        else {
+            if (self.polaroid == nil) {
+                
+                let polaroidRect = CGRectInset(self.bounds,10,10)
+                
+                self.polaroid = UIImageView(frame: polaroidRect)
+                self.polaroid!.image = UIImage(named: "nophoto.png")
+                self.addSubview(self.polaroid!)
+            }
             
-            stickyNoteFont = kDefaultFont
+            Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathGetImage , body: nil, replace: ["<filename>" :thumbName], requestContentType: kContentTypes.kApplicationJson , completion: { (result, response) -> Void in
+                
+                if (result == true) {
+                    
+                    if (response["image"] != nil) {
+                        
+                        dispatch_async(dispatch_get_main_queue() , { () -> Void in
+                            
+                            self.imageThumbData = response["image"] as? NSData
+                            self.polaroid!.image = UIImage(data: self.imageThumbData!)
+                            
+                        })
+                        
+                    }
+                    else {
+                        
+                        print("Image response is nil")
+                    }
+                }
+                
+            })
+            
+            //self.image = UIImage(data: Common.sharedCommon.config!["polaroid"] as! NSData)
         }
         
-        if (noteFontSize != nil) {
-            
-            stickyNoteFontSize = noteFontSize
-        }
-        else {
-            
-            stickyNoteFontSize = kStickyNoteFontSize
-        }
-        
-        if (noteFontColor != nil) {
-            
-            stickyNoteFontColor = noteFontColor
-        }
-        else {
-            
-            stickyNoteFontColor = kDefaultFontColor
-        }
-        
-        
-        let rawImage = UIImage(named: stickyNoteType!)
-        let textWrittenImage = Common.sharedCommon.textToImage(stickyNoteText!, inImage: rawImage!, atPoint: CGPointMake(5,10),preferredFont:noteFont,preferredFontSize:noteFontSize,preferredFontColor:stickyNoteFontColor,addExpiry:false,expiryDate:nil)
-        
-        self.image = textWrittenImage
         self.userInteractionEnabled = true
         let tap = UITapGestureRecognizer(target: self, action: "wallNoteTapped:")
         self.addGestureRecognizer(tap)

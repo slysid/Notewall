@@ -70,7 +70,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
     
     override func viewWillLayoutSubviews() {
         
-        //Common.sharedCommon.setSizeForDeviceOrientation()
+        
     }
     
     override func viewDidLayoutSubviews() {
@@ -268,7 +268,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         }
         
         
-        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathRegister, body: data!, replace: nil) { (result, response) -> Void in
+        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathRegister, body: data!, replace: nil,requestContentType:kContentTypes.kApplicationJson) { (result, response) -> Void in
             
             if (self.activity != nil) {
                 

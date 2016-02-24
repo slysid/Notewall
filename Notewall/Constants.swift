@@ -21,6 +21,7 @@ enum kAllowedPaths {
     case kPathPostNewNote
     case kPathGetNotesForOwner
     case kPathGetFavNotesForOwner
+    case kPathGetImage
 }
 
 enum kRunModes {
@@ -33,6 +34,13 @@ enum kComposeTypes {
     
     case kComposeNote
     case kComposePicture
+}
+
+enum kContentTypes {
+    
+    case kApplicationJson
+    case kMultipartFormData
+    case kNoContentType
 }
 
 let kPhone = "phone"
@@ -52,6 +60,9 @@ let kLoggedInYetToLogin = "YETTOLOGIN"
 let kLoggedinThroughGoogle = "GOOGLE"
 let kLoggedinThroughFB = "FB"
 let kLoggedinThroughMail = "Mail"
+
+let kKeyPolaroid = "polaroid"
+let kKeyPolaroidThumbNail = "thumbnail"
 
 var kScreenWidth = UIScreen.mainScreen().bounds.size.width
 var kScreenHeight = UIScreen.mainScreen().bounds.size.height
@@ -94,7 +105,7 @@ let kLoginTextFieldWidth:CGFloat = UIScreen.mainScreen().bounds.size.width * 0.7
 
 let kRunMode = kRunModes.modeLive
 let kHttpProtocol = "http"
-let kHttpHost = "qacloud.accedo.tv"
+let kHttpHost = "172.17.50.170" //"192.168.0.12"
 let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/owner/register", "method" : "POST" ],
                   ["path" : "/api/notes/all", "method" : "POST"],
@@ -102,10 +113,12 @@ let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/notes/<noteid>/remove", "method" : "DELETE"],
                   ["path" : "/api/notes/post", "method" : "POST"],
                   ["path" : "/api/notes/all/owner", "method" : "POST"],
-                  ["path" : "/api/notes/all/favs", "method" : "POST"]
+                  ["path" : "/api/notes/all/favs", "method" : "POST"],
+                  ["path" : "/api/uploads/<filename>","method" : "GET"]
 ]
 
 
+let kAllowedContentTypes = ["application/json","multipart/form-data",""]
 let kDebugHealthResponse = ["api":"OK","database":"OK"]
 let kDebugAllNotesResponse = [ "data" : [
                                          ["notedID" : "56bb9dbe8b634e5bbaae4f5a",

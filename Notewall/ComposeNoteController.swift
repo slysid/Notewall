@@ -11,7 +11,7 @@ import UIKit
 
 protocol ComposeDelegate {
     
-    func postAWallNote(noteType:String?,noteText:String,noteFont:String,noteFontSize:CGFloat,noteFontColor:Array<CGFloat>)
+    func postAWallNote(noteType:String?,noteText:String?,noteFont:String?,noteFontSize:CGFloat?,noteFontColor:Array<CGFloat>,noteProperty:String?,imageurl:String?)
 }
 
 
@@ -51,14 +51,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     var composeTypeImageView:UIImageView?
     var imgPicker:UIImagePickerController = UIImagePickerController()
     
-    var views:[String:UIImageView]?
-    var metrics:[String:CGFloat]?
-    var notesHConstraint:[NSLayoutConstraint]?
-    var notesVConstraint:[NSLayoutConstraint]?
-    
     override func viewDidLoad() {
-        
-        print("ViewDiDLoad")
         
         for noteTypes in kPinNotes {
             
@@ -70,6 +63,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         currentLine = maxLineForNoteMovement - 1
         
         imgPicker.delegate = self
+        imgPicker.allowsEditing = true
         
     }
     
@@ -79,7 +73,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     override func viewWillAppear(animated: Bool) {
         
-        print("ViewWillAppear")
+        Common.sharedCommon.config![kKeyPolaroid] = nil
     }
     
     override func shouldAutorotate() -> Bool {
@@ -245,15 +239,41 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         
-        let pickedImage = info["UIImagePickerControllerOriginalImage"]
+       /* let imageURL = info[UIImagePickerControllerReferenceURL] as! NSURL
+        let imageName = imageURL.path!
+        let documentDirectory = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first! as String
+        let localPath = documentDirectory.stringByAppendingString(imageName)
+        
+        let image = info[UIImagePickerControllerEditedImage] as! UIImage
+        let data = UIImageJPEGRepresentation(image,1.0)
+        data!.writeToFile(localPath, atomically: true)
+        
+        let imageData = NSData(contentsOfFile: localPath)!
+        let photoURL = NSURL(fileURLWithPath: localPath)
+        let imageWithData = UIImage(data: imageData)! */
+        
+        let image = info[UIImagePickerControllerEditedImage] as! UIImage
+        let data = UIImageJPEGRepresentation(image,1.0)
         
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
             
-            self.polaroidImageView!.image = pickedImage as? UIImage
+           /* self.polaroidImageView!.image = imageWithData
+            Common.sharedCommon.config!["polaroid"] = photoURL */
+            
+            self.polaroidImageView!.image = image
+            Common.sharedCommon.config![kKeyPolaroid] = data
+            
+            
+            /* UIGraphicsBeginImageContextWithOptions(CGSizeMake(kNoteDim,kNoteDim), false, 0.0);
+            image.drawInRect(CGRectMake(0,0,kNoteDim,kNoteDim))
+            let thumbnail = UIGraphicsGetImageFromCurrentImageContext()
+            let thumbnailData = UIImageJPEGRepresentation(thumbnail,1.0)
+            
+            Common.sharedCommon.config![kKeyPolaroidThumbNail] = thumbnailData */
+            
         }
         
         picker.dismissViewControllerAnimated(true) { () -> Void in
-            
             
         }
         
@@ -264,6 +284,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
             
             self.polaroidImageView!.image = UIImage(named: "nophoto.png")
+            Common.sharedCommon.config![kKeyPolaroid] = nil
         }
         
         picker.dismissViewControllerAnimated(true) { () -> Void in
@@ -400,6 +421,17 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
             self.composeTypeImageView!.addGestureRecognizer(composeTap)
         }
         
+        let buttonWidth = Common.sharedCommon.calculateDimensionForDevice(80)
+        let buttonHeight = Common.sharedCommon.calculateDimensionForDevice(35)
+        
+        
+        let xOffset = UIScreen.mainScreen().bounds.width * 0.5 - (buttonWidth * 0.5)
+        let yOffset = Common.sharedCommon.calculateDimensionForDevice(10)
+        self.postButton = CustomButton(frame: CGRectMake(xOffset, yOffset, buttonWidth, buttonHeight), buttonTitle: kButtonPostText, normalColor: UIColor.redColor(), highlightColor: UIColor.blackColor())
+        self.postButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(UIViewAutoresizing.FlexibleTopMargin).union(.FlexibleBottomMargin)
+        self.postButton!.addTarget(self, action: "postTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        self.newNoteView!.addSubview(self.postButton!)
+        
         let closeImage = CloseView(frame: CGRectMake(UIScreen.mainScreen().bounds.width - Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
         closeImage.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
         closeImage.closeViewDelegate = self
@@ -433,16 +465,6 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
             }
         }
         
-        let buttonWidth = Common.sharedCommon.calculateDimensionForDevice(80)
-        let buttonHeight = Common.sharedCommon.calculateDimensionForDevice(35)
-        
-        
-        var xOffset = UIScreen.mainScreen().bounds.width * 0.5 - (buttonWidth * 0.5)
-        var yOffset = Common.sharedCommon.calculateDimensionForDevice(10)
-        self.postButton = CustomButton(frame: CGRectMake(xOffset, yOffset, buttonWidth, buttonHeight), buttonTitle: kButtonPostText, normalColor: UIColor.redColor(), highlightColor: UIColor.blackColor())
-        self.postButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(UIViewAutoresizing.FlexibleTopMargin).union(.FlexibleBottomMargin)
-        self.postButton!.addTarget(self, action: "postTapped:", forControlEvents: UIControlEvents.TouchUpInside)
-        self.newNoteView!.addSubview(self.postButton!)
         
         
         let width = Common.sharedCommon.calculateDimensionForDevice(290)
@@ -460,7 +482,9 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         self.newNoteView!.addSubview(notesImageView!)
         
         
-        xOffset = 5.0
+        var xOffset:CGFloat = 5.0
+        var yOffset:CGFloat = 0.0
+        
         if (UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeLeft || UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeRight) {
             
             yOffset = UIScreen.mainScreen().bounds.height * 0.15
@@ -610,6 +634,20 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     }
     
     
+    func polaroidValidation() -> Bool {
+        
+        if (composeType == kComposeTypes.kComposePicture) {
+            
+            if (Common.sharedCommon.config![kKeyPolaroid] == nil) {
+                
+                return false
+            }
+        }
+        
+        return true
+    }
+    
+    
     func postTapped(sender:CustomButton) {
         
         var characterCount:Int?
@@ -625,7 +663,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         }
         
         
-        if (characterCount >= kMinRequiredCharacters) {
+        if (characterCount >= kMinRequiredCharacters && polaroidValidation()) {
             
             
             if (textField != nil) {
@@ -650,12 +688,29 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
             
             if (composeDelegate != nil) {
                 
-                self.composeDelegate!.postAWallNote(kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex] as String, noteText: enteredText!, noteFont: kSupportedFonts[selectedFontIndex], noteFontSize: kFontSizes[selectedFontSizeIndex], noteFontColor: kFontColor[selectedFontColorIndex])
+                var composeProperty = "N"
+                var imgFileName = ""
+                
+                
+                if (composeType == kComposeTypes.kComposePicture) {
+                    
+                    composeProperty = "P"
+                    
+                    let ownerID = Common.sharedCommon.config!["ownerId"] as! String
+                    let date = NSDateFormatter()
+                    
+                    date.dateFormat = "ddMMyyyyhhmmss"
+                    imgFileName = "Pol_" + ownerID + "_" + date.stringFromDate(NSDate()) + ".jpg"
+                    
+                }
+                    
+                self.composeDelegate!.postAWallNote(kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex] as String, noteText: enteredText!, noteFont: kSupportedFonts[selectedFontIndex], noteFontSize: kFontSizes[selectedFontSizeIndex], noteFontColor: kFontColor[selectedFontColorIndex],noteProperty:composeProperty,imageurl: imgFileName)
+                
             }
             
             self.dismissViewControllerAnimated(true) { () -> Void in
             
-            
+                
             }
             
         }

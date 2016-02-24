@@ -22,15 +22,59 @@ class Note:UIImageView {
     var noteDelegate:NoteDelegate?
     var noteTag:Int = 0
     var sourceWallNote:WallNote?
+    var polaroid:UIImageView?
     
     init(frame: CGRect, wallnote:WallNote,expiryDate:String) {
         
         super.init(frame: frame)
+        self.sourceWallNote = wallnote
         
-        let rawImage = UIImage(named: wallnote.stickyNoteType!)
-        //let noteText = wallnote.stickyNoteDeletionDate! + (wallnote.stickyNoteText! as String)
-        let textWrittenImage = Common.sharedCommon.textToImage(wallnote.stickyNoteText! as String, inImage: rawImage!, atPoint: CGPointMake(0, 0),preferredFont: wallnote.stickyNoteFont!,preferredFontSize:wallnote.stickyNoteFontSize, preferredFontColor:wallnote.stickyNoteFontColor,addExpiry:true,expiryDate:expiryDate)
-        self.image = textWrittenImage
+        if (self.sourceWallNote!.isNote == true) {
+            
+            let rawImage = UIImage(named: wallnote.stickyNoteType!)
+            //let noteText = wallnote.stickyNoteDeletionDate! + (wallnote.stickyNoteText! as String)
+            let textWrittenImage = Common.sharedCommon.textToImage(wallnote.stickyNoteText! as String, inImage: rawImage!, atPoint: CGPointMake(0, 0),preferredFont: wallnote.stickyNoteFont!,preferredFontSize:wallnote.stickyNoteFontSize, preferredFontColor:wallnote.stickyNoteFontColor,addExpiry:true,expiryDate:expiryDate)
+            self.image = textWrittenImage
+        }
+        else {
+            
+            self.backgroundColor = UIColor.whiteColor()
+            let imageFileName = self.sourceWallNote!.imageFileName!
+            
+            if (self.polaroid == nil) {
+                
+                let polaroidRect = CGRectInset(self.bounds,10,10)
+                
+                self.polaroid = UIImageView(frame: polaroidRect)
+                self.polaroid!.image = UIImage(named: "nophoto.png")
+                self.addSubview(self.polaroid!)
+            }
+            
+            Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathGetImage , body: nil, replace: ["<filename>" :imageFileName], requestContentType: kContentTypes.kApplicationJson , completion: { (result, response) -> Void in
+                
+                if (result == true) {
+                    
+                    if (response["image"] != nil) {
+                        
+                        dispatch_async(dispatch_get_main_queue() , { () -> Void in
+                            
+                            let imageData = response["image"] as? NSData
+                            self.polaroid!.image = UIImage(data: imageData!)
+                            
+                        })
+                        
+                    }
+                    else {
+                        
+                        print("Image response is nil")
+                    }
+                }
+                
+            })
+
+            
+        }
+        
         self.userInteractionEnabled = true
         self.noteTag = wallnote.noteTag
         self.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)

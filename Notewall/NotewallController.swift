@@ -161,7 +161,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         let data = ["ownerid" : Common.sharedCommon.config!["ownerId"] as! String]
         
-        Common.sharedCommon.postRequestAndHadleResponse(dataSourceAPI!, body: data, replace: nil) { (result, response) -> Void in
+        Common.sharedCommon.postRequestAndHadleResponse(dataSourceAPI!, body: data, replace: nil,requestContentType:kContentTypes.kApplicationJson) { (result, response) -> Void in
             
             if (result == true) {
                 
@@ -227,7 +227,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         let v = Note(frame: note.frame, wallnote:note, expiryDate:note.stickyNoteDeletionDate!)
         v.noteDelegate = self
-        v.sourceWallNote = note
+        //v.sourceWallNote = note
         self.view.addSubview(v)
         
         
@@ -247,6 +247,15 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 let center = CGPointMake(self.blownUpCenterX, UIScreen.mainScreen().bounds.size.height * 0.5)
                 v.center = center
                 //self.bgScrollView!.zoomToRect(self.view.frame, animated: true)
+            
+                if (v.polaroid != nil) {
+                
+                    let polRect = CGRectInset(v.bounds,10,10)
+                    v.polaroid!.frame = polRect
+                
+                }
+            
+            
                 self.masterView!.alpha = 0.4
                 self.logOutButton!.hidden = true
             
@@ -290,7 +299,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         let data = ["ownerid" : Common.sharedCommon.config!["ownerId"] as! String]
         
-        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathRemoveNote, body: data, replace: paramData, completion: { (result, response) -> Void in
+        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathRemoveNote, body: data, replace: paramData, requestContentType:kContentTypes.kApplicationJson, completion: { (result, response) -> Void in
             
             if (result == true) {
             
@@ -317,13 +326,21 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     // Compose Delegate Methods
     
-    func postAWallNote(noteType: String?, noteText: String, noteFont: String, noteFontSize:CGFloat, noteFontColor:Array<CGFloat>) {
+    func postAWallNote(noteType: String?, noteText: String?, noteFont: String?, noteFontSize:CGFloat?, noteFontColor:Array<CGFloat>, noteProperty:String?, imageurl:String? ) {
         
         let ownerID = Common.sharedCommon.config!["ownerId"] as! String
+        var contentType = kContentTypes.kApplicationJson
+        var isNote = true
         var data = [String:AnyObject]()
-        data = ["ownerid" : ownerID as String, "notetype" : noteType! as String, "notetext" : noteText as String, "notetextfont" : noteFont as String, "notetextfontsize" : noteFontSize as CGFloat, "notepinned": false, "notetextcolor" : noteFontColor]
+        data = ["ownerid" : ownerID as String, "notetype" : noteType! as String, "notetext" : noteText! as String, "notetextfont" : noteFont! as String, "notetextfontsize" : noteFontSize! as CGFloat, "notepinned": false, "notetextcolor" : noteFontColor,"noteProperty" : noteProperty!, "imageurl" : imageurl!]
         
-        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathPostNewNote, body: data, replace: nil) { (result, response) -> Void in
+        if (noteProperty == "P") {
+            
+           contentType = kContentTypes.kMultipartFormData
+            isNote = false
+        }
+        
+       Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathPostNewNote, body: data, replace: nil, requestContentType:contentType) { (result, response) -> Void in
             
             if (result == true) {
                 
@@ -331,7 +348,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                     
                     let newNote = response["data"]![0]
                     let RBGColor = Common.sharedCommon.formColorWithRGB(noteFontColor)
-                    let note = WallNote(frame: CGRectMake(100, 30, Common.sharedCommon.calculateDimensionForDevice(kNoteDim), Common.sharedCommon.calculateDimensionForDevice(kNoteDim)), noteType: noteType, noteText: noteText, noteFont: noteFont, noteFontSize:noteFontSize, noteFontColor:RBGColor)
+                    let note = WallNote(frame: CGRectMake(100, 30, Common.sharedCommon.calculateDimensionForDevice(kNoteDim), Common.sharedCommon.calculateDimensionForDevice(kNoteDim)), noteType: noteType, noteText: noteText!, noteFont: noteFont, noteFontSize:noteFontSize!, noteFontColor:RBGColor, isNote:isNote, imageFileName:imageurl)
                     note.stickyNoteID = newNote["noteID"] as? String
                     note.favedOwners = newNote["owners"] as? Array<String>
                     note.stickyNoteCreationDate = newNote["creationDate"] as? String
@@ -404,14 +421,22 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             
             let printNote = notesDataList[0]
+            var noteProperty = false
+            
+            if printNote["noteProperty"] as? String == "N" {
+                
+                noteProperty = true
+            }
+            
             let noteText = printNote["noteText"] as! String
             let noteTextFont = printNote["noteTextFont"] as! String
             let noteTextFontSize = printNote["noteTextFontSize"] as! CGFloat
             let noteType = printNote["noteType"] as! String
             let noteTextColor = printNote["noteTextColor"] as! Array<CGFloat>
+            let imageName = printNote["imageurl"] as! String
             
             
-            let note = WallNote(frame: CGRectMake(0,0,dim,dim), noteType:noteType, noteText: noteText, noteFont:noteTextFont, noteFontSize:noteTextFontSize, noteFontColor:Common.sharedCommon.formColorWithRGB(noteTextColor))
+            let note = WallNote(frame: CGRectMake(0,0,dim,dim), noteType:noteType, noteText: noteText, noteFont:noteTextFont, noteFontSize:noteTextFontSize, noteFontColor:Common.sharedCommon.formColorWithRGB(noteTextColor), isNote:noteProperty, imageFileName: imageName)
             note.center = CGPointMake(xPoint,yPoint)
             note.stickyNoteID = printNote["noteID"] as? String
             note.favedOwners = printNote["owners"] as? Array<String>
@@ -458,7 +483,14 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 
                 v.removeFromSuperview()
             }
+        }
+        
+        for v in self.view.subviews {
             
+            if v is Note || v is WallNote {
+                
+                v.removeFromSuperview()
+            }
         }
         
         if (messageView != nil) {
@@ -545,7 +577,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             }
         }
         
-        if (self.blownUpCount == 0) {
+       if (self.blownUpCount == 0) {
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 
@@ -561,6 +593,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 
             })
         }
+        
     }
     
     func changeNoteWall(sender:UITapGestureRecognizer) {
@@ -664,7 +697,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         let data = ["ownerid" : ownerID]
         
         
-        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathAddNoteToFav, body: data, replace: paramData) { (result, response) -> Void in
+        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathAddNoteToFav, body: data, replace: paramData,requestContentType:kContentTypes.kApplicationJson) { (result, response) -> Void in
             
             if (result == true) {
                 

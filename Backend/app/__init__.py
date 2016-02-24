@@ -7,6 +7,11 @@ import yaml
 
 app = Flask(__name__)
 
+uploadPath = os.path.join(os.path.dirname(__file__),'uploads')
+app.config['UPLOAD_FOLDER'] = uploadPath
+app.config['ALLOWED_EXTENSIONS'] = set(['png','jpeg','jpg'])
+
+
 Configuration = {}
 configFilePath = os.getcwd() +  '/app/config/configuration.yaml'
 with open(configFilePath, 'r') as stream:

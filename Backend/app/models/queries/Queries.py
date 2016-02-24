@@ -8,6 +8,10 @@ from datetime import datetime, timedelta
 from time import strftime
 import uuid
 import hashlib
+from PIL import Image
+import gridfs
+import os
+import pymongo
 
 
 def _hashPassword(password):
@@ -47,6 +51,8 @@ class NoteQueries():
                          doc['exclusions'] = note.excludedOwners
                          doc['creationDate'] = note.creationDate
                          doc['deletionDate'] = note.noteDeletionDate
+                         doc['noteProperty'] = note.noteProperty
+                         doc['imageurl'] = note.imageURL
                          allNotes.append(doc)
           except Exception, e:
                print str(e)
@@ -74,6 +80,8 @@ class NoteQueries():
                          doc['exclusions'] = note.excludedOwners
                          doc['creationDate'] = note.creationDate
                          doc['deletionDate'] = note.noteDeletionDate
+                         doc['noteProperty'] = note.noteProperty
+                         doc['imageurl'] = note.imageURL
                          allNotes.append(doc)
           except Exception, e:
                print str(e)
@@ -106,6 +114,8 @@ class NoteQueries():
                               doc['exclusions'] = note.excludedOwners
                               doc['creationDate'] = note.creationDate
                               doc['deletionDate'] = note.noteDeletionDate
+                              doc['noteProperty'] = note.noteProperty
+                              doc['imageurl'] = note.imageURL
                               allNotes.append(doc)
           except Exception, e:
                print str(e)
@@ -234,6 +244,8 @@ class NoteQueries():
                note.noteDeletionDate = datetime.now() + timedelta(days=3)
                note.excludedOwners = []
                note.favedOwners = []
+               note.noteProperty = postdata['noteProperty']
+               note.imageURL = postdata['imageurl']
         
                newNote = note.save()
                
@@ -249,6 +261,8 @@ class NoteQueries():
                doc['exclusions'] = newNote.excludedOwners
                doc['creationDate'] = newNote.creationDate
                doc['deletionDate'] = newNote.noteDeletionDate
+               doc['noteProperty'] = note.noteProperty
+               doc['imageurl'] = note.imageURL
                
           except Exception,e:
                print str(e)
@@ -256,6 +270,39 @@ class NoteQueries():
                return data
           
           return {"data" : [doc]}
+          
+     
+     def postImage(self,imgFilename):
+
+        returnData = {}
+        
+        try:
+            path = os.path.join('/tmp',imgFilename)
+            
+            im = Image.open(path)
+            width = im.size[0]
+            height = im.size[1]
+
+            f = open(path,'r')
+            imgData = f.read()
+            f.close()
+            
+            mongouri = 'mongodb://localhost:27017'
+            client = pymongo.MongoClient(mongouri)
+            db = client["pinit"]
+            gfs = gridfs.GridFS(db,collection='images')
+
+            imgFileid = gfs.put(imgData, content_type='image/png',thumbnail_id=None,width=width,height=height)
+            
+            returnData["status"] = "success"
+            returnData["image"] = str(imgFileid)
+        
+        except Exception, e:
+            
+            returnData["status"] = "error"
+            returnData["message"] = str(e)
+            
+        return returnData
           
      
 

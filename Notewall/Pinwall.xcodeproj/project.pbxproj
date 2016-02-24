@@ -65,6 +65,7 @@
 		8EAD0CDA1C79243500CA0E65 /* photolib.png in Resources */ = {isa = PBXBuildFile; fileRef = 8EAD0CD91C79243500CA0E65 /* photolib.png */; };
 		8EAD0CDC1C79248F00CA0E65 /* nophoto.png in Resources */ = {isa = PBXBuildFile; fileRef = 8EAD0CDB1C79248F00CA0E65 /* nophoto.png */; };
 		8EAD0CDE1C79E00100CA0E65 /* TextNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAD0CDD1C79E00100CA0E65 /* TextNote.swift */; };
+		8EAD0CF81C7D000A00CA0E65 /* Polaroid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAD0CF71C7D000A00CA0E65 /* Polaroid.swift */; };
 		8EBA873D1C5E9721006F091E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8EBA873C1C5E9721006F091E /* GoogleService-Info.plist */; };
 		8ECE6A811C5E3A7600B3B8BA /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ECE6A801C5E3A7600B3B8BA /* FileHandler.swift */; };
 		8ECE6A831C5E3B0D00B3B8BA /* Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8ECE6A821C5E3B0D00B3B8BA /* Config.plist */; };
@@ -159,6 +160,7 @@
 		8EAD0CD91C79243500CA0E65 /* photolib.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = photolib.png; sourceTree = "<group>"; };
 		8EAD0CDB1C79248F00CA0E65 /* nophoto.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nophoto.png; sourceTree = "<group>"; };
 		8EAD0CDD1C79E00100CA0E65 /* TextNote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextNote.swift; sourceTree = "<group>"; };
+		8EAD0CF71C7D000A00CA0E65 /* Polaroid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Polaroid.swift; sourceTree = "<group>"; };
 		8EBA873C1C5E9721006F091E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		8EBA873E1C5E996F006F091E /* Pinwall-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Pinwall-Bridging-Header.h"; sourceTree = "<group>"; };
 		8ECE6A801C5E3A7600B3B8BA /* FileHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHandler.swift; sourceTree = "<group>"; };
@@ -319,6 +321,7 @@
 				8EA8C00A1C6A898D0034D50B /* CloseView.swift */,
 				8EDBC96E1C6F6ABE0016A5E2 /* MessageView.swift */,
 				8EAD0CDD1C79E00100CA0E65 /* TextNote.swift */,
+				8EAD0CF71C7D000A00CA0E65 /* Polaroid.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -646,6 +649,7 @@
 				8E64D7261C5294DC001CF659 /* Common.swift in Sources */,
 				8E64D7291C52961C001CF659 /* WallNotes.swift in Sources */,
 				8E37A2281C5505FF002E776F /* CustomButton.swift in Sources */,
+				8EAD0CF81C7D000A00CA0E65 /* Polaroid.swift in Sources */,
 				8E64D7161C515C63001CF659 /* MainController.swift in Sources */,
 				8E64D6E71C515BE1001CF659 /* AppDelegate.swift in Sources */,
 				8E64D7381C52EC70001CF659 /* Constants.swift in Sources */,

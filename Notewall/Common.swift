@@ -148,8 +148,33 @@ class Common:NSObject {
         
     }
     
+    func formMultipartFormData(data:NSDictionary?,imageName:String) -> NSData? {
+        
+        let boundry = "helloWSXCDF"
+        let httpBody:NSMutableData? = NSMutableData()
+        
+        var httpBodyStr = "\r\n--" + boundry + "\r\n" + "Content-Disposition:form-data; name=\"file\"; filename=\"" + imageName + "\"" + "\r\n" + "Content-Type:image/jpeg\r\n\r\n"
+        httpBody!.appendData(NSString(string: httpBodyStr).dataUsingEncoding(NSUTF8StringEncoding)!)
+        if (Common.sharedCommon.config![kKeyPolaroid] != nil) {
+            
+            httpBody!.appendData(Common.sharedCommon.config![kKeyPolaroid] as! NSData)
+        }
+        
+        httpBodyStr = "\r\n--" + boundry + "\r\n" + "Content-Disposition:form-data; name=\"jsondata\"" + "\r\n" + "Content-Type:application/json" + "\r\n\r\n"
+        httpBody!.appendData(NSString(string: httpBodyStr).dataUsingEncoding(NSUTF8StringEncoding)!)
+        httpBody!.appendData(self.formPostBody(data)!)
+        httpBody!.appendData(NSString(string: "\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
+        
+        httpBodyStr = "\r\n--" + boundry + "--\r\n"
+        httpBody!.appendData(NSString(string: httpBodyStr).dataUsingEncoding(NSUTF8StringEncoding)!)
+        
+        return httpBody
+        
+    }
     
-    func postRequestAndHadleResponse(path :kAllowedPaths, body:NSDictionary?, replace:NSDictionary?, completion : (Bool,NSDictionary) -> Void) {
+    
+    func postRequestAndHadleResponse(path :kAllowedPaths, body:NSDictionary?, replace:NSDictionary?, requestContentType:kContentTypes, completion : (Bool,NSDictionary) -> Void) {
+        
         
         if kRunMode == kRunModes.modeDebug {
             
@@ -172,8 +197,6 @@ class Common:NSObject {
             
             if (replace != nil) {
                 
-                print(replace!)
-                
                 let keys = NSArray(array:replace!.allKeys)
                 
                 for key in keys {
@@ -188,17 +211,38 @@ class Common:NSObject {
             
             if ((method == "POST" || method == "PUT" || method == "DELETE") && body != nil) {
                 
-                let postBody = formPostBody(body)
+                if (requestContentType == .kApplicationJson) {
+                    
+                    let postBody = formPostBody(body)
+                    
+                    if (postBody == nil) {
+                        
+                        print("Error in serializing post body")
+                    }
+                    else {
+                        
+                        restRequest.HTTPBody = postBody!
+                        restRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                    }
+                }
+                else if (requestContentType == .kMultipartFormData) {
+                    
+                    
+                    let postBody = formMultipartFormData(body, imageName: body!["imageurl"] as! String)
+                    
+                    if (postBody == nil) {
+                        
+                        print("Error in serializing post body")
+                    }
+                    else {
+                        
+                        restRequest.HTTPBody = postBody!
+                        restRequest.setValue("multipart/form-data; boundary=\"helloWSXCDF\"", forHTTPHeaderField: "Content-Type")
+                        //restRequest.setValue("base64", forHTTPHeaderField: "Content-Transfer-Encoding")
+                    }
+                    
+                }
                 
-                if (postBody == nil) {
-                    
-                    print("Error in serializing post body")
-                }
-                else {
-                    
-                    restRequest.HTTPBody = postBody!
-                    restRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                }
             }
             
             
@@ -207,6 +251,7 @@ class Common:NSObject {
             let session = NSURLSession(configuration: config)
             let task = session.dataTaskWithRequest(restRequest) { (data, response, error) -> Void in
                 
+                
                 if (error != nil) {
                     
                     let responseDict = NSDictionary(objects: [error!.description], forKeys: ["error"])
@@ -214,18 +259,29 @@ class Common:NSObject {
                 }
                 else {
                     
-                    do {
+                    let responseContentType = (response as! NSHTTPURLResponse).allHeaderFields["Content-Type"]! as! String
+                    if (responseContentType.rangeOfString("image") != nil) {
                         
-                        let jsonResponse = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.MutableContainers)
-                        completion(true,jsonResponse as! NSDictionary)
+                        let responseDict = NSDictionary(objects: [data!], forKeys: ["image"])
+                        completion(true,responseDict)
+                    }
+                    else {
+                        
+                        do {
+                            
+                            let jsonResponse = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.MutableContainers)
+                            completion(true,jsonResponse as! NSDictionary)
+                            
+                        }
+                        catch let err as NSError{
+                            
+                            let responseDict = NSDictionary(objects: [err.userInfo], forKeys: ["error"])
+                            completion(false,responseDict)
+                            
+                        }
                         
                     }
-                    catch let err as NSError{
-                        
-                        let responseDict = NSDictionary(objects: [err.userInfo], forKeys: ["error"])
-                        completion(false,responseDict)
-                        
-                    }
+                    
                 }
             }
             
@@ -236,26 +292,14 @@ class Common:NSObject {
         
     }
     
+    
+    
     func formColorWithRGB(RGB:Array<CGFloat>) -> UIColor {
         
         return UIColor(red: RGB[0], green: RGB[1], blue: RGB[2], alpha: 1.0)
     }
     
     
-    func setSizeForDeviceOrientation() {
-        
-        if (UIDevice.currentDevice().orientation == UIDeviceOrientation.Portrait) {
-            
-            kScreenWidth = UIScreen.mainScreen().bounds.size.width
-            kScreenHeight = UIScreen.mainScreen().bounds.size.height
-        }
-        else if (UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeLeft || UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeRight) {
-            
-            kScreenWidth = UIScreen.mainScreen().bounds.size.height
-            kScreenHeight = UIScreen.mainScreen().bounds.size.width
-        }
-        
-    }
     
     func showMessageViewWithMessage(controller:UIViewController,message:String,startTimer:Bool) {
         

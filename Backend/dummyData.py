@@ -40,7 +40,10 @@ def __createNotes():
                      notePinned=False,
                      creationDate = datetime.datetime.now(),
                      noteDeletionDate = datetime.datetime.now() + datetime.timedelta(days=3),
-                     favedOwners = []
+                     favedOwners = [],
+                     excludedOwners = [],
+                     noteProperty =  "N",
+                     imageURL = ""
         ).save()
 
 
