@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import Crashlytics
+
 
 protocol NoteWallProtocolDelegate {
     
@@ -42,6 +44,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     override func viewDidLoad() {
         
+
         
         self.view.backgroundColor = UIColor.blackColor()
         self.backgroundImageName = kBackGrounds[backgroundImageIndex]["bg"] as? String
@@ -61,10 +64,12 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.bgScrollView!.maximumZoomScale = 4.0
         self.bgScrollView!.canCancelContentTouches = true
         self.view.addSubview(self.bgScrollView!) */
+
         
         self.loadMainView()
         
     }
+
     
     
     override func viewDidAppear(animated: Bool) {

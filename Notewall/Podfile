@@ -5,6 +5,8 @@ use_frameworks!
 
 target 'Pinwall' do
 pod 'Google/SignIn'
+pod 'Fabric'
+pod 'Crashlytics'
 end
 
 target 'PinwallTests' do

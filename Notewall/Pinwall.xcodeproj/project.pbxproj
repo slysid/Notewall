@@ -429,6 +429,7 @@
 				8E64D6E11C515BE1001CF659 /* Resources */,
 				130F75DD1E054694E7856F72 /* Embed Pods Frameworks */,
 				CD448F7ED9A60DC73E582EBE /* Copy Pods Resources */,
+				8EAD0CF91C7E3B3200CA0E65 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -605,6 +606,19 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Pinwall/Pods-Pinwall-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		8EAD0CF91C7E3B3200CA0E65 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Fabric/run\" 9bbf0ac1aad95705c421b177bbe99999e935f6d4 622cb80d4993ebf4a243adb0165ad70a883ca41fa5668001256b1af8cdb045d8";
+		};
 		917D378F45993B02E349F742 /* Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -723,8 +737,8 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Bharath Kumar Devaraj (3R2AX52B9X)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Bharath Kumar Devaraj (3R2AX52B9X)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Bharath Kumar Devaraj (VFYAS9MCSU)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Bharath Kumar Devaraj (VFYAS9MCSU)";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -769,8 +783,8 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Bharath Kumar Devaraj (3R2AX52B9X)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Bharath Kumar Devaraj (3R2AX52B9X)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Bharath Kumar Devaraj (VFYAS9MCSU)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Bharath Kumar Devaraj (VFYAS9MCSU)";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -798,6 +812,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Bharath Kumar Devaraj (3R2AX52B9X)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Notewall/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -816,6 +831,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Bharath Kumar Devaraj (3R2AX52B9X)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Notewall/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;

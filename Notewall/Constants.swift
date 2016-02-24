@@ -105,7 +105,7 @@ let kLoginTextFieldWidth:CGFloat = UIScreen.mainScreen().bounds.size.width * 0.7
 
 let kRunMode = kRunModes.modeLive
 let kHttpProtocol = "http"
-let kHttpHost = "172.17.50.170" //"192.168.0.12"
+let kHttpHost = "qacloud.accedo.tv" //"172.17.50.170" //"192.168.0.12"
 let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/owner/register", "method" : "POST" ],
                   ["path" : "/api/notes/all", "method" : "POST"],
