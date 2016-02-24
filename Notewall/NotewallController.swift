@@ -16,7 +16,7 @@ protocol NoteWallProtocolDelegate {
     func handleLogout()
 }
 
-class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegate, NoteDelegate,UITextViewDelegate,ComposeDelegate, CloseViewProtocolDelegate {
+class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegate, NoteDelegate,UITextViewDelegate,ComposeDelegate, CloseViewProtocolDelegate, ConfirmProtocolDelegate {
     
     var bgImage:UIImageView?
     var transImage:UIImageView?
@@ -98,6 +98,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     func loadMainView() {
         
         self.blownUpCount = 0
+        self.allBlownUpNotes.removeAll()
+        self.allBlownUpNotes = []
         
         //masterView = UIView(frame: CGRectMake(0,0,self.bgScrollView!.contentSize.width,self.bgScrollView!.contentSize.height))
         masterView = UIView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width, UIScreen.mainScreen().bounds.size.height))
@@ -273,6 +275,49 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
     }
     
+    // Confirm Delegate
+    
+    func okTapped(sender: ConfirmView, requester: AnyObject?) {
+        
+        let note = requester as? Note
+        
+        let removeNote = self.allBlownUpNotes.last!
+        let noteID = removeNote.stickyNoteID! as String
+        let paramData = NSDictionary(objects: [noteID], forKeys: ["<noteid>"])
+        
+        let data = ["ownerid" : Common.sharedCommon.config!["ownerId"] as! String]
+        
+        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathRemoveNote, body: data, replace: paramData, requestContentType:kContentTypes.kApplicationJson, completion: { (result, response) -> Void in
+        
+        if (result == true) {
+        
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+        
+        UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
+        
+        note!.center = CGPointMake(note!.center.x, note!.center.y + UIScreen.mainScreen().bounds.size.height)
+        
+        
+        }) { (Bool) -> Void in
+        
+        
+                note!.sourceWallNote!.removeAttributes(note!.sourceWallNote!)
+                self.blowUpRemovalCommonActions(note!)
+        
+                    }
+        
+                })
+            }
+        })
+    }
+    
+    func cancelTapped(sender: ConfirmView, requester:AnyObject?) {
+        
+        (requester as? Note)!.alpha = 1.0
+        self.favButton!.alpha = 1.0
+        
+    }
+    
     //Note Delegate
     
     func removeNoteFromView(note: Note) {
@@ -298,34 +343,25 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     func noteDownSwiped(note: Note) {
         
-        let removeNote = self.allBlownUpNotes.last!
-        let noteID = removeNote.stickyNoteID! as String
-        let paramData = NSDictionary(objects: [noteID], forKeys: ["<noteid>"])
+        note.alpha = 0.5
         
-        let data = ["ownerid" : Common.sharedCommon.config!["ownerId"] as! String]
+        let confirm = ConfirmView(frame: CGRectMake(0,0,380,200),requester:note)
+        confirm.confirmDelegate = self
+        confirm.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, -confirm.frame.size.height)
+        self.view.addSubview(confirm)
         
-        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathRemoveNote, body: data, replace: paramData, requestContentType:kContentTypes.kApplicationJson, completion: { (result, response) -> Void in
+        dispatch_async(dispatch_get_main_queue()) { () -> Void in
             
-            if (result == true) {
-            
-                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            UIView.animateWithDuration(1.0, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
                 
-                UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
+                
+                confirm.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, UIScreen.mainScreen().bounds.size.height * 0.5)
+                self.favButton!.alpha = 0.0
+                
+                }, completion: { (Bool) -> Void in
                     
-                    note.center = CGPointMake(note.center.x, note.center.y + kScreenHeight)
-                    
-                    
-                    }) { (Bool) -> Void in
-                        
-                        
-                        note.sourceWallNote!.removeAttributes(note.sourceWallNote!)
-                        self.blowUpRemovalCommonActions(note)
-                        
-                }
-
-             })
-          }
-       })
+            })
+        }
         
     }
     
@@ -492,10 +528,11 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         for v in self.view.subviews {
             
-            if v is Note || v is WallNote {
+            if v is Note || v is WallNote || v is ConfirmView {
                 
                 v.removeFromSuperview()
             }
+            
         }
         
         if (messageView != nil) {
@@ -683,6 +720,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             }) { (Bool) -> Void in
                 
+                self.backgroundImage!.removeFromSuperview()
+                self.backgroundImage = nil
                 self.masterView!.removeFromSuperview()
                 self.masterView = nil
                 self.loadMainView()

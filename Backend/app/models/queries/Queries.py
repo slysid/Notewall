@@ -188,7 +188,8 @@ class NoteQueries():
                     
                for o in Owners.objects(id=ownerid):
                     owner = o
-          
+                    
+               
                excludedOwners = note.excludedOwners
                if ownerid not in excludedOwners:
                     excludedOwners.append(ownerid)
@@ -202,12 +203,11 @@ class NoteQueries():
                     favUpdate = True
                     
                favorites = owner.favorites
-               print favorites
+               
                if noteid in favorites:
                     dataInAllList = True
                     favorites.remove(noteid)
                     owner.favorites = favorites
-                    print "updated"
                     ownUpdate = True
                
                if dataInAllList == True:
@@ -217,7 +217,11 @@ class NoteQueries():
                else:
                     if excludeUpdate == True or favUpdate == True:
                          note.save()
-                         owner.save()
+                         owner.save
+                         
+               if note.ownerId.id == owner.id:
+                    note.delete()          
+               
           except Exception, e:
                print str(e)
                return {"data" : {"error":"error in removing notes"}}

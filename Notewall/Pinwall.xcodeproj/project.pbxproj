@@ -66,6 +66,9 @@
 		8EAD0CDC1C79248F00CA0E65 /* nophoto.png in Resources */ = {isa = PBXBuildFile; fileRef = 8EAD0CDB1C79248F00CA0E65 /* nophoto.png */; };
 		8EAD0CDE1C79E00100CA0E65 /* TextNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAD0CDD1C79E00100CA0E65 /* TextNote.swift */; };
 		8EAD0CF81C7D000A00CA0E65 /* Polaroid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAD0CF71C7D000A00CA0E65 /* Polaroid.swift */; };
+		8EAD0CFB1C7E4C7B00CA0E65 /* ConfirmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAD0CFA1C7E4C7B00CA0E65 /* ConfirmView.swift */; };
+		8EAD0CFE1C7E4ED700CA0E65 /* cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = 8EAD0CFC1C7E4ED700CA0E65 /* cancel.png */; };
+		8EAD0CFF1C7E4ED700CA0E65 /* ok.png in Resources */ = {isa = PBXBuildFile; fileRef = 8EAD0CFD1C7E4ED700CA0E65 /* ok.png */; };
 		8EBA873D1C5E9721006F091E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8EBA873C1C5E9721006F091E /* GoogleService-Info.plist */; };
 		8ECE6A811C5E3A7600B3B8BA /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ECE6A801C5E3A7600B3B8BA /* FileHandler.swift */; };
 		8ECE6A831C5E3B0D00B3B8BA /* Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8ECE6A821C5E3B0D00B3B8BA /* Config.plist */; };
@@ -161,6 +164,9 @@
 		8EAD0CDB1C79248F00CA0E65 /* nophoto.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nophoto.png; sourceTree = "<group>"; };
 		8EAD0CDD1C79E00100CA0E65 /* TextNote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextNote.swift; sourceTree = "<group>"; };
 		8EAD0CF71C7D000A00CA0E65 /* Polaroid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Polaroid.swift; sourceTree = "<group>"; };
+		8EAD0CFA1C7E4C7B00CA0E65 /* ConfirmView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfirmView.swift; sourceTree = "<group>"; };
+		8EAD0CFC1C7E4ED700CA0E65 /* cancel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cancel.png; sourceTree = "<group>"; };
+		8EAD0CFD1C7E4ED700CA0E65 /* ok.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ok.png; sourceTree = "<group>"; };
 		8EBA873C1C5E9721006F091E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		8EBA873E1C5E996F006F091E /* Pinwall-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Pinwall-Bridging-Header.h"; sourceTree = "<group>"; };
 		8ECE6A801C5E3A7600B3B8BA /* FileHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHandler.swift; sourceTree = "<group>"; };
@@ -294,6 +300,8 @@
 				8EAD0CD71C79104300CA0E65 /* imagenote.png */,
 				8EAD0CD91C79243500CA0E65 /* photolib.png */,
 				8EAD0CDB1C79248F00CA0E65 /* nophoto.png */,
+				8EAD0CFC1C7E4ED700CA0E65 /* cancel.png */,
+				8EAD0CFD1C7E4ED700CA0E65 /* ok.png */,
 				8E64D72A1C52CF95001CF659 /* StickyNotes */,
 			);
 			name = Images;
@@ -322,6 +330,7 @@
 				8EDBC96E1C6F6ABE0016A5E2 /* MessageView.swift */,
 				8EAD0CDD1C79E00100CA0E65 /* TextNote.swift */,
 				8EAD0CF71C7D000A00CA0E65 /* Polaroid.swift */,
+				8EAD0CFA1C7E4C7B00CA0E65 /* ConfirmView.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -560,6 +569,7 @@
 				8E5D7A1E1C613E5500E3815C /* close.png in Resources */,
 				8EA8BFF61C668B680034D50B /* noteGreen2.png in Resources */,
 				8EA8BFF81C668B680034D50B /* noteWhite2.png in Resources */,
+				8EAD0CFF1C7E4ED700CA0E65 /* ok.png in Resources */,
 				8EA8BFE51C668B470034D50B /* noteYellow4.png in Resources */,
 				8E5D7A1B1C61336900E3815C /* noteWhite.png in Resources */,
 				8EAD0CD21C79052800CA0E65 /* heart.png in Resources */,
@@ -571,6 +581,7 @@
 				8EAD0CD41C79052800CA0E65 /* notes.png in Resources */,
 				8EA8BFC91C664A480034D50B /* google.png in Resources */,
 				8E5D7A1A1C61336900E3815C /* notePink.png in Resources */,
+				8EAD0CFE1C7E4ED700CA0E65 /* cancel.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -669,6 +680,7 @@
 				8E64D7381C52EC70001CF659 /* Constants.swift in Sources */,
 				8E64D7181C515D86001CF659 /* NotewallController.swift in Sources */,
 				8E37A22A1C55168A002E776F /* SettingsScroll.swift in Sources */,
+				8EAD0CFB1C7E4C7B00CA0E65 /* ConfirmView.swift in Sources */,
 				8EA8C0051C678DD10034D50B /* ComposeNote.swift in Sources */,
 				8EDBC96F1C6F6ABE0016A5E2 /* MessageView.swift in Sources */,
 				8E37A2261C54EF55002E776F /* ComposeNoteController.swift in Sources */,
