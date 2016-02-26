@@ -32,6 +32,9 @@ class WallNote:UIImageView {
     var isNote = true
     var imageFileName:String?
     var imageThumbData:NSData?
+    var followingNoteOwner:Bool?
+    var ownerID:String?
+    var ownerName:String?
     
     init(frame: CGRect, noteType:String?, noteText:String, noteFont:String?, noteFontSize:CGFloat?,noteFontColor:UIColor?, isNote:Bool, imageFileName:String?) {
         

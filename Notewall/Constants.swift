@@ -22,6 +22,7 @@ enum kAllowedPaths {
     case kPathGetNotesForOwner
     case kPathGetFavNotesForOwner
     case kPathGetImage
+    case kPathFollow
 }
 
 enum kRunModes {
@@ -54,6 +55,7 @@ let kButtonPreviewText = "Preview"
 let kButtonPostText = "Post"
 let kButtonEditText = "Edit"
 let kButtonCancelText = "Cancel"
+let kSocialScreenName = "socialscreenname"
 
 let kTimeoutApp:NSTimeInterval = 60000
 let kLoggedInYetToLogin = "YETTOLOGIN"
@@ -101,11 +103,10 @@ let kFontSizes:Array<CGFloat> = [15.0,16.0,17.0,18.0,19.0,20.0,21.0,22.0,23.0,24
 let kFontColor:Array<Array<CGFloat>> = [[0.0,0.0,0.0], [255.0,0.0,0.0],[0.0,255.0,0.0],[255.0,255.0,0.0],[96.0,96.0,96.0]]
 
 let kStickyNoteFontSize:CGFloat = 28.0
-let kLoginTextFieldWidth:CGFloat = UIScreen.mainScreen().bounds.size.width * 0.75
 
 let kRunMode = kRunModes.modeLive
 let kHttpProtocol = "http"
-let kHttpHost = "192.168.0.12" //"172.17.50.170" //"192.168.0.12"
+let kHttpHost = "172.17.50.170" //"172.17.50.170" //"192.168.0.12"
 let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/owner/register", "method" : "POST" ],
                   ["path" : "/api/notes/all", "method" : "POST"],
@@ -114,7 +115,8 @@ let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/notes/post", "method" : "POST"],
                   ["path" : "/api/notes/all/owner", "method" : "POST"],
                   ["path" : "/api/notes/all/favs", "method" : "POST"],
-                  ["path" : "/api/uploads/<filename>","method" : "GET"]
+                  ["path" : "/api/uploads/<filename>","method" : "GET"],
+                  ["path" : "/api/owner/follow/<followownerid>","method" : "PUT"]
 ]
 
 
@@ -142,6 +144,10 @@ let kDebugAllNotesResponse = [ "data" : [
                                          "owners" : []]
     
     ]]
+
+
+let kMenuOptions = [1:["title":"GENERAL","icon":"home.png","selector":"optionItemGeneral"],2:["title":"LOGOUT","icon":"logout.png","selector":"optionItemLogout"]]
+let kGeneralMenuOptions = [1:["title":"SETTINGS","icon":"home.png","selector":"handleGeneral"],2:["title":"HOWTO","icon":"logout.png","selector":"handleLogout"],3:["title":"ABOUT","icon":"logout.png","selector":"handleLogout"]]
 
 
 var kDevice:String {

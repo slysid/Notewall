@@ -7,10 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8E15F5171C80854300E852FC /* follow.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E15F5161C80854300E852FC /* follow.png */; };
+		8E15F5191C80854D00E852FC /* unfollow.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E15F5181C80854D00E852FC /* unfollow.png */; };
+		8E1B42491C7F18DF0094CD64 /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B42481C7F18DF0094CD64 /* TutorialView.swift */; };
+		8E1B424E1C7F29A30094CD64 /* Roboto-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8E1B424D1C7F29A30094CD64 /* Roboto-Regular.ttf */; };
+		8E1B42511C7F3BAD0094CD64 /* OptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B42501C7F3BAD0094CD64 /* OptionsView.swift */; };
+		8E1B42531C7F3E360094CD64 /* OptionsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B42521C7F3E360094CD64 /* OptionsItem.swift */; };
+		8E1B42551C7F52590094CD64 /* logout.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E1B42541C7F52590094CD64 /* logout.png */; };
+		8E1B42571C7F52630094CD64 /* setting.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E1B42561C7F52630094CD64 /* setting.png */; };
+		8E1B42591C7F526F0094CD64 /* home.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E1B42581C7F526F0094CD64 /* home.png */; };
 		8E37A2261C54EF55002E776F /* ComposeNoteController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E37A2251C54EF55002E776F /* ComposeNoteController.swift */; };
 		8E37A2281C5505FF002E776F /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E37A2271C5505FF002E776F /* CustomButton.swift */; };
 		8E37A22A1C55168A002E776F /* SettingsScroll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E37A2291C55168A002E776F /* SettingsScroll.swift */; };
-		8E41694B1C6BF1E400D3F8F5 /* logout.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E41694A1C6BF1E400D3F8F5 /* logout.png */; };
 		8E4A8CB11C5FF63100440942 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E4A8CB01C5FF63100440942 /* LoginViewController.swift */; };
 		8E5D7A181C61336900E3815C /* noteBlue.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E5D7A131C61336900E3815C /* noteBlue.png */; };
 		8E5D7A191C61336900E3815C /* noteGreen.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E5D7A141C61336900E3815C /* noteGreen.png */; };
@@ -99,10 +107,18 @@
 /* Begin PBXFileReference section */
 		474878C31A24CD351C341780 /* Pods-Pinwall.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Pinwall.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Pinwall/Pods-Pinwall.debug.xcconfig"; sourceTree = "<group>"; };
 		699E10DB47D50E381FC76201 /* Pods_Pinwall.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Pinwall.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8E15F5161C80854300E852FC /* follow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = follow.png; sourceTree = "<group>"; };
+		8E15F5181C80854D00E852FC /* unfollow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = unfollow.png; sourceTree = "<group>"; };
+		8E1B42481C7F18DF0094CD64 /* TutorialView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
+		8E1B424D1C7F29A30094CD64 /* Roboto-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Regular.ttf"; sourceTree = "<group>"; };
+		8E1B42501C7F3BAD0094CD64 /* OptionsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsView.swift; sourceTree = "<group>"; };
+		8E1B42521C7F3E360094CD64 /* OptionsItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsItem.swift; sourceTree = "<group>"; };
+		8E1B42541C7F52590094CD64 /* logout.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logout.png; sourceTree = "<group>"; };
+		8E1B42561C7F52630094CD64 /* setting.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = setting.png; sourceTree = "<group>"; };
+		8E1B42581C7F526F0094CD64 /* home.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = home.png; sourceTree = "<group>"; };
 		8E37A2251C54EF55002E776F /* ComposeNoteController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComposeNoteController.swift; sourceTree = "<group>"; };
 		8E37A2271C5505FF002E776F /* CustomButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		8E37A2291C55168A002E776F /* SettingsScroll.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsScroll.swift; sourceTree = "<group>"; };
-		8E41694A1C6BF1E400D3F8F5 /* logout.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logout.png; sourceTree = "<group>"; };
 		8E4A8CB01C5FF63100440942 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		8E5D7A131C61336900E3815C /* noteBlue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = noteBlue.png; sourceTree = "<group>"; };
 		8E5D7A141C61336900E3815C /* noteGreen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = noteGreen.png; sourceTree = "<group>"; };
@@ -212,11 +228,20 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		8E1B424A1C7F28360094CD64 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				8E1B424D1C7F29A30094CD64 /* Roboto-Regular.ttf */,
+			);
+			name = Fonts;
+			sourceTree = "<group>";
+		};
 		8E64D6DA1C515BE1001CF659 = {
 			isa = PBXGroup;
 			children = (
 				8EBA873E1C5E996F006F091E /* Pinwall-Bridging-Header.h */,
 				8E64D7191C516395001CF659 /* Images */,
+				8E1B424A1C7F28360094CD64 /* Fonts */,
 				8E64D7271C529600001CF659 /* Views */,
 				8E64D7241C5294AF001CF659 /* Commons */,
 				8E64D7141C515C24001CF659 /* ViewControllers */,
@@ -290,7 +315,6 @@
 				8EA8BFC21C6644260034D50B /* fb.png */,
 				8EA8BFC81C664A480034D50B /* google.png */,
 				8EA8BFC61C6647DC0034D50B /* mail.png */,
-				8E41694A1C6BF1E400D3F8F5 /* logout.png */,
 				8EEDD6391C6D303200DE5CC2 /* addfav.png */,
 				8EEDD63A1C6D303200DE5CC2 /* removefav.png */,
 				8EAD0CCF1C79052800CA0E65 /* heart.png */,
@@ -302,6 +326,11 @@
 				8EAD0CDB1C79248F00CA0E65 /* nophoto.png */,
 				8EAD0CFC1C7E4ED700CA0E65 /* cancel.png */,
 				8EAD0CFD1C7E4ED700CA0E65 /* ok.png */,
+				8E1B42541C7F52590094CD64 /* logout.png */,
+				8E1B42561C7F52630094CD64 /* setting.png */,
+				8E1B42581C7F526F0094CD64 /* home.png */,
+				8E15F5161C80854300E852FC /* follow.png */,
+				8E15F5181C80854D00E852FC /* unfollow.png */,
 				8E64D72A1C52CF95001CF659 /* StickyNotes */,
 			);
 			name = Images;
@@ -331,6 +360,9 @@
 				8EAD0CDD1C79E00100CA0E65 /* TextNote.swift */,
 				8EAD0CF71C7D000A00CA0E65 /* Polaroid.swift */,
 				8EAD0CFA1C7E4C7B00CA0E65 /* ConfirmView.swift */,
+				8E1B42481C7F18DF0094CD64 /* TutorialView.swift */,
+				8E1B42501C7F3BAD0094CD64 /* OptionsView.swift */,
+				8E1B42521C7F3E360094CD64 /* OptionsItem.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -545,8 +577,8 @@
 				8EA8C0001C668B790034D50B /* noteGreen1.png in Resources */,
 				8EA8BFCE1C665B0A0034D50B /* bg3.jpg in Resources */,
 				8ECE6A831C5E3B0D00B3B8BA /* Config.plist in Resources */,
+				8E1B42551C7F52590094CD64 /* logout.png in Resources */,
 				8EAD0CDC1C79248F00CA0E65 /* nophoto.png in Resources */,
-				8E41694B1C6BF1E400D3F8F5 /* logout.png in Resources */,
 				8EA8BFE11C668B470034D50B /* noteBlue4.png in Resources */,
 				8EA8BFCD1C665B0A0034D50B /* bg2.jpg in Resources */,
 				8EBA873D1C5E9721006F091E /* GoogleService-Info.plist in Resources */,
@@ -556,12 +588,16 @@
 				8EA8BFC71C6647DC0034D50B /* mail.png in Resources */,
 				8EA8BFED1C668B590034D50B /* notePink3.png in Resources */,
 				8EA8C0021C668B790034D50B /* noteWhite1.png in Resources */,
+				8E1B424E1C7F29A30094CD64 /* Roboto-Regular.ttf in Resources */,
+				8E1B42591C7F526F0094CD64 /* home.png in Resources */,
+				8E15F5171C80854300E852FC /* follow.png in Resources */,
 				8E5D7A191C61336900E3815C /* noteGreen.png in Resources */,
 				8EA8BFFF1C668B790034D50B /* noteBlue1.png in Resources */,
 				8EAD0CDA1C79243500CA0E65 /* photolib.png in Resources */,
 				8EA8BFF91C668B680034D50B /* noteYellow2.png in Resources */,
 				8EA8BFC31C6644260034D50B /* fb.png in Resources */,
 				8EAD0CD61C7908E500CA0E65 /* camera.png in Resources */,
+				8E15F5191C80854D00E852FC /* unfollow.png in Resources */,
 				8EA8C0011C668B790034D50B /* notePink1.png in Resources */,
 				8EAD0CD31C79052800CA0E65 /* my.png in Resources */,
 				8EA8BFEF1C668B590034D50B /* noteYellow3.png in Resources */,
@@ -571,6 +607,7 @@
 				8EA8BFF81C668B680034D50B /* noteWhite2.png in Resources */,
 				8EAD0CFF1C7E4ED700CA0E65 /* ok.png in Resources */,
 				8EA8BFE51C668B470034D50B /* noteYellow4.png in Resources */,
+				8E1B42571C7F52630094CD64 /* setting.png in Resources */,
 				8E5D7A1B1C61336900E3815C /* noteWhite.png in Resources */,
 				8EAD0CD21C79052800CA0E65 /* heart.png in Resources */,
 				8ECE6A8D1C5E865D00B3B8BA /* bg1.png in Resources */,
@@ -670,11 +707,13 @@
 				8EA8C0091C6A83CD0034D50B /* CustomTextField.swift in Sources */,
 				8E4A8CB11C5FF63100440942 /* LoginViewController.swift in Sources */,
 				8EAD0CDE1C79E00100CA0E65 /* TextNote.swift in Sources */,
+				8E1B42511C7F3BAD0094CD64 /* OptionsView.swift in Sources */,
 				8ECE6A811C5E3A7600B3B8BA /* FileHandler.swift in Sources */,
 				8E64D7261C5294DC001CF659 /* Common.swift in Sources */,
 				8E64D7291C52961C001CF659 /* WallNotes.swift in Sources */,
 				8E37A2281C5505FF002E776F /* CustomButton.swift in Sources */,
 				8EAD0CF81C7D000A00CA0E65 /* Polaroid.swift in Sources */,
+				8E1B42491C7F18DF0094CD64 /* TutorialView.swift in Sources */,
 				8E64D7161C515C63001CF659 /* MainController.swift in Sources */,
 				8E64D6E71C515BE1001CF659 /* AppDelegate.swift in Sources */,
 				8E64D7381C52EC70001CF659 /* Constants.swift in Sources */,
@@ -682,6 +721,7 @@
 				8E37A22A1C55168A002E776F /* SettingsScroll.swift in Sources */,
 				8EAD0CFB1C7E4C7B00CA0E65 /* ConfirmView.swift in Sources */,
 				8EA8C0051C678DD10034D50B /* ComposeNote.swift in Sources */,
+				8E1B42531C7F3E360094CD64 /* OptionsItem.swift in Sources */,
 				8EDBC96F1C6F6ABE0016A5E2 /* MessageView.swift in Sources */,
 				8E37A2261C54EF55002E776F /* ComposeNoteController.swift in Sources */,
 				8E64D7361C52D2C6001CF659 /* Note.swift in Sources */,

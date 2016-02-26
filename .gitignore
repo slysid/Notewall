@@ -1,3 +1,5 @@
 *.pyc
 *.xcuserstate
 *..xcbkptlist
+*.jpg
+*.jpeg

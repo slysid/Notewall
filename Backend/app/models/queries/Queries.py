@@ -22,6 +22,34 @@ def _checkPassword(hashed_password, user_password):
     password, salt = hashed_password.split(':')
     return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
 
+def formNoteDict(note,ownerid):
+     
+     doc = {}
+     doc['noteID'] = str(note.id)
+     doc['ownerID'] = str(note.ownerId.id)
+     doc['noteType'] = note.noteType
+     doc['noteText'] = note.noteText
+     doc['noteTextColor'] = note.noteTextColor
+     doc['noteTextFontSize'] = note.noteTextFontSize
+     doc['noteTextFont'] = note.noteTextFont
+     doc['notePinned'] = note.notePinned
+     doc['owners'] = note.favedOwners
+     doc['exclusions'] = note.excludedOwners
+     doc['creationDate'] = note.creationDate
+     doc['deletionDate'] = note.noteDeletionDate
+     doc['noteProperty'] = note.noteProperty
+     doc['imageurl'] = note.imageURL
+     
+     for o in Owners.objects(id=doc['ownerID']):
+          doc['screenName'] = o.screenName
+          if ownerid in o.followers:
+               doc['followingNoteOwner'] = True
+          else:
+               doc['followingNoteOwner'] = False
+     
+     return doc
+     
+
 
 class NoteQueries():
      
@@ -39,20 +67,7 @@ class NoteQueries():
           
                for note in Notes.objects(noteDeletionDate__gt=datetime.now()):
                     if ownerid not in note.excludedOwners:
-                         doc = {}
-                         doc['noteID'] = str(note.id)
-                         doc['noteType'] = note.noteType
-                         doc['noteText'] = note.noteText
-                         doc['noteTextColor'] = note.noteTextColor
-                         doc['noteTextFontSize'] = note.noteTextFontSize
-                         doc['noteTextFont'] = note.noteTextFont
-                         doc['notePinned'] = note.notePinned
-                         doc['owners'] = note.favedOwners
-                         doc['exclusions'] = note.excludedOwners
-                         doc['creationDate'] = note.creationDate
-                         doc['deletionDate'] = note.noteDeletionDate
-                         doc['noteProperty'] = note.noteProperty
-                         doc['imageurl'] = note.imageURL
+                         doc = formNoteDict(note,ownerid)
                          allNotes.append(doc)
           except Exception, e:
                print str(e)
@@ -68,20 +83,7 @@ class NoteQueries():
           try:
                for note in Notes.objects(Q(ownerId=ownerid) & Q(noteDeletionDate__gt=datetime.now())):
                     if ownerid not in note.excludedOwners:
-                         doc = {}
-                         doc['noteID'] = str(note.id)
-                         doc['noteType'] = note.noteType
-                         doc['noteText'] = note.noteText
-                         doc['noteTextColor'] = note.noteTextColor
-                         doc['noteTextFontSize'] = note.noteTextFontSize
-                         doc['noteTextFont'] = note.noteTextFont
-                         doc['notePinned'] = note.notePinned
-                         doc['owners'] = note.favedOwners
-                         doc['exclusions'] = note.excludedOwners
-                         doc['creationDate'] = note.creationDate
-                         doc['deletionDate'] = note.noteDeletionDate
-                         doc['noteProperty'] = note.noteProperty
-                         doc['imageurl'] = note.imageURL
+                         doc = formNoteDict(note,ownerid)
                          allNotes.append(doc)
           except Exception, e:
                print str(e)
@@ -102,20 +104,7 @@ class NoteQueries():
                
                for noteid in notesList:
                     for note in Notes.objects(Q(id=noteid) & Q(noteDeletionDate__gt=datetime.now())):
-                              doc = {}
-                              doc['noteID'] = str(note.id)
-                              doc['noteType'] = note.noteType
-                              doc['noteText'] = note.noteText
-                              doc['noteTextColor'] = note.noteTextColor
-                              doc['noteTextFontSize'] = note.noteTextFontSize
-                              doc['noteTextFont'] = note.noteTextFont
-                              doc['notePinned'] = note.notePinned
-                              doc['owners'] = note.favedOwners
-                              doc['exclusions'] = note.excludedOwners
-                              doc['creationDate'] = note.creationDate
-                              doc['deletionDate'] = note.noteDeletionDate
-                              doc['noteProperty'] = note.noteProperty
-                              doc['imageurl'] = note.imageURL
+                              doc = formNoteDict(note,ownerid)
                               allNotes.append(doc)
           except Exception, e:
                print str(e)
@@ -253,20 +242,8 @@ class NoteQueries():
         
                newNote = note.save()
                
-               doc = {}
-               doc['noteID'] = str(newNote.id)
-               doc['noteType'] = newNote.noteType
-               doc['noteText'] = newNote.noteText
-               doc['noteTextColor'] = newNote.noteTextColor
-               doc['noteTextFontSize'] = newNote.noteTextFontSize
-               doc['noteTextFont'] = newNote.noteTextFont
-               doc['notePinned'] = newNote.notePinned
-               doc['owners'] = newNote.favedOwners
-               doc['exclusions'] = newNote.excludedOwners
-               doc['creationDate'] = newNote.creationDate
-               doc['deletionDate'] = newNote.noteDeletionDate
-               doc['noteProperty'] = note.noteProperty
-               doc['imageurl'] = note.imageURL
+               doc = formNoteDict(newNote,postdata['ownerid'])
+                        
                
           except Exception,e:
                print str(e)
@@ -317,10 +294,11 @@ class OwnerQueries():
           self.host = Configuration['mongodb']['uri']
           connect('owners',host=self.host)
           
-     def regitserOwner(self,email,password=None):
+     def regitserOwner(self,email,password=None,screenname=None):
           
           isEmailAvailable = False
           resp = {}
+          socialPassword = 'social:login'
           
           for owner in Owners.objects(email=email):
                isEmailAvailable = True
@@ -334,17 +312,64 @@ class OwnerQueries():
                     resp = {'error':'Invalid password'}
                        
           
-          if (isEmailAvailable == False):
+          if (isEmailAvailable == False and screenname == None):
+               if (password == None):
+                    resp = {'error':'socialscreenname'}
+               else:
+                    resp = {'error':'Need a screen name.'}
+               
+          elif (isEmailAvailable == False):
                owner = Owners()
                owner.email = email
+               owner.screenName = screenname.lower()
                owner.favorites = []
+               owner.followers = []
                if password == None:
-                    owner.password = "social:login"
+                    owner.password = socialPassword
                else:
                     owner.password = _hashPassword(password)
                owner.creationDate = datetime.now()
-               data = owner.save()
-               resp['ownerid'] =  str(data.id)
+               try:
+                    data = owner.save()
+                    resp['ownerid'] =  str(data.id)
+               except Exception, e:
+                    if 'duplicate' in str(e):
+                         resp = {"error" : "Screen Name Already Exists"}
+                    else:
+                         resp = {"error" : "Unknown Error"}
           
           
           return {"data" : resp}
+     
+     def followOwner(self,ownerid,followingownerid):
+          
+          resp = {}
+          validFollowingOwner = False
+          
+          try:
+               
+               for f in Owners.objects(id=followingownerid):
+                    validFollowingOwner = True
+                    
+               
+               if validFollowingOwner == True:
+                    if ownerid == followingownerid:
+                         resp = {"error":"Cannot add to self"}
+                    else:
+                         for o in Owners.objects(id=followingownerid):
+                              followers = o.followers
+                              if ownerid in followers:
+                                   followers.remove(ownerid)
+                              else:
+                                   followers.append(ownerid)
+                
+                              o.followers = followers
+                         o.save()
+               
+                         resp = {"success":"OK"}
+               else :
+                    resp = {"error":"Not a valid follow owner id"}
+          except Exception, e:
+                    resp = {"error": str(e)}
+          
+          return {"data" : resp}          

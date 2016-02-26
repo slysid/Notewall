@@ -326,7 +326,7 @@ class Common:NSObject {
         
         self.timerCount = self.timerCount + 1
         
-        if (self.timerCount >= 3) {
+        if (self.timerCount >= 5) {
             
             self.timer!.invalidate()
             self.timerCount = 0

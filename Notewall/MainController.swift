@@ -45,6 +45,7 @@ class MainController:UIViewController,NoteWallProtocolDelegate {
         Common.sharedCommon.config!["email"] = ""
         Common.sharedCommon.config!["isLoggedIn"] = false
         Common.sharedCommon.config!["loggedinDate"] = ""
+        Common.sharedCommon.config![kKeyPolaroid] = nil
         
         FileHandler.sharedHandler.writeToFileWithData(Common.sharedCommon.config!, filename: "Config")
         

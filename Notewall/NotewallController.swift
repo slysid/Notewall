@@ -16,7 +16,7 @@ protocol NoteWallProtocolDelegate {
     func handleLogout()
 }
 
-class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegate, NoteDelegate,UITextViewDelegate,ComposeDelegate, CloseViewProtocolDelegate, ConfirmProtocolDelegate {
+class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegate, NoteDelegate,UITextViewDelegate,ComposeDelegate, CloseViewProtocolDelegate, ConfirmProtocolDelegate,OptionsViewProtocolDelegate {
     
     var bgImage:UIImageView?
     var transImage:UIImageView?
@@ -32,11 +32,14 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var allBlownUpNotes:Array<WallNote> = []
     var notesDataList:Array<Dictionary<String,AnyObject>> = []
     var favButton:UIImageView?
+    var followButton:UIImageView?
     var logOutButton:CloseView?
     var noteWallDelegate:NoteWallProtocolDelegate?
     var messageView:UILabel?
     var wallTypeNotifyImage:UIImageView?
     var wallTypeNotifyImageName:String?
+    var options:OptionsView?
+    var subOptions:OptionsView?
     
     var screenWidth:CGFloat = UIScreen.mainScreen().bounds.size.width
     var screenHeight:CGFloat = UIScreen.mainScreen().bounds.size.height
@@ -138,13 +141,16 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         wallTypeNotifyImage!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, wallTypeDim * 0.5)
         wallTypeNotifyImage!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin)
         wallTypeNotifyImage!.image = UIImage(named: self.wallTypeNotifyImageName!)
+        wallTypeNotifyImage!.userInteractionEnabled = true
         self.masterView!.addSubview(wallTypeNotifyImage!)
+        let notifyTap = UITapGestureRecognizer(target: self, action: "showOptionsMenu")
+        wallTypeNotifyImage!.addGestureRecognizer(notifyTap)
         
         logOutButton = CloseView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width - (1.5 * Common.sharedCommon.calculateDimensionForDevice(30)), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
         logOutButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin
         logOutButton!.image = UIImage(named: "logout.png")
         logOutButton!.closeViewDelegate = self
-        self.masterView!.addSubview(logOutButton!)
+        //self.masterView!.addSubview(logOutButton!)
         
        /* let rightSwipe = UISwipeGestureRecognizer(target: self, action: "changeNoteWall:")
         rightSwipe.direction = .Right
@@ -207,13 +213,25 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         if (favButton == nil) {
             
             let favButtonDim = Common.sharedCommon.calculateDimensionForDevice(50)
-            favButton = UIImageView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width - ( 1.5 * favButtonDim), favButtonDim, favButtonDim, favButtonDim))
+            favButton = UIImageView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width - favButtonDim - 10, favButtonDim, favButtonDim, favButtonDim))
             favButton!.userInteractionEnabled = true
             self.view.addSubview(favButton!)
             favButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
             
             let tap = UITapGestureRecognizer(target: self, action: "favButtonTapped")
             favButton!.addGestureRecognizer(tap)
+        }
+        
+        if (followButton == nil) {
+            
+            let followButtonDim = Common.sharedCommon.calculateDimensionForDevice(50)
+            followButton = UIImageView(frame: CGRectMake(10, followButtonDim, followButtonDim, followButtonDim))
+            followButton!.userInteractionEnabled = true
+            self.view.addSubview(followButton!)
+            followButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
+            
+            let tap = UITapGestureRecognizer(target: self, action: "followButtonTapped")
+            followButton!.addGestureRecognizer(tap)
         }
         
        /* if (noteLifeLabel == nil) {
@@ -230,6 +248,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         } */
         
         self.setFavImage(note)
+        self.setFollowImage(note)
         //self.noteLifeLabel!.text = note.stickyNoteDeletionDate!
         
         let v = Note(frame: note.frame, wallnote:note, expiryDate:note.stickyNoteDeletionDate!)
@@ -315,8 +334,10 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         (requester as? Note)!.alpha = 1.0
         self.favButton!.alpha = 1.0
+        self.followButton!.alpha = 1.0
         
     }
+    
     
     //Note Delegate
     
@@ -357,6 +378,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 
                 confirm.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, UIScreen.mainScreen().bounds.size.height * 0.5)
                 self.favButton!.alpha = 0.0
+                self.followButton!.alpha = 0.0
                 
                 }, completion: { (Bool) -> Void in
                     
@@ -394,6 +416,9 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                     note.favedOwners = newNote["owners"] as? Array<String>
                     note.stickyNoteCreationDate = newNote["creationDate"] as? String
                     note.stickyNoteDeletionDate = newNote["deletionDate"] as? String
+                    note.followingNoteOwner = newNote["followingNoteOwner"] as? Bool
+                    note.ownerID = newNote["ownerID"] as? String
+                    note.ownerName = newNote["screenName"] as? String
                     note.wallnoteDelegate = self
                     self.masterView!.addSubview(note)
 
@@ -421,29 +446,101 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     }
     
     
+    // OPTIONSVIEW DELEGATE METHODS
+    
+    func handleTappedOptionItem(item: OptionsItem) {
+        
+        let selectorString = kMenuOptions[item.tag]!["selector"]
+        let sel = Selector(selectorString!)
+        self.performSelector(sel)
+    }
+    
+    func optionItemLogout() {
+        
+        if (self.noteWallDelegate != nil) {
+            
+            self.noteWallDelegate!.handleLogout()
+        }
+    }
+    
+    func optionItemGeneral() {
+        
+        self.showSubOptionsMenu()
+    }
+    
+    
     // Custom Methods
     
     func setFavImage(note:WallNote) {
         
         let favedOwners = note.favedOwners!
         let ownerId = Common.sharedCommon.config!["ownerId"] as! String
-        if (favedOwners.contains(ownerId)) {
+        
+        if (note.ownerID != ownerId) {
             
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            self.favButton!.alpha = 1.0
+            
+            if (favedOwners.contains(ownerId)) {
                 
-                self.favButton!.image = UIImage(named: "removefav.png")
-            })
-            
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    
+                    self.favButton!.image = UIImage(named: "removefav.png")
+                })
+                
+                
+            }
+            else {
+                
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    
+                    self.favButton!.image = UIImage(named: "addfav.png")
+                })
+                
+            }
             
         }
         else {
             
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                
-                self.favButton!.image = UIImage(named: "addfav.png")
-            })
-
+            self.favButton!.alpha = 0.0
         }
+        
+        
+    }
+    
+    
+    func setFollowImage(note:WallNote) {
+        
+        //let favedOwners = note.favedOwners!
+        let ownerId = Common.sharedCommon.config!["ownerId"] as! String
+        
+        if (ownerId != note.ownerID) {
+            
+            self.followButton!.alpha = 1.0
+            
+            if (note.followingNoteOwner == true) {
+                
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    
+                    self.followButton!.image = UIImage(named: "unfollow.png")
+                })
+                
+                
+            }
+            else {
+                
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    
+                    self.followButton!.image = UIImage(named: "follow.png")
+                })
+                
+            }
+        }
+        else {
+            
+            self.followButton!.alpha = 0.0
+        }
+        
+        
     }
     
     func showExistingNotes() {
@@ -483,6 +580,9 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             note.favedOwners = printNote["owners"] as? Array<String>
             note.stickyNoteCreationDate = printNote["creationDate"] as? String
             note.stickyNoteDeletionDate = printNote["deletionDate"] as? String
+            note.followingNoteOwner = printNote["followingNoteOwner"] as? Bool
+            note.ownerID = printNote["ownerID"] as? String
+            note.ownerName = printNote["screenName"] as? String
             note.wallnoteDelegate = self
             self.masterView!.addSubview(note)
             
@@ -547,6 +647,12 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             favButton = nil
         }
         
+        if (followButton != nil) {
+            
+            followButton?.removeFromSuperview()
+            followButton = nil
+        }
+        
       /*  if (noteLifeLabel != nil) {
             
             noteLifeLabel!.removeFromSuperview()
@@ -603,6 +709,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             let note = self.allBlownUpNotes.last
             self.setFavImage(note!)
+            self.setFollowImage(note!)
         }
         
         if (self.dataSourceAPI == kAllowedPaths.kPathGetFavNotesForOwner) {
@@ -627,7 +734,9 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 self.masterView!.alpha = 1.0
                 self.blownUpCenterX = kScreenWidth * 0.5
                 self.favButton!.removeFromSuperview()
+                self.followButton!.removeFromSuperview()
                 self.favButton = nil
+                self.followButton = nil
                 //self.noteLifeLabel!.removeFromSuperview()
                 //self.noteLifeLabel = nil
                 self.allBlownUpNotes.removeAll()
@@ -763,5 +872,145 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
         
     }
+    
+    func followButtonTapped() {
+        
+        let note = allBlownUpNotes.last!
+        let followOwner = note.ownerID! as String
+        let ownerID = Common.sharedCommon.config!["ownerId"] as! String
+        let paramData = NSDictionary(objects: [followOwner], forKeys: ["<followownerid>"])
+        let data = ["ownerid" : ownerID]
+        
+        
+        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathFollow, body: data, replace: paramData,requestContentType:kContentTypes.kApplicationJson) { (result, response) -> Void in
+            
+            if (result == true) {
+                
+                if (note.followingNoteOwner == true) {
+                    
+                    note.followingNoteOwner = false
+                }
+                else {
+                    
+                    note.followingNoteOwner = true
+                }
+                
+                self.setFollowImage(note)
+                self.fillInDataSource(false)
+                
+            }
+        }
+        
+    }
+    
+    
+    func showOptionsMenu() {
+        
+        if (subOptions != nil) {
+            
+            self.showSubOptionsMenu()
+        }
+        
+        if (options == nil) {
+            
+            let optionsHeight = Common.sharedCommon.calculateDimensionForDevice(40)
+            options = OptionsView(frame:CGRectMake(0,-optionsHeight,UIScreen.mainScreen().bounds.size.width,optionsHeight), options:kMenuOptions)
+            options!.delegate = self
+            
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                
+                UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
+                    
+                    var newFrame = self.options!.frame
+                    newFrame.origin.y = 0
+                    self.options!.frame = newFrame
+                    
+                    self.wallTypeNotifyImage!.center = CGPointMake(self.wallTypeNotifyImage!.center.x, self.wallTypeNotifyImage!.center.y + newFrame.size.height)
+                    
+                    }, completion: { (Bool) -> Void in
+                        
+                })
+                
+            })
+            
+            self.view.addSubview(options!)
+        }
+        else {
+            
+            
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                
+                UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
+                    
+                    var newFrame = self.options!.frame
+                    newFrame.origin.y = -newFrame.size.height
+                    self.options!.frame = newFrame
+                    
+                    self.wallTypeNotifyImage!.center = CGPointMake(self.wallTypeNotifyImage!.center.x, self.wallTypeNotifyImage!.center.y - newFrame.size.height)
+                    
+                    }, completion: { (Bool) -> Void in
+                        self.options?.removeFromSuperview()
+                        self.options = nil
+                })
+                
+            })
+
+        }
+        
+    }
+    
+    
+    func showSubOptionsMenu() {
+        
+        if (subOptions == nil) {
+            
+            let optionsHeight = Common.sharedCommon.calculateDimensionForDevice(40)
+            subOptions = OptionsView(frame:CGRectMake(0,options!.frame.origin.y ,UIScreen.mainScreen().bounds.size.width,optionsHeight), options:kGeneralMenuOptions)
+            subOptions!.delegate = self
+            
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                
+                UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
+                    
+                    var newFrame = self.subOptions!.frame
+                    newFrame.origin.y = self.options!.frame.origin.y + self.options!.frame.size.height
+                    self.subOptions!.frame = newFrame
+                    
+                    self.wallTypeNotifyImage!.center = CGPointMake(self.wallTypeNotifyImage!.center.x, self.wallTypeNotifyImage!.center.y + newFrame.size.height)
+                    
+                    }, completion: { (Bool) -> Void in
+                        
+                })
+                
+            })
+            
+            self.view.addSubview(subOptions!)
+            self.view.insertSubview(subOptions!, belowSubview: options!)
+            
+        }
+        else {
+            
+            
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                
+                UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
+                    
+                    var newFrame = self.subOptions!.frame
+                    newFrame.origin.y = -newFrame.size.height
+                    self.subOptions!.frame = newFrame
+                    
+                    self.wallTypeNotifyImage!.center = CGPointMake(self.wallTypeNotifyImage!.center.x, self.wallTypeNotifyImage!.center.y - newFrame.size.height)
+                    
+                    }, completion: { (Bool) -> Void in
+                        self.subOptions?.removeFromSuperview()
+                        self.subOptions = nil
+                })
+                
+            })
+            
+        }
+        
+    }
+
     
 }

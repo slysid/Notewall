@@ -15,6 +15,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
     var googleSignButton:UIImageView?
     var fbSignInButton:UIImageView?
     var mailSignInButton:UIImageView?
+    var screenName:CustomTextField?
     var userName:CustomTextField?
     var password:CustomTextField?
     var closeButton:CloseView?
@@ -23,6 +24,9 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
     var googleVerticalConstraint:[NSLayoutConstraint]?
     var emailVerticalConstraint:[NSLayoutConstraint]?
     var horizontalConstraint:[NSLayoutConstraint]?
+    var tutorialView:TutorialView?
+    var orientationOffset:CGFloat = 60.0
+    var socialEmail:String?
     
     override func viewDidLoad() {
         
@@ -61,10 +65,17 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         mailSignInButton!.image = UIImage(named: "mail.png")
         self.view!.addSubview(mailSignInButton!)
         mailSignInButton!.userInteractionEnabled = true
-        let mtap = UITapGestureRecognizer(target: self, action: "mailButtonTapped")
+        let mtap = UITapGestureRecognizer(target: self, action: "mailButtonTapped:")
         mailSignInButton!.addGestureRecognizer(mtap)
         
         self.calculateConstraints()
+        
+        
+        if (Common.sharedCommon.config!["isFirstLogin"] as! Bool == true) {
+            
+            self.performSelector("showTutorialView", withObject: nil, afterDelay: 1.5)
+            
+        }
         
     }
     
@@ -90,6 +101,44 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
             
                 self.calculateConstraints()
                 
+        }
+        
+        if (UIDevice.currentDevice().orientation == UIDeviceOrientation.Portrait) {
+            
+            if (screenName != nil) {
+                
+                screenName!.center = CGPointMake(screenName!.center.x,screenName!.center.y + orientationOffset)
+            }
+            
+            if (userName != nil) {
+                
+                userName!.center = CGPointMake(userName!.center.x,userName!.center.y + orientationOffset)
+            }
+            
+            if (password != nil) {
+                
+                password!.center = CGPointMake(password!.center.x,password!.center.y + orientationOffset)
+            }
+            
+           
+        }
+        else {
+            
+            if (screenName != nil) {
+                
+                screenName!.center = CGPointMake(screenName!.center.x,screenName!.center.y - orientationOffset)
+            }
+            
+            if (userName != nil) {
+                
+                userName!.center = CGPointMake(userName!.center.x,userName!.center.y - orientationOffset)
+            }
+            
+            if (password != nil) {
+                
+                password!.center = CGPointMake(password!.center.x,password!.center.y - orientationOffset)
+            }
+
         }
     }
     
@@ -131,13 +180,40 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         
         if (validateInput() == true) {
             
+            var email:String?
+            var pass:String?
+            var name:String?
+    
             textField.resignFirstResponder()
             
-            let email = self.userName!.text!
-            let pass = self.password!.text!
+            if (userName != nil) {
+                
+                email = self.userName!.text!
+            }
+            
+            if (Common.sharedCommon.config!["loggedInMode"] as? String == kLoggedinThroughGoogle) {
+                
+                email = self.socialEmail!
+            }
+            
+            if (password != nil ){
+                
+                pass = self.password!.text!
+            }
+            else {
+                
+                pass = nil
+            }
+            
+            if (screenName != nil) {
+                
+                name = self.screenName!.text!
+                
+            }
+            
             
             self.startAnimating()
-            self.validateAndRegisterLogin(email, pass: pass, loggedInMode: kLoggedinThroughMail)
+            self.validateAndRegisterLogin(email!, pass: pass, name:name!, loggedInMode: kLoggedinThroughMail)
             
             return true
         }
@@ -146,6 +222,26 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
     }
     
     //Custom Methods
+    
+    func showTutorialView() {
+        
+        self.tutorialView = TutorialView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height))
+        self.tutorialView?.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, UIScreen.mainScreen().bounds.size.height * 2.0)
+        self.view.addSubview(self.tutorialView!)
+        
+        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+            
+            UIView.animateWithDuration(1.0, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
+                
+                
+                    self.tutorialView?.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, UIScreen.mainScreen().bounds.size.height * 0.5)
+                
+                }, completion: { (Bool) -> Void in
+                
+            })
+        }
+        
+    }
     
     func startAnimating() {
         
@@ -182,22 +278,43 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
        
     }
     
+    
     func validateInput() -> Bool {
         
         var emailResult:Bool = true
         var passwordResult:Bool = true
+        var screenNameResult:Bool = true
         
         let userNameRegex = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
         let emailTest = NSPredicate(format:"SELF MATCHES %@", userNameRegex)
-        emailResult = emailTest.evaluateWithObject(userName!.text)
         
-        if (password!.text == "") {
+        if (userName != nil) {
             
-            passwordResult = false
+            emailResult = emailTest.evaluateWithObject(userName!.text)
         }
         
         
-        return emailResult && passwordResult
+        if (password != nil) {
+            
+            if (password!.text == "") {
+                
+                passwordResult = false
+            }
+            
+        }
+        
+        if (Common.sharedCommon.config!["loggedInMode"] as? String == kLoggedinThroughGoogle) {
+            
+            if (screenName != nil) {
+                
+                if (screenName!.text == "") {
+                    
+                    screenNameResult = false
+                }
+            }
+        }
+        
+        return emailResult && passwordResult && screenNameResult
     }
     
     func gButtonTapped() {
@@ -212,55 +329,98 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         
     }
     
-    func mailButtonTapped() {
+    func mailButtonTapped(sender:AnyObject?) {
+       
+        var showAll = true
         
-        
-        googleSignButton!.alpha = 0.0
-        mailSignInButton!.alpha = 0.0
-        fbSignInButton!.alpha = 0.0
-        
-        if (userName == nil) {
+        if (sender is UITapGestureRecognizer == false) {
             
-            userName = CustomTextField(frame: CGRectMake(0,0,kLoginTextFieldWidth,Common.sharedCommon.calculateDimensionForDevice(40)))
-            userName!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin .union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin).union(.FlexibleWidth)
-            userName!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, Common.sharedCommon.calculateDimensionForDevice(30) + userName!.frame.size.height * 0.5)
-            userName!.placeholder = "email"
-            userName!.delegate = self
+            showAll = false
+            
         }
         
-        if (password == nil) {
+        let loginTextFieldWidth:CGFloat = UIScreen.mainScreen().bounds.size.width * 0.75
+        
+        if (screenName == nil) {
             
-            password = CustomTextField(frame: userName!.frame)
-            password!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin .union(.FlexibleRightMargin).union(.FlexibleBottomMargin).union(.FlexibleWidth)
-            password!.center = CGPointMake(userName!.center.x, userName!.center.y + userName!.frame.size.height + Common.sharedCommon.calculateDimensionForDevice(20))
-            password!.secureTextEntry = true
-            password!.placeholder = "password"
-            password!.delegate = self
+            screenName = CustomTextField(frame: CGRectMake(0,0,loginTextFieldWidth,Common.sharedCommon.calculateDimensionForDevice(40)))
+            screenName!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin .union(.FlexibleRightMargin).union(.FlexibleBottomMargin).union(.FlexibleWidth)
+            screenName!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, Common.sharedCommon.calculateDimensionForDevice(20) + screenName!.frame.size.height * 0.5)
+            screenName!.placeholder = "screen name"
+            screenName!.delegate = self
+            
+            if (UIDevice.currentDevice().orientation == UIDeviceOrientation.Portrait) {
+                
+                screenName!.center = CGPointMake(screenName!.center.x,screenName!.center.y + orientationOffset)
+            }
+            
+            self.view.addSubview(screenName!)
         }
         
-        if (closeButton == nil) {
+        
+         self.screenName!.becomeFirstResponder()
+        
+        if (showAll == true) {
             
-            closeButton = CloseView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width - Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
-            closeButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin .union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
-            closeButton!.closeViewDelegate = self
+            googleSignButton!.alpha = 0.0
+            mailSignInButton!.alpha = 0.0
+            fbSignInButton!.alpha = 0.0
+            
+            if (userName == nil) {
+                
+                userName = CustomTextField(frame: screenName!.frame)
+                userName!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin .union(.FlexibleRightMargin).union(.FlexibleBottomMargin).union(.FlexibleWidth)
+                userName!.center = CGPointMake(screenName!.center.x, screenName!.center.y + screenName!.frame.size.height + Common.sharedCommon.calculateDimensionForDevice(10))
+                userName!.placeholder = "email"
+                userName!.delegate = self
+            }
+            
+            if (password == nil) {
+                
+                password = CustomTextField(frame: userName!.frame)
+                password!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin .union(.FlexibleRightMargin).union(.FlexibleBottomMargin).union(.FlexibleWidth)
+                password!.center = CGPointMake(userName!.center.x, userName!.center.y + userName!.frame.size.height + Common.sharedCommon.calculateDimensionForDevice(10))
+                password!.secureTextEntry = true
+                password!.placeholder = "password"
+                password!.delegate = self
+            }
+            
+            
+            if (closeButton == nil) {
+                
+                closeButton = CloseView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width - Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
+                closeButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin .union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
+                closeButton!.closeViewDelegate = self
+            }
+            
+            
+            self.view.addSubview(userName!)
+            self.view.addSubview(password!)
+            self.view.addSubview(closeButton!)
+            self.userName!.becomeFirstResponder()
         }
         
-        self.view.addSubview(userName!)
-        self.view.addSubview(password!)
-        self.view.addSubview(closeButton!)
         
-        self.userName!.becomeFirstResponder()
+        
     }
     
     
     
-    func validateAndRegisterLogin(email:String,pass:String?,loggedInMode:String) {
+    func validateAndRegisterLogin(email:String,pass:String?,name:String?,loggedInMode:String) {
         
         var data:NSDictionary?
         
-        if (pass != nil) {
+        if (pass != nil && name != nil) {
+            
+            data = NSDictionary(objects: [email,pass!,name!], forKeys: ["email","password","screenname"])
+        }
+        else if (pass != nil && name == nil) {
             
             data = NSDictionary(objects: [email,pass!], forKeys: ["email","password"])
+        }
+        else if (name != nil) {
+            
+            data = NSDictionary(objects: [email,name!], forKeys: ["email","screenname"])
         }
         else {
             
@@ -296,20 +456,19 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
                     
                     let error = respData["error"] as! String
                     
-                   /* let alert = UIAlertController(title: "ERROR", message: error, preferredStyle: UIAlertControllerStyle.Alert)
-                    let alertOK = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+                    if (error == kSocialScreenName) {
                         
-                         alert.dismissViewControllerAnimated(true, completion: { () -> Void in
+                        dispatch_async(dispatch_get_main_queue() , { () -> Void in
                             
-                         })
+                            self.mailButtonTapped("social")
+                        })
                         
-                    })
-                    alert.addAction(alertOK)
-                    self.presentViewController(alert, animated: true, completion: { () -> Void in
+                    }
+                    else {
                         
-                    }) */
+                        Common.sharedCommon.showMessageViewWithMessage(self, message: error,startTimer:true)
+                    }
                     
-                    Common.sharedCommon.showMessageViewWithMessage(self, message: error,startTimer:true)
                 }
                 
             }
@@ -336,6 +495,8 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         Common.sharedCommon.config!["email"] = email
         Common.sharedCommon.config!["isLoggedIn"] = true
         Common.sharedCommon.config!["loggedinDate"] = NSDate()
+        Common.sharedCommon.config![kKeyPolaroid] = nil
+        Common.sharedCommon.config!["isFirstLogin"] = false
         
          FileHandler.sharedHandler.writeToFileWithData(Common.sharedCommon.config!, filename: "Config")
         
@@ -347,7 +508,14 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
             
+            if self.screenName != nil {
+                
+                self.screenName!.removeFromSuperview()
+                self.screenName = nil
+            }
+            
             if self.userName != nil {
+                
                 
                 self.userName!.removeFromSuperview()
                 self.password!.removeFromSuperview()
@@ -368,6 +536,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
             self.googleSignButton!.alpha = 1.0
             self.fbSignInButton!.alpha = 1.0
             self.mailSignInButton!.alpha = 1.0
+            self.socialEmail = nil
             
         }
        
@@ -380,7 +549,8 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         
         if (error == nil) {
             
-            self.validateAndRegisterLogin(user.profile.email, pass: nil, loggedInMode: kLoggedinThroughGoogle)
+            self.validateAndRegisterLogin(user.profile.email, pass: nil, name:nil, loggedInMode: kLoggedinThroughGoogle)
+            self.socialEmail = user.profile.email
             
         }
         else {

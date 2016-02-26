@@ -74,6 +74,7 @@ def addNotesToFavorite(noteid):
      data = noteQueries.addNotesToFav(noteid,ownerid)
      return jsonify(data)
     
+    
 @notes.route('/notes/<noteid>/remove',methods=["DELETE"])
 def removeNoteForOwner(noteid):
     
