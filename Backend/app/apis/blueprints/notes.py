@@ -165,9 +165,6 @@ def postImage():
 @notes.route('/uploads/<filename>')
 def uploaded_file(filename):
     
-    print "upload"
-    print request.headers
-    
     try:
         return send_from_directory(app.config['UPLOAD_FOLDER'],
                                 filename)

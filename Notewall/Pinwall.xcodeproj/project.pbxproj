@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		8E15F5171C80854300E852FC /* follow.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E15F5161C80854300E852FC /* follow.png */; };
 		8E15F5191C80854D00E852FC /* unfollow.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E15F5181C80854D00E852FC /* unfollow.png */; };
+		8E15F51B1C80E68A00E852FC /* options.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E15F51A1C80E68A00E852FC /* options.png */; };
 		8E1B42491C7F18DF0094CD64 /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B42481C7F18DF0094CD64 /* TutorialView.swift */; };
 		8E1B424E1C7F29A30094CD64 /* Roboto-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8E1B424D1C7F29A30094CD64 /* Roboto-Regular.ttf */; };
 		8E1B42511C7F3BAD0094CD64 /* OptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B42501C7F3BAD0094CD64 /* OptionsView.swift */; };
@@ -109,6 +110,7 @@
 		699E10DB47D50E381FC76201 /* Pods_Pinwall.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Pinwall.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E15F5161C80854300E852FC /* follow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = follow.png; sourceTree = "<group>"; };
 		8E15F5181C80854D00E852FC /* unfollow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = unfollow.png; sourceTree = "<group>"; };
+		8E15F51A1C80E68A00E852FC /* options.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = options.png; sourceTree = "<group>"; };
 		8E1B42481C7F18DF0094CD64 /* TutorialView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
 		8E1B424D1C7F29A30094CD64 /* Roboto-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Regular.ttf"; sourceTree = "<group>"; };
 		8E1B42501C7F3BAD0094CD64 /* OptionsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsView.swift; sourceTree = "<group>"; };
@@ -330,6 +332,7 @@
 				8E1B42561C7F52630094CD64 /* setting.png */,
 				8E1B42581C7F526F0094CD64 /* home.png */,
 				8E15F5161C80854300E852FC /* follow.png */,
+				8E15F51A1C80E68A00E852FC /* options.png */,
 				8E15F5181C80854D00E852FC /* unfollow.png */,
 				8E64D72A1C52CF95001CF659 /* StickyNotes */,
 			);
@@ -568,6 +571,7 @@
 			files = (
 				8EA8BFE41C668B470034D50B /* noteWhite4.png in Resources */,
 				8EAD0CD81C79104300CA0E65 /* imagenote.png in Resources */,
+				8E15F51B1C80E68A00E852FC /* options.png in Resources */,
 				8EA8C0031C668B790034D50B /* noteYellow1.png in Resources */,
 				8E64D6F11C515BE1001CF659 /* LaunchScreen.storyboard in Resources */,
 				8EEDD63C1C6D303200DE5CC2 /* removefav.png in Resources */,

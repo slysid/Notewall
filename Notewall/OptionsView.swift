@@ -11,12 +11,13 @@ import UIKit
 
 protocol OptionsViewProtocolDelegate {
     
-    func handleTappedOptionItem(item:OptionsItem)
+    func handleTappedOptionItem(item:OptionsItem,options:Dictionary<Int,Dictionary<String,String>>)
 }
 
 class OptionsView:UIView,OptionsItemProtocolDelegate {
     
     var delegate:OptionsViewProtocolDelegate?
+    var displayedOptions:Dictionary<Int,Dictionary<String,String>>?
     
     init(frame: CGRect, options:Dictionary<Int,Dictionary<String,String>>) {
         
@@ -24,6 +25,7 @@ class OptionsView:UIView,OptionsItemProtocolDelegate {
         self.backgroundColor = UIColor.blackColor()
         self.autoresizingMask = UIViewAutoresizing.FlexibleWidth.union(.FlexibleRightMargin)
         self.userInteractionEnabled = true
+        self.displayedOptions = options
         
         var xPos:CGFloat = 0.0
         let yPos:CGFloat = 0.0
@@ -54,7 +56,7 @@ class OptionsView:UIView,OptionsItemProtocolDelegate {
         
         if (delegate != nil) {
             
-            self.delegate!.handleTappedOptionItem(item)
+            self.delegate!.handleTappedOptionItem(item,options: displayedOptions!)
             
         }
         

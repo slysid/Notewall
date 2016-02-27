@@ -142,7 +142,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         wallTypeNotifyImage!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin)
         wallTypeNotifyImage!.image = UIImage(named: self.wallTypeNotifyImageName!)
         wallTypeNotifyImage!.userInteractionEnabled = true
-        self.masterView!.addSubview(wallTypeNotifyImage!)
+        self.view.addSubview(wallTypeNotifyImage!)
         let notifyTap = UITapGestureRecognizer(target: self, action: "showOptionsMenu")
         wallTypeNotifyImage!.addGestureRecognizer(notifyTap)
         
@@ -448,9 +448,33 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     // OPTIONSVIEW DELEGATE METHODS
     
-    func handleTappedOptionItem(item: OptionsItem) {
+    func handleTappedOptionItem(item: OptionsItem, options: Dictionary<Int, Dictionary<String, String>>) {
         
-        let selectorString = kMenuOptions[item.tag]!["selector"]
+        for opt in self.options!.subviews {
+            
+            if (opt is OptionsItem) {
+                
+                (opt as! OptionsItem).titleLabel!.textColor = UIColor.whiteColor()
+            }
+        }
+        
+        if (self.subOptions != nil) {
+            
+            for opt in self.subOptions!.subviews {
+                
+                if (opt is OptionsItem) {
+                    
+                    (opt as! OptionsItem).titleLabel!.textColor = UIColor.whiteColor()
+                }
+            }
+            
+        }
+        
+        
+        
+        item.titleLabel!.textColor = UIColor.redColor()
+        
+        let selectorString = options[item.tag]!["selector"]
         let sel = Selector(selectorString!)
         self.performSelector(sel)
     }
@@ -466,6 +490,18 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     func optionItemGeneral() {
         
         self.showSubOptionsMenu()
+    }
+    
+    func optionItemProfile() {
+        
+    }
+    
+    func optionItemOptions() {
+        
+    }
+    
+    func optionItemAbout() {
+        
     }
     
     
@@ -913,6 +949,9 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         if (options == nil) {
             
+            self.masterView!.alpha = 0.3
+            self.masterView!.userInteractionEnabled = false
+            
             let optionsHeight = Common.sharedCommon.calculateDimensionForDevice(40)
             options = OptionsView(frame:CGRectMake(0,-optionsHeight,UIScreen.mainScreen().bounds.size.width,optionsHeight), options:kMenuOptions)
             options!.delegate = self
@@ -937,6 +976,9 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
         else {
             
+            
+            self.masterView!.alpha = 1.0
+            self.masterView!.userInteractionEnabled = true
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 

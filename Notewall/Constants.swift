@@ -106,7 +106,7 @@ let kStickyNoteFontSize:CGFloat = 28.0
 
 let kRunMode = kRunModes.modeLive
 let kHttpProtocol = "http"
-let kHttpHost = "172.17.50.170" //"172.17.50.170" //"192.168.0.12"
+let kHttpHost = "192.168.0.12" //"172.17.50.170" //"192.168.0.12"
 let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/owner/register", "method" : "POST" ],
                   ["path" : "/api/notes/all", "method" : "POST"],
@@ -147,7 +147,7 @@ let kDebugAllNotesResponse = [ "data" : [
 
 
 let kMenuOptions = [1:["title":"GENERAL","icon":"home.png","selector":"optionItemGeneral"],2:["title":"LOGOUT","icon":"logout.png","selector":"optionItemLogout"]]
-let kGeneralMenuOptions = [1:["title":"SETTINGS","icon":"home.png","selector":"handleGeneral"],2:["title":"HOWTO","icon":"logout.png","selector":"handleLogout"],3:["title":"ABOUT","icon":"logout.png","selector":"handleLogout"]]
+let kGeneralMenuOptions = [1:["title":"PROFILE","icon":"my.png","selector":"optionItemProfile"],2:["title":"OPTIONS","icon":"options.png","selector":"optionItemOptions"],3:["title":"ABOUT","icon":"noteBlue3.png","selector":"optionItemAbout"]]
 
 
 var kDevice:String {

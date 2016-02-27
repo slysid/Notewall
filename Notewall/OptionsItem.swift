@@ -17,6 +17,7 @@ protocol OptionsItemProtocolDelegate {
 class OptionsItem:UIView {
     
     var optionsViewProtocolDelegate:OptionsItemProtocolDelegate?
+    var titleLabel:UILabel?
     
     init(frame: CGRect, withText:String?,withImageName:String?) {
         
@@ -34,21 +35,21 @@ class OptionsItem:UIView {
                 imageView.image = UIImage(named:withImageName!)
         }
         
-        let titleLabel = UILabel(frame: CGRectMake(imageView.frame.size.width,0,self.bounds.size.width - imageView.frame.size.width,self.bounds.size.height))
-        titleLabel.autoresizingMask = UIViewAutoresizing.FlexibleWidth
-        titleLabel.userInteractionEnabled = true
-        titleLabel.font = UIFont(name: "Roboto", size: 13.0)
-        titleLabel.textAlignment = NSTextAlignment.Center
-        titleLabel.textColor = UIColor.whiteColor()
+        titleLabel = UILabel(frame: CGRectMake(imageView.frame.size.width,0,self.bounds.size.width - imageView.frame.size.width,self.bounds.size.height))
+        titleLabel!.autoresizingMask = UIViewAutoresizing.FlexibleWidth
+        titleLabel!.userInteractionEnabled = true
+        titleLabel!.font = UIFont(name: "Roboto", size: 13.0)
+        titleLabel!.textAlignment = NSTextAlignment.Center
+        titleLabel!.textColor = UIColor.whiteColor()
         //titleLabel.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleWidth)
-        self.addSubview(titleLabel)
+        self.addSubview(titleLabel!)
         
         let tap = UITapGestureRecognizer(target: self, action: "tapped:")
-        titleLabel.addGestureRecognizer(tap)
+        titleLabel!.addGestureRecognizer(tap)
         
         if (withText != nil) {
             
-            titleLabel.text = withText
+            titleLabel!.text = withText
         }
     }
     
