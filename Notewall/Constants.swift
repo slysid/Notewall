@@ -23,6 +23,10 @@ enum kAllowedPaths {
     case kPathGetFavNotesForOwner
     case kPathGetImage
     case kPathFollow
+    case kPathPoll
+    case kPathUpdateScreenName
+    case kPathUpdatePaswword
+    case kPathGetOwnerDetails
 }
 
 enum kRunModes {
@@ -116,7 +120,11 @@ let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/notes/all/owner", "method" : "POST"],
                   ["path" : "/api/notes/all/favs", "method" : "POST"],
                   ["path" : "/api/uploads/<filename>","method" : "GET"],
-                  ["path" : "/api/owner/follow/<followownerid>","method" : "PUT"]
+                  ["path" : "/api/owner/follow/<followownerid>","method" : "PUT"],
+                  ["path" : "/api/poll","method" : "POST"],
+                  ["path" : "/api/owner/update/screenname","method" : "PUT"],
+                  ["path" : "/api/owner/update/password","method" : "PUT"],
+                  ["path" : "/api/owner/details","method" : "POST"]
 ]
 
 
@@ -148,6 +156,8 @@ let kDebugAllNotesResponse = [ "data" : [
 
 let kMenuOptions = [1:["title":"GENERAL","icon":"home.png","selector":"optionItemGeneral"],2:["title":"LOGOUT","icon":"logout.png","selector":"optionItemLogout"]]
 let kGeneralMenuOptions = [1:["title":"PROFILE","icon":"my.png","selector":"optionItemProfile"],2:["title":"OPTIONS","icon":"options.png","selector":"optionItemOptions"],3:["title":"ABOUT","icon":"noteBlue3.png","selector":"optionItemAbout"]]
+
+let kOptionsBgColor = UIColor(red: CGFloat(195.0/255.0), green: CGFloat(58.0/255.0), blue: (58.0/255.0), alpha: 1.0)
 
 
 var kDevice:String {

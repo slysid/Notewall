@@ -301,24 +301,27 @@ class Common:NSObject {
     
     
     
-    func showMessageViewWithMessage(controller:UIViewController,message:String,startTimer:Bool) {
+    func showMessageViewWithMessage(controller:UIView,message:String,startTimer:Bool) {
         
-        
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+        if (true) {
             
-            if (startTimer == true) {
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 
-                self.timer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: Common.sharedCommon, selector: "updateTimer", userInfo: nil, repeats: true)
-            }
+                if (startTimer == true) {
+                    
+                    self.timer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: Common.sharedCommon, selector: "updateTimer", userInfo: nil, repeats: true)
+                }
+                
+                
+                self.messageView = MessageView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width,Common.sharedCommon.calculateDimensionForDevice(150)))
+                self.messageView!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin .union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin).union(.FlexibleWidth)
+                self.messageView!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, UIScreen.mainScreen().bounds.size.height * 0.75)
+                self.messageView!.text = message
+                controller.addSubview(self.messageView!)
+                
+            })
             
-            
-            self.messageView = MessageView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width,Common.sharedCommon.calculateDimensionForDevice(150)))
-            self.messageView!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin .union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin).union(.FlexibleWidth)
-            self.messageView!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, UIScreen.mainScreen().bounds.size.height * 0.75)
-            self.messageView!.text = message
-            controller.view.addSubview(self.messageView!)
-            
-        })
+        }
         
     }
     
@@ -331,6 +334,7 @@ class Common:NSObject {
             self.timer!.invalidate()
             self.timerCount = 0
             self.messageView!.removeFromSuperview()
+            self.timer = nil
         }
     }
     

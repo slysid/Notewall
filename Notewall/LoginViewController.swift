@@ -209,11 +209,16 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
                 
                 name = self.screenName!.text!
                 
+                if (name == "") {
+                    
+                    name = nil
+                }
+                
             }
             
             
             self.startAnimating()
-            self.validateAndRegisterLogin(email!, pass: pass, name:name!, loggedInMode: kLoggedinThroughMail)
+            self.validateAndRegisterLogin(email!, pass: pass, name:name, loggedInMode: kLoggedinThroughMail)
             
             return true
         }
@@ -445,7 +450,8 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
                     self.handleCloseViewTap()
                     
                     let ownerId = respData["ownerid"] as! String
-                    self.setConfigurationForSuccessfulLogin(loggedInMode, email: email, ownerid: ownerId)
+                    let screenName = respData["screenname"] as! String
+                    self.setConfigurationForSuccessfulLogin(loggedInMode, email: email, ownerid: ownerId,screenname:screenName)
                     
                     self.dismissViewControllerAnimated(false, completion: { () -> Void in
                         
@@ -466,7 +472,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
                     }
                     else {
                         
-                        Common.sharedCommon.showMessageViewWithMessage(self, message: error,startTimer:true)
+                        Common.sharedCommon.showMessageViewWithMessage(self.view, message: error,startTimer:true)
                     }
                     
                 }
@@ -481,17 +487,18 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
 
                 }
                 
-                Common.sharedCommon.showMessageViewWithMessage(self, message: "Network Error", startTimer:true)
+                Common.sharedCommon.showMessageViewWithMessage(self.view, message: "Network Error", startTimer:true)
                 
             }
         }
         
     }
     
-    func setConfigurationForSuccessfulLogin(loggedInMode:String,email:String,ownerid:String) {
+    func setConfigurationForSuccessfulLogin(loggedInMode:String,email:String,ownerid:String,screenname:String) {
         
         Common.sharedCommon.config!["loggedInMode"] = loggedInMode
         Common.sharedCommon.config!["ownerId"] = ownerid
+        Common.sharedCommon.config!["screenname"] = screenname
         Common.sharedCommon.config!["email"] = email
         Common.sharedCommon.config!["isLoggedIn"] = true
         Common.sharedCommon.config!["loggedinDate"] = NSDate()
@@ -557,7 +564,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
             
             self.stopAnimating()
             Common.sharedCommon.config!["loggedInMode"] = kLoggedInYetToLogin
-            Common.sharedCommon.showMessageViewWithMessage(self, message: "Google Authentication Error",startTimer:true)
+            Common.sharedCommon.showMessageViewWithMessage(self.view, message: "Google Authentication Error",startTimer:true)
         }
     }
     

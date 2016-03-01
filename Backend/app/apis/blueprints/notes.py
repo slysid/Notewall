@@ -40,6 +40,16 @@ def validatePostParam(data=None):
     
     return (response,postdata,ownerid)
 
+@notes.route('/poll',methods=["POST"])
+def poll():
+    response, postdata, ownerid = validatePostParam(request.json)
+    if response != None:
+        return jsonify(response)
+    
+    data = noteQueries.getCount(ownerid)
+    return jsonify(data)
+
+
 @notes.route('/notes/all',methods=["POST"])
 def allnotes():
     

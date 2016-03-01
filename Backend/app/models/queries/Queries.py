@@ -57,6 +57,10 @@ class NoteQueries():
           
           self.host = Configuration['mongodb']['uri']
           connect('notes',host=self.host)
+          
+          
+     def getCount(self,ownerid):
+               return {"data" : {"count" :Notes.objects(noteDeletionDate__gt=datetime.now()).count()}}
      
      
      def getAllNotes(self,ownerid):
@@ -305,6 +309,7 @@ class OwnerQueries():
                ownerid = str(owner.id)
                ownerpassword = owner.password
                resp['ownerid'] = ownerid
+               resp['screenname'] =  owner.screenName
                break
           
           if (isEmailAvailable == True and password != None):
@@ -332,6 +337,7 @@ class OwnerQueries():
                try:
                     data = owner.save()
                     resp['ownerid'] =  str(data.id)
+                    resp['screenname'] =  owner.screenName
                except Exception, e:
                     if 'duplicate' in str(e):
                          resp = {"error" : "Screen Name Already Exists"}
@@ -345,6 +351,8 @@ class OwnerQueries():
           
           resp = {}
           validFollowingOwner = False
+          followingOnwer = None
+          followedOwner = None
           
           try:
                
@@ -357,14 +365,26 @@ class OwnerQueries():
                          resp = {"error":"Cannot add to self"}
                     else:
                          for o in Owners.objects(id=followingownerid):
-                              followers = o.followers
-                              if ownerid in followers:
-                                   followers.remove(ownerid)
-                              else:
-                                   followers.append(ownerid)
+                              followingOnwer = o
+                              
+                         for fol in Owners.objects(id=ownerid):
+                              followedOwner = fol
+                              
+                         followers = followingOnwer.followers
+                         following = followedOwner.following
+                         
+                         if ownerid in followers:
+                              followers.remove(ownerid)
+                              following.remove(followingownerid)
+                         else:
+                              followers.append(ownerid)
+                              following.append(followingownerid)
                 
-                              o.followers = followers
-                         o.save()
+                         followingOnwer.followers = followers
+                         followedOwner.following = following
+                         
+                         followingOnwer.save()
+                         followedOwner.save()
                
                          resp = {"success":"OK"}
                else :
@@ -372,4 +392,80 @@ class OwnerQueries():
           except Exception, e:
                     resp = {"error": str(e)}
           
-          return {"data" : resp}          
+          return {"data" : resp}
+     
+     
+     def updateScreenName(self,ownerid,name):
+          
+          resp = {}
+          recordFound = False
+          
+          try:
+               for o in Owners.objects(id=ownerid):
+                    o.screenName = name.lower()
+                    o.save()
+                    recordFound = True
+               if recordFound == True:
+                    resp = {"success":"OK"}
+               else:
+                    resp = {"error":"No owner found"}
+          except Exception, e:
+                resp = {"error": str(e)}
+                
+          
+          return {"data" : resp}
+     
+     def updatePassword(self,ownerid,oldpassword,newpassword):
+          
+          resp = {}
+          existingPassword = None
+          owner = None
+          
+          for o in Owners.objects(id=ownerid):
+               existingPassword = o.password
+               owner = o
+          
+          if owner == None:
+               resp = {"error" : "Given owner not found"}
+          else:
+               if _checkPassword(existingPassword,oldpassword) == False:
+                    resp = {"error" : "Wrong old password"}
+               else:
+                    owner.password = _hashPassword(newpassword)
+                    owner.save()
+                    resp = {"success" : "OK"}
+                    
+          return {"data" : resp}
+     
+     
+     def getDetails(self,ownerid):
+          
+          resp = {}
+          
+          for o in Owners.objects(id=ownerid):
+               resp['email'] = o.email
+               resp['screenname'] = o.screenName
+               resp['favorites'] = o.favorites
+               resp['followers'] = o.followers
+               resp['following'] = o.following
+               
+          followerNames = []
+          for oid in resp['followers']:
+               for o in Owners.objects(id=oid):
+                   followerNames.append(o.screenName)
+          
+          resp["followersnames"] = followerNames
+          
+          
+          followingNames = []
+          for oid in resp['following']:
+               for o in Owners.objects(id=oid):
+                   followingNames.append(o.screenName)
+          
+          resp["followingnames"] = followingNames
+          
+               
+          return {'data' : resp}
+          
+               
+          

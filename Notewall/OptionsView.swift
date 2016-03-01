@@ -22,7 +22,7 @@ class OptionsView:UIView,OptionsItemProtocolDelegate {
     init(frame: CGRect, options:Dictionary<Int,Dictionary<String,String>>) {
         
         super.init(frame: frame)
-        self.backgroundColor = UIColor.blackColor()
+        self.backgroundColor = UIColor(red: CGFloat(236.0/255.0), green: CGFloat(79.0/255.0), blue: (79.0/255.0), alpha: 1.0)
         self.autoresizingMask = UIViewAutoresizing.FlexibleWidth.union(.FlexibleRightMargin)
         self.userInteractionEnabled = true
         self.displayedOptions = options

@@ -16,7 +16,7 @@ protocol NoteWallProtocolDelegate {
     func handleLogout()
 }
 
-class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegate, NoteDelegate,UITextViewDelegate,ComposeDelegate, CloseViewProtocolDelegate, ConfirmProtocolDelegate,OptionsViewProtocolDelegate {
+class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegate, NoteDelegate,UITextViewDelegate,ComposeDelegate, CloseViewProtocolDelegate, ConfirmProtocolDelegate,OptionsViewProtocolDelegate,ProfileViewProtocolDelegate {
     
     var bgImage:UIImageView?
     var transImage:UIImageView?
@@ -33,6 +33,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var notesDataList:Array<Dictionary<String,AnyObject>> = []
     var favButton:UIImageView?
     var followButton:UIImageView?
+    var noteOwnerLabel:UILabel?
     var logOutButton:CloseView?
     var noteWallDelegate:NoteWallProtocolDelegate?
     var messageView:UILabel?
@@ -40,6 +41,10 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var wallTypeNotifyImageName:String?
     var options:OptionsView?
     var subOptions:OptionsView?
+    var profileView:ProfileView?
+    var optionsOptionView:OptionsOptionView?
+    var aboutView:AboutView?
+    var filledInOptionsView:UIView? = nil
     
     var screenWidth:CGFloat = UIScreen.mainScreen().bounds.size.width
     var screenHeight:CGFloat = UIScreen.mainScreen().bounds.size.height
@@ -49,6 +54,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
 
         
+        //self.view.backgroundColor = UIColor(red: CGFloat(195.0/255.0), green: CGFloat(58.0/255.0), blue: (58.0/255.0), alpha: 1.0)
         self.view.backgroundColor = UIColor.blackColor()
         self.backgroundImageName = kBackGrounds[backgroundImageIndex]["bg"] as? String
         self.dataSourceAPI = kBackGrounds[backgroundImageIndex]["datasource"] as? kAllowedPaths
@@ -98,88 +104,142 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         screenHeight = size.height
     }
     
+    override func shouldAutorotate() -> Bool {
+        
+        return true
+    }
+    
+    override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
+        
+        if (self.options != nil) {
+            
+            return UIInterfaceOrientationMask.Portrait
+        }
+        
+        return UIInterfaceOrientationMask.All
+    }
+
+    
     func loadMainView() {
         
         self.blownUpCount = 0
         self.allBlownUpNotes.removeAll()
         self.allBlownUpNotes = []
         
-        //masterView = UIView(frame: CGRectMake(0,0,self.bgScrollView!.contentSize.width,self.bgScrollView!.contentSize.height))
-        masterView = UIView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width, UIScreen.mainScreen().bounds.size.height))
-        masterView!.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
-        masterView!.backgroundColor = UIColor.clearColor()
-        //bgScrollView!.addSubview(masterView!)
-        self.view.addSubview(masterView!)
-        
-        backgroundImage = UIImageView(frame: self.masterView!.bounds)
-        backgroundImage!.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
-        backgroundImage!.userInteractionEnabled = true
-        backgroundImage!.image = UIImage(named: self.backgroundImageName!)
-        self.masterView!.addSubview(backgroundImage!)
-        
-        let singleTap = UITapGestureRecognizer(target: self, action: "changeNoteWall:")
-        singleTap.numberOfTapsRequired = 1
-        backgroundImage!.addGestureRecognizer(singleTap)
-        
-        let doubleTap = UITapGestureRecognizer(target: self, action: "switchToCompose:")
-        doubleTap.numberOfTapsRequired = 2
-        backgroundImage!.addGestureRecognizer(doubleTap)
-        
-        singleTap.requireGestureRecognizerToFail(doubleTap)
-        
-       /* if (self.dataSourceAPI == kAllowedPaths.kPathGetFavNotesForOwner) {
+        if (masterView == nil) {
             
-            self.backgroundImage!.userInteractionEnabled = false
+            //masterView = UIView(frame: CGRectMake(0,0,self.bgScrollView!.contentSize.width,self.bgScrollView!.contentSize.height))
+            masterView = UIView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width, UIScreen.mainScreen().bounds.size.height))
+            masterView!.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
+            masterView!.backgroundColor = UIColor.blackColor()
+            //bgScrollView!.addSubview(masterView!)
+            self.view.addSubview(masterView!)
+            
+            backgroundImage = UIImageView(frame: self.masterView!.bounds)
+            backgroundImage!.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
+            backgroundImage!.userInteractionEnabled = true
+            backgroundImage!.image = UIImage(named: self.backgroundImageName!)
+            self.masterView!.addSubview(backgroundImage!)
+            
+            let singleTap = UITapGestureRecognizer(target: self, action: "changeNoteWall:")
+            singleTap.numberOfTapsRequired = 1
+            backgroundImage!.addGestureRecognizer(singleTap)
+            
+            let doubleTap = UITapGestureRecognizer(target: self, action: "switchToCompose:")
+            doubleTap.numberOfTapsRequired = 2
+            backgroundImage!.addGestureRecognizer(doubleTap)
+            
+            singleTap.requireGestureRecognizerToFail(doubleTap)
+            
+            
+            let wallTypeDim = Common.sharedCommon.calculateDimensionForDevice(35)
+            wallTypeNotifyImage = UIImageView(frame: CGRectMake(0,0,wallTypeDim,wallTypeDim))
+            wallTypeNotifyImage!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, wallTypeDim * 0.5)
+            wallTypeNotifyImage!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin)
+            wallTypeNotifyImage!.image = UIImage(named: self.wallTypeNotifyImageName!)
+            wallTypeNotifyImage!.userInteractionEnabled = true
+            self.view.addSubview(wallTypeNotifyImage!)
+            let notifyTap = UITapGestureRecognizer(target: self, action: "showOptionsMenu")
+            wallTypeNotifyImage!.addGestureRecognizer(notifyTap)
+            
+            logOutButton = CloseView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width - (1.5 * Common.sharedCommon.calculateDimensionForDevice(30)), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
+            logOutButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin
+            logOutButton!.image = UIImage(named: "logout.png")
+            logOutButton!.closeViewDelegate = self
+            //self.masterView!.addSubview(logOutButton!)
+            
         }
-        else {
-            
-            self.backgroundImage!.userInteractionEnabled = true
-        } */
         
-        let wallTypeDim = Common.sharedCommon.calculateDimensionForDevice(35)
-        wallTypeNotifyImage = UIImageView(frame: CGRectMake(0,0,wallTypeDim,wallTypeDim))
-        wallTypeNotifyImage!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, wallTypeDim * 0.5)
-        wallTypeNotifyImage!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin)
-        wallTypeNotifyImage!.image = UIImage(named: self.wallTypeNotifyImageName!)
-        wallTypeNotifyImage!.userInteractionEnabled = true
-        self.view.addSubview(wallTypeNotifyImage!)
-        let notifyTap = UITapGestureRecognizer(target: self, action: "showOptionsMenu")
-        wallTypeNotifyImage!.addGestureRecognizer(notifyTap)
+        self.fillInDataSource(true,ignoreCache:false)
         
-        logOutButton = CloseView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width - (1.5 * Common.sharedCommon.calculateDimensionForDevice(30)), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
-        logOutButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin
-        logOutButton!.image = UIImage(named: "logout.png")
-        logOutButton!.closeViewDelegate = self
-        //self.masterView!.addSubview(logOutButton!)
+    }
+    
+    func filterResults() {
         
-       /* let rightSwipe = UISwipeGestureRecognizer(target: self, action: "changeNoteWall:")
-        rightSwipe.direction = .Right
-        self.masterView!.addGestureRecognizer(rightSwipe)
+        let ownerid = Common.sharedCommon.config!["ownerId"] as! String
         
-        let leftSwipe = UISwipeGestureRecognizer(target: self, action: "changeNoteWall:")
-        leftSwipe.direction = .Left
-        self.masterView!.addGestureRecognizer(leftSwipe) */
+        let onlyOwnerPredicate = NSPredicate(format: "ownerID = %@", ownerid)
+        CacheManager.sharedCacheManager.myNotesDataList = ((CacheManager.sharedCacheManager.allNotesDataList as NSArray).filteredArrayUsingPredicate(onlyOwnerPredicate) as? Array<Dictionary<String,AnyObject>>)!
         
-        //self.showExistingNotes()
-        self.fillInDataSource(true)
-        
-        /*let textWrittenImage = TextNote(frame: CGRectMake(20,20,100,100), withImageName: "noteBlue1.png", withText: "Hello bharath what is this. today is sunday and tmrw is monday", preferredFont: "chalkduster", preferredFontSize: 10.0, preferredFontColor: UIColor.blackColor(), addExpiry: true, expiryDate: "11-02-2016")
-        
-        self.masterView!.addSubview(textWrittenImage)*/
+        let onlyOwnerFavPredicate = NSPredicate(format: "owners contains[c] %@", ownerid)
+        CacheManager.sharedCacheManager.myFavsNotesDataList = ((CacheManager.sharedCacheManager.allNotesDataList as NSArray).filteredArrayUsingPredicate(onlyOwnerFavPredicate) as? Array<Dictionary<String,AnyObject>>)!
         
     }
     
 
-    func fillInDataSource(refreshUI:Bool) {
+    func fillInDataSource(refreshUI:Bool,ignoreCache:Bool) {
         
         let data = ["ownerid" : Common.sharedCommon.config!["ownerId"] as! String]
         
-        Common.sharedCommon.postRequestAndHadleResponse(dataSourceAPI!, body: data, replace: nil,requestContentType:kContentTypes.kApplicationJson) { (result, response) -> Void in
+        CacheManager.sharedCacheManager.decideOnCall(ignoreCache) { (result, response) -> () in
             
             if (result == true) {
                 
-                let respData = response.objectForKey("data")
-                self.notesDataList = respData! as! Array<Dictionary<String, AnyObject>>
+                Common.sharedCommon.postRequestAndHadleResponse(self.dataSourceAPI!, body: data, replace: nil,requestContentType:kContentTypes.kApplicationJson) { (result, response) -> Void in
+                    
+                    if (result == true) {
+                        
+                        let respData = response.objectForKey("data")
+                        self.notesDataList = respData! as! Array<Dictionary<String, AnyObject>>
+                        
+                        if (self.dataSourceAPI! == kAllowedPaths.kPathGetAllNotes) {
+                            
+                            CacheManager.sharedCacheManager.allNotesDataList = respData! as! Array<Dictionary<String, AnyObject>>
+                            self.filterResults()
+                        }
+                        
+                        
+                        if (refreshUI == true) {
+                            
+                            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                                
+                                self.showExistingNotes()
+                            })
+                            
+                        }
+                        
+                    }
+                    else {
+                        
+                        Common.sharedCommon.showMessageViewWithMessage(self.view, message: "Network Error",startTimer:false)
+                    }
+                }
+                
+            }
+            else {
+                
+                switch self.dataSourceAPI! {
+                    
+                case kAllowedPaths.kPathGetAllNotes:
+                        self.notesDataList = CacheManager.sharedCacheManager.allNotesDataList
+                case kAllowedPaths.kPathGetNotesForOwner:
+                        self.notesDataList = CacheManager.sharedCacheManager.myNotesDataList
+                case kAllowedPaths.kPathGetFavNotesForOwner:
+                        self.notesDataList = CacheManager.sharedCacheManager.myFavsNotesDataList
+                default:
+                        break
+                    
+                }
                 
                 if (refreshUI == true) {
                     
@@ -191,11 +251,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 }
                 
             }
-            else {
-                
-                Common.sharedCommon.showMessageViewWithMessage(self, message: "Network Error",startTimer:false)
-            }
         }
+        
     }
     
     //Scrollview Delegate methods
@@ -234,22 +291,22 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             followButton!.addGestureRecognizer(tap)
         }
         
-       /* if (noteLifeLabel == nil) {
-            
-            let width = Common.sharedCommon.calculateDimensionForDevice(100)
-            let height = Common.sharedCommon.calculateDimensionForDevice(50)
-            self.noteLifeLabel = UILabel(frame: CGRectMake(0,0,width,height))
-            self.noteLifeLabel!.center = CGPointMake(kScreenWidth - (width * 0.5), kScreenHeight - (1.5 * height))
-            self.noteLifeLabel!.backgroundColor = UIColor.clearColor()
-            self.noteLifeLabel!.textAlignment = NSTextAlignment.Left
-            self.noteLifeLabel!.font = UIFont(name: "chalkduster", size: 11.0)
-            self.noteLifeLabel!.textColor = UIColor.whiteColor()
-            self.masterView!.addSubview(self.noteLifeLabel!)
-        } */
         
+        if (noteOwnerLabel == nil) {
+            
+            let followButtonDim = Common.sharedCommon.calculateDimensionForDevice(50)
+            noteOwnerLabel = UILabel(frame: CGRectMake(0, 0, Common.sharedCommon.calculateDimensionForDevice(100), followButtonDim))
+            noteOwnerLabel!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5,followButton!.center.y)
+            noteOwnerLabel!.textAlignment = NSTextAlignment.Center
+            noteOwnerLabel!.font = UIFont(name: "Roboto", size: 24)
+            noteOwnerLabel!.textColor = UIColor.whiteColor()
+            self.view.addSubview(noteOwnerLabel!)
+            noteOwnerLabel!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
+        }
+        
+        self.noteOwnerLabel!.text = note.ownerName
         self.setFavImage(note)
         self.setFollowImage(note)
-        //self.noteLifeLabel!.text = note.stickyNoteDeletionDate!
         
         let v = Note(frame: note.frame, wallnote:note, expiryDate:note.stickyNoteDeletionDate!)
         v.noteDelegate = self
@@ -270,7 +327,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             }
             
                 v.frame = CGRectMake(0, 0, Common.sharedCommon.calculateDimensionForDevice(kBlownupNoteDim), Common.sharedCommon.calculateDimensionForDevice(kBlownupNoteDim))
-                let center = CGPointMake(self.blownUpCenterX, UIScreen.mainScreen().bounds.size.height * 0.5)
+                let center = CGPointMake(self.blownUpCenterX, UIScreen.mainScreen().bounds.size.height * 0.60)
                 v.center = center
                 //self.bgScrollView!.zoomToRect(self.view.frame, animated: true)
             
@@ -282,7 +339,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 }
             
             
-                self.masterView!.alpha = 0.4
+                self.masterView!.alpha = 0.6
                 self.logOutButton!.hidden = true
             
             
@@ -335,6 +392,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         (requester as? Note)!.alpha = 1.0
         self.favButton!.alpha = 1.0
         self.followButton!.alpha = 1.0
+        self.noteOwnerLabel!.alpha = 1.0
         
     }
     
@@ -379,6 +437,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 confirm.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, UIScreen.mainScreen().bounds.size.height * 0.5)
                 self.favButton!.alpha = 0.0
                 self.followButton!.alpha = 0.0
+                self.noteOwnerLabel!.alpha = 0.0
                 
                 }, completion: { (Bool) -> Void in
                     
@@ -472,7 +531,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         
         
-        item.titleLabel!.textColor = UIColor.redColor()
+        item.titleLabel!.textColor = UIColor.blackColor()
         
         let selectorString = options[item.tag]!["selector"]
         let sel = Selector(selectorString!)
@@ -489,18 +548,178 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     func optionItemGeneral() {
         
+        self.animateView(nil)
         self.showSubOptionsMenu()
     }
     
     func optionItemProfile() {
         
+        if (profileView != filledInOptionsView) {
+            
+            profileView = nil
+        }
+        
+        
+        if (profileView == nil) {
+            
+            //let yPos = self.wallTypeNotifyImage!.frame.origin.y + self.wallTypeNotifyImage!.frame.size.height
+            //profileView = ProfileView(frame: CGRectMake(0,-UIScreen.mainScreen().bounds.size.height,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - yPos))
+            profileView = ProfileView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height))
+            profileView!.profileViewDelegate = self
+            
+            self.view.addSubview(profileView!)
+            self.view.insertSubview(self.wallTypeNotifyImage! , aboveSubview: self.profileView!)
+            self.view.insertSubview(profileView!, belowSubview: subOptions!)
+            self.animateView(profileView!)
+            
+        }
+        
     }
     
     func optionItemOptions() {
         
+        if (optionsOptionView != filledInOptionsView) {
+            
+            optionsOptionView = nil
+        }
+        
+        if (optionsOptionView == nil) {
+            
+            //let yPos = self.wallTypeNotifyImage!.frame.origin.y + self.wallTypeNotifyImage!.frame.size.height
+            //optionsOptionView = OptionsOptionView(frame: CGRectMake(0,-UIScreen.mainScreen().bounds.size.height,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - yPos))
+            optionsOptionView = OptionsOptionView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height))
+            
+            self.view.addSubview(optionsOptionView!)
+            self.view.insertSubview(self.wallTypeNotifyImage! , aboveSubview: self.optionsOptionView!)
+            self.view.insertSubview(optionsOptionView!, belowSubview: subOptions!)
+            self.animateView(optionsOptionView!)
+            
+        }
+
     }
     
     func optionItemAbout() {
+        
+        if (aboutView != filledInOptionsView) {
+            
+            aboutView = nil
+        }
+        
+        if (aboutView == nil) {
+            
+            //let yPos = self.wallTypeNotifyImage!.frame.origin.y + self.wallTypeNotifyImage!.frame.size.height
+            //aboutView = AboutView(frame: CGRectMake(0,-UIScreen.mainScreen().bounds.size.height,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - yPos))
+            aboutView = AboutView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height))
+            
+            self.view.addSubview(aboutView!)
+            self.view.insertSubview(self.wallTypeNotifyImage! , aboveSubview: self.aboutView!)
+            self.view.insertSubview(aboutView!, belowSubview: subOptions!)
+            self.animateView(aboutView!)
+            
+        }
+
+    }
+    
+    func animateView(v:UIView?) {
+        
+        
+        UIView.animateWithDuration(0.0, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
+            
+            if (self.filledInOptionsView != nil) {
+                
+                self.filledInOptionsView!.alpha = 0.0
+            }
+            
+            if (v != nil) {
+                
+                let yPos = self.wallTypeNotifyImage!.frame.origin.y + self.wallTypeNotifyImage!.frame.size.height
+                v!.center = CGPointMake(v!.center.x,(UIScreen.mainScreen().bounds.size.height * 0.5) + (yPos * 0.5))
+                
+            }
+            
+            }) { (Bool) -> Void in
+                
+                if (self.filledInOptionsView != nil) {
+                    
+                    self.filledInOptionsView!.removeFromSuperview()
+                    self.filledInOptionsView = nil
+                }
+                
+                if (v != nil) {
+                    
+                    self.filledInOptionsView = v!
+                }
+        }
+    }
+    
+    
+    // PROFILEVIEW DELEGATE METHODS
+    
+    
+    func updateScreenName(name: String, completion: (Bool,String) -> Void) {
+        
+        let ownerId = Common.sharedCommon.config!["ownerId"] as! String
+        let data = ["ownerid" : ownerId,"screenname":name]
+        
+        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathUpdateScreenName , body: data, replace: nil, requestContentType: kContentTypes.kApplicationJson) { (result, response) -> Void in
+            
+            if (result == true) {
+                
+                let errMsg = response.objectForKey("data")!.objectForKey("error")
+                
+                if(errMsg != nil) {
+                    
+                    let msg = response["data"]!["error"] as? String
+                    if (msg!.rangeOfString("duplicate") != nil) {
+                        
+                        Common.sharedCommon.showMessageViewWithMessage(self.view, message: "ScreenName Exists", startTimer: true)
+                    }
+                    
+                    completion(false,msg!)
+                }
+                else {
+                    
+                    Common.sharedCommon.config!["screenname"] = name
+                    completion(true,"OK")
+                }
+                
+                
+            }
+            else {
+                
+                completion(false,"Unknown Error")
+            }
+        }
+        
+    }
+    
+    func updatePassword(oldpassword: String, newpassword: String, completion: (Bool, String) -> Void) {
+        
+        let ownerId = Common.sharedCommon.config!["ownerId"] as! String
+        let data = ["ownerid" : ownerId,"oldpassword":oldpassword,"newpassword":newpassword]
+        
+        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathUpdatePaswword, body: data, replace: nil, requestContentType: kContentTypes.kApplicationJson) { (result, response) -> Void in
+            
+            
+            if (result == true) {
+                
+                let errMsg = response.objectForKey("data")!.objectForKey("error")
+                
+                if(errMsg != nil) {
+                    
+                    let msg = response["data"]!["error"] as? String
+                    completion(false,msg!)
+                }
+                else {
+                    
+                    completion(true,"OK")
+                }
+            }
+            else {
+                
+                completion(false,"Unknown Error")
+            }
+        }
         
     }
     
@@ -689,6 +908,13 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             followButton = nil
         }
         
+        if (noteOwnerLabel != nil) {
+            
+            noteOwnerLabel!.removeFromSuperview()
+            noteOwnerLabel = nil
+            
+        }
+        
       /*  if (noteLifeLabel != nil) {
             
             noteLifeLabel!.removeFromSuperview()
@@ -771,8 +997,10 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 self.blownUpCenterX = kScreenWidth * 0.5
                 self.favButton!.removeFromSuperview()
                 self.followButton!.removeFromSuperview()
+                self.noteOwnerLabel!.removeFromSuperview()
                 self.favButton = nil
                 self.followButton = nil
+                self.noteOwnerLabel = nil
                 //self.noteLifeLabel!.removeFromSuperview()
                 //self.noteLifeLabel = nil
                 self.allBlownUpNotes.removeAll()
@@ -789,55 +1017,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.moveWall(sender.numberOfTapsRequired)
         
     }
-    
-    /* func moveWall(numberOfTaps:Int) {
-        
-        if (direction == UISwipeGestureRecognizerDirection.Right) {
-            
-            self.backgroundImageIndex = self.backgroundImageIndex + 1
-        }
-        else {
-            
-            self.backgroundImageIndex = self.backgroundImageIndex - 1
-        }
-        
-        
-        if (self.backgroundImageIndex >= kBackGrounds.count) {
-            
-            self.backgroundImageIndex = 0
-        }
-        else if (self.backgroundImageIndex < 0 ) {
-            
-            self.backgroundImageIndex = kBackGrounds.count - 1
-        }
-        
-        self.backgroundImageName = kBackGrounds[self.backgroundImageIndex]["bg"] as? String
-        self.dataSourceAPI = kBackGrounds[self.backgroundImageIndex]["datasource"] as? kAllowedPaths
-        
-        transImage!.image = UIImage(named: self.backgroundImageName!)
-        
-        UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
-            
-            if (direction == UISwipeGestureRecognizerDirection.Right) {
-                
-                self.masterView!.center = CGPointMake(self.masterView!.center.x + UIScreen.mainScreen().bounds.size.width, self.masterView!.center.y)
-            }
-            else {
-                
-                self.masterView!.center = CGPointMake(self.masterView!.center.x - UIScreen.mainScreen().bounds.size.width, self.masterView!.center.y)
-            }
-            
-            
-            }) { (Bool) -> Void in
-                
-                self.masterView!.removeFromSuperview()
-                self.masterView = nil
-                self.loadMainView()
-                self.transImage!.image = nil
-                
-                
-        }
-    } */
     
     func moveWall(numberOfTaps:Int) {
         
@@ -857,6 +1036,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.dataSourceAPI = kBackGrounds[self.backgroundImageIndex]["datasource"] as? kAllowedPaths
         self.wallTypeNotifyImageName = kBackGrounds[self.backgroundImageIndex]["icon"] as? String
         
+        transImage!.image = nil
         transImage!.image = UIImage(named: self.backgroundImageName!)
         
         UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
@@ -869,6 +1049,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 self.backgroundImage = nil
                 self.masterView!.removeFromSuperview()
                 self.masterView = nil
+                self.wallTypeNotifyImage!.removeFromSuperview()
+                self.wallTypeNotifyImage = nil
                 self.loadMainView()
                 self.transImage!.image = nil
                 
@@ -902,7 +1084,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 }
                 
                 self.setFavImage(note)
-                self.fillInDataSource(false)
+                self.fillInDataSource(false,ignoreCache:false)
                 
             }
         }
@@ -932,15 +1114,40 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 }
                 
                 self.setFollowImage(note)
-                self.fillInDataSource(false)
+                self.fillInDataSource(false,ignoreCache:true)
+                
+                for v in self.masterView!.subviews {
+                    
+                    if v is WallNote {
+                        
+                        if (v as? WallNote)!.ownerID == followOwner {
+                            
+                            (v as? WallNote)!.followingNoteOwner = note.followingNoteOwner
+                            
+                        }
+                    }
+                }
                 
             }
         }
         
+        
+    }
+    
+    
+    func removeOptionsViews() {
+        
+        if (self.profileView != nil) {
+            
+            self.profileView!.removeFromSuperview()
+            self.profileView = nil
+        }
     }
     
     
     func showOptionsMenu() {
+        
+        self.animateView(nil)
         
         if (subOptions != nil) {
             
@@ -949,8 +1156,10 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         if (options == nil) {
             
-            self.masterView!.alpha = 0.3
             self.masterView!.userInteractionEnabled = false
+            //transImage!.image = UIImage(named: self.backgroundImageName!)
+            let value = UIInterfaceOrientation.Portrait.rawValue
+            UIDevice.currentDevice().setValue(value, forKey: "orientation")
             
             let optionsHeight = Common.sharedCommon.calculateDimensionForDevice(40)
             options = OptionsView(frame:CGRectMake(0,-optionsHeight,UIScreen.mainScreen().bounds.size.width,optionsHeight), options:kMenuOptions)
@@ -959,6 +1168,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 
                 UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
+                    
+                    self.masterView!.alpha = 0.0
                     
                     var newFrame = self.options!.frame
                     newFrame.origin.y = 0
@@ -977,12 +1188,13 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         else {
             
             
-            self.masterView!.alpha = 1.0
             self.masterView!.userInteractionEnabled = true
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 
                 UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
+                    
+                    self.masterView!.alpha = 1.0
                     
                     var newFrame = self.options!.frame
                     newFrame.origin.y = -newFrame.size.height
@@ -993,6 +1205,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                     }, completion: { (Bool) -> Void in
                         self.options?.removeFromSuperview()
                         self.options = nil
+                        self.transImage!.image = nil
                 })
                 
             })
@@ -1003,6 +1216,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     
     func showSubOptionsMenu() {
+        
+        self.animateView(nil)
         
         if (subOptions == nil) {
             
@@ -1032,6 +1247,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
         else {
             
+            self.removeOptionsViews()
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 

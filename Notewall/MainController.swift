@@ -90,14 +90,19 @@ class MainController:UIViewController,NoteWallProtocolDelegate {
     
     func presentLoginView() {
         
-        if (self.loginController == nil) {
+        dispatch_async(dispatch_get_main_queue()) { () -> Void in
             
-            self.loginController = LoginViewController()
+            if (self.loginController == nil) {
+                
+                self.loginController = LoginViewController()
+            }
+            
+            self.presentViewController(self.loginController!, animated: false, completion: { () -> Void in
+                
+            })
+            
         }
         
-        self.presentViewController(self.loginController!, animated: false, completion: { () -> Void in
-            
-        })
     }
     
     func signInApplication() {
