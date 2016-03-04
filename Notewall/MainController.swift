@@ -43,9 +43,11 @@ class MainController:UIViewController,NoteWallProtocolDelegate {
         Common.sharedCommon.config!["loggedInMode"] = kLoggedInYetToLogin
         Common.sharedCommon.config!["ownerId"] = ""
         Common.sharedCommon.config!["email"] = ""
+        Common.sharedCommon.config![kKeyRegisterStatus] = ""
         Common.sharedCommon.config!["isLoggedIn"] = false
         Common.sharedCommon.config!["loggedinDate"] = ""
         Common.sharedCommon.config![kKeyPolaroid] = nil
+        Common.sharedCommon.config!["isFirstLogin"] = false
         
         FileHandler.sharedHandler.writeToFileWithData(Common.sharedCommon.config!, filename: "Config")
         
@@ -63,7 +65,15 @@ class MainController:UIViewController,NoteWallProtocolDelegate {
         
         if (Common.sharedCommon.config!["isLoggedIn"]!.boolValue == true) {
             
-            self.signInApplication()
+            if (Common.sharedCommon.config?[kKeyRegisterStatus ] as? String == kAllowedRegisterStatus[kRegisterStatuses.kConfirmed.hashValue]) {
+                
+                self.signInApplication()
+            }
+            else {
+                
+                self.presentLoginView()
+            }
+            
             
            /* if(Common.sharedCommon.ageOfApplication() < kTimeoutApp) {
                 

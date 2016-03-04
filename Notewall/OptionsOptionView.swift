@@ -23,7 +23,7 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
         
         super.init(frame:frame)
         
-        self.backgroundColor = kOptionsBgColor
+        self.backgroundColor = UIColor.blackColor() //kOptionsBgColor
         
         let ownerId = Common.sharedCommon.config!["ownerId"] as! String
         let data = ["ownerid" : ownerId]
@@ -67,6 +67,15 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
                 self.following = []
                 self.followed = []
             }
+            
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                
+               
+                self.followersTable!.reloadSections(self.sectionIndexSet!, withRowAnimation: UITableViewRowAnimation.Automatic)
+                
+            })
+            
+            
         }
         
         
@@ -103,6 +112,9 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
         if (cell == nil) {
             
            cell = UITableViewCell(style: UITableViewCellStyle.Default , reuseIdentifier: "cell")
+           cell?.textLabel!.backgroundColor = UIColor.blackColor()
+            cell?.contentView.backgroundColor = UIColor.blackColor()
+           cell?.textLabel!.textColor = UIColor.whiteColor()
         }
         
         if (indexPath.section == 0) {
@@ -138,11 +150,11 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
         
         if (section == 0) {
             
-            sectionLabel.text = "Followers"
+            sectionLabel.text = "Followers-(" + String(self.followed.count) + ")"
         }
         else if (section == 1) {
             
-            sectionLabel.text = "Following"
+            sectionLabel.text = "Following-(" + String(self.following.count) + ")"
         }
         
         return sectionLabel
@@ -167,7 +179,7 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
             let height = self.frame.size.height - (2 * yPos)
             
             self.followersTable = UITableView(frame: CGRectMake(xPos,yPos,width,height), style: UITableViewStyle.Grouped)
-            self.followersTable!.backgroundColor = kOptionsBgColor
+            self.followersTable!.backgroundColor = UIColor.blackColor() //kOptionsBgColor
             self.followersTable!.delegate = self
             self.followersTable!.dataSource = self
             self.addSubview(self.followersTable!)
@@ -192,6 +204,7 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
             
             rowsInFollowingSection = self.following.count
         }
+        
         
         self.followersTable!.reloadSections(sectionIndexSet!, withRowAnimation: UITableViewRowAnimation.Automatic)
         

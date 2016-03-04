@@ -70,10 +70,17 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         
         self.calculateConstraints()
         
-        
-        if (Common.sharedCommon.config!["isFirstLogin"] as! Bool == true) {
+        if (Common.sharedCommon.config?[kKeyRegisterStatus ] as? String == kAllowedRegisterStatus[kRegisterStatuses.kAwaiting.hashValue]) {
             
-            self.performSelector("showTutorialView", withObject: nil, afterDelay: 1.5)
+           /* dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                
+                Common.sharedCommon.showMessageViewWithMessage(self.view, message: "Awaiting registation confirmation", startTimer:true)
+            }) */
+            
+        }
+        else if (Common.sharedCommon.config!["isFirstLogin"] as! Bool == true) {
+            
+            self.performSelector("showTutorialView", withObject: nil, afterDelay: 1.0)
             
         }
         
@@ -447,16 +454,27 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
                 
                 if (respData.objectForKey("error") == nil) {
                     
-                    self.handleCloseViewTap()
                     
                     let ownerId = respData["ownerid"] as! String
                     let screenName = respData["screenname"] as! String
-                    self.setConfigurationForSuccessfulLogin(loggedInMode, email: email, ownerid: ownerId,screenname:screenName)
+                    let registerStatus = respData[kKeyRegisterStatus] as! String
                     
-                    self.dismissViewControllerAnimated(false, completion: { () -> Void in
+                    self.setConfigurationForSuccessfulLogin(loggedInMode, email: email, ownerid: ownerId,screenname:screenName,registerstatus:registerStatus)
+                    
+                    if registerStatus == kAllowedRegisterStatus[kRegisterStatuses.kConfirmed.hashValue] {
                         
+                        self.handleCloseViewTap()
+                        self.dismissViewControllerAnimated(false, completion: { () -> Void in
+                            
+                            
+                        })
+                    }
+                    else {
                         
-                    })
+                        Common.sharedCommon.showMessageViewWithMessage(self.view, message: "Awaiting registration confirmation", startTimer:true)
+                    }
+                    
+                    
                 }
                 else {
                     
@@ -494,11 +512,12 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         
     }
     
-    func setConfigurationForSuccessfulLogin(loggedInMode:String,email:String,ownerid:String,screenname:String) {
+    func setConfigurationForSuccessfulLogin(loggedInMode:String,email:String,ownerid:String,screenname:String,registerstatus:String) {
         
         Common.sharedCommon.config!["loggedInMode"] = loggedInMode
         Common.sharedCommon.config!["ownerId"] = ownerid
         Common.sharedCommon.config!["screenname"] = screenname
+        Common.sharedCommon.config![kKeyRegisterStatus] = registerstatus
         Common.sharedCommon.config!["email"] = email
         Common.sharedCommon.config!["isLoggedIn"] = true
         Common.sharedCommon.config!["loggedinDate"] = NSDate()

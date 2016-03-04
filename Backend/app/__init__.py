@@ -10,6 +10,11 @@ app = Flask(__name__)
 uploadPath = os.path.join(os.path.dirname(__file__),'uploads')
 app.config['UPLOAD_FOLDER'] = uploadPath
 app.config['ALLOWED_EXTENSIONS'] = set(['png','jpeg','jpg'])
+app.config['SES_AWS_ACCESS_KEY'] = 'AKIAJBUAI5VGYYHUJZOA'
+app.config['SES_AWS_SECRET_KEY'] = 'Am+EdlFoxgikqmqVtr6IA/GCiV+IX/Z6kKGsBxUWjaSq'
+app.config['SES_REGION'] = 'email-smtp.eu-west-1.amazonaws.com'
+app.config['SES_SENDER'] = 'bharathkumar.devaraj@gmail.com'
+app.config['SES_REPLY_TO'] = 'bharathkumar.devaraj@gmail.com'
 
 
 Configuration = {}

@@ -88,6 +88,7 @@ class ProfileView:UIView,UITextFieldDelegate {
         self.addSubview(passwordLabel!)
         
         
+        
         changePasswordImageView = UIImageView(frame: CGRectMake(passwordLabel!.frame.origin.x + passwordLabel!.frame.size.width,passwordLabel!.frame.origin.y,passwordLabel!.frame.size.height * 0.5,passwordLabel!.frame.size.height * 0.5))
         changePasswordImageView!.image = UIImage(named:"edit.png")
         changePasswordImageView!.center = CGPointMake(changeScreenNameImageView!.center.x,passwordLabel!.center.y)
@@ -159,11 +160,14 @@ class ProfileView:UIView,UITextFieldDelegate {
                         
                         UIView.animateWithDuration(self.animateDuration, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
                             
-                            self.passwordLabel!.alpha = 1.0
-                            self.changePasswordImageView!.alpha = 1.0
+                            
+                            if ( Common.sharedCommon.config!["loggedInMode"] as! String == kLoggedinThroughMail) {
+                                
+                                self.passwordLabel!.alpha = 1.0
+                                self.changePasswordImageView!.alpha = 1.0
+                            }
                             
                             }, completion: { (Bool) -> Void in
-                                
                                 
                                 
                         })

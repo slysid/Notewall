@@ -143,3 +143,12 @@ def getOwnerDetails():
             
         resp = ownerQueries.getDetails(postdata['ownerid'])
         return jsonify(resp)
+    
+    
+@owners.route('/owner/register/confirm/<name>',methods=["GET"])
+def confirmRegistration(name):
+    
+    if request.method == 'GET':
+            
+        resp = ownerQueries.confirmRegistration(name.lower())
+        return jsonify(resp)

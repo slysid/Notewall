@@ -4,3 +4,9 @@
 
 mongodb:
     uri: 'mongodb://localhost:27017/pinit'
+AWS:
+    access_key: 'AKIAJTTC27WJIKJ2ILBQ'
+    secret_key: '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'
+EMAIL:
+    host : 'qacloud.accedo.tv'
+    port : '5000'

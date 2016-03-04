@@ -48,6 +48,12 @@ enum kContentTypes {
     case kNoContentType
 }
 
+enum kRegisterStatuses {
+    
+    case kAwaiting
+    case kConfirmed
+}
+
 let kPhone = "phone"
 let kPad = "pad"
 let kNoteDim:CGFloat = 100.0
@@ -69,6 +75,8 @@ let kLoggedinThroughMail = "Mail"
 
 let kKeyPolaroid = "polaroid"
 let kKeyPolaroidThumbNail = "thumbnail"
+let kKeyRegisterStatus = "registerstatus"
+
 
 var kScreenWidth = UIScreen.mainScreen().bounds.size.width
 var kScreenHeight = UIScreen.mainScreen().bounds.size.height
@@ -110,7 +118,7 @@ let kStickyNoteFontSize:CGFloat = 28.0
 
 let kRunMode = kRunModes.modeLive
 let kHttpProtocol = "http"
-let kHttpHost = "192.168.0.12" //"172.17.50.170" //"192.168.0.12"
+let kHttpHost = "qacloud.accedo.tv" //"172.17.50.170" //"192.168.0.12"
 let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/owner/register", "method" : "POST" ],
                   ["path" : "/api/notes/all", "method" : "POST"],
@@ -128,6 +136,7 @@ let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
 ]
 
 
+let kAllowedRegisterStatus = ["AWAITING","CONFIRMED"]
 let kAllowedContentTypes = ["application/json","multipart/form-data",""]
 let kDebugHealthResponse = ["api":"OK","database":"OK"]
 let kDebugAllNotesResponse = [ "data" : [

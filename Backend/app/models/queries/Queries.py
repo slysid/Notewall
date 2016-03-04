@@ -12,6 +12,8 @@ from PIL import Image
 import gridfs
 import os
 import pymongo
+from boto.ses.connection import SESConnection
+from app.managers.emailmanager import EmailManager
 
 
 def _hashPassword(password):
@@ -298,6 +300,26 @@ class OwnerQueries():
           self.host = Configuration['mongodb']['uri']
           connect('owners',host=self.host)
           
+     
+     def __sendWelcomeMail(self,email,name):
+          
+          
+          try:
+               emailManager = EmailManager()
+               emailURL = 'http://' + Configuration['EMAIL']['host'] + ':' + Configuration['EMAIL']['port'] + '/api/owner/register/confirm/' + name
+               htmlBody = emailManager.generateConfirmationTemplate(emailURL)
+               access_key = Configuration['AWS']['access_key']
+               secret_key = Configuration['AWS']['secret_key']
+               conn = SESConnection(aws_access_key_id=access_key,aws_secret_access_key=secret_key)
+               conn.send_email(source='bharathkumar.devaraj@gmail.com',
+                    subject='Welcome to NoteWall',
+                    body=None,
+                    to_addresses='bharathkumar.devaraj@gmail.com',
+                    html_body=htmlBody)
+          except Exception, e:
+               print ('Error in sending Welcome Email')
+               print (str(e))
+          
      def regitserOwner(self,email,password=None,screenname=None):
           
           isEmailAvailable = False
@@ -310,6 +332,7 @@ class OwnerQueries():
                ownerpassword = owner.password
                resp['ownerid'] = ownerid
                resp['screenname'] =  owner.screenName
+               resp['registerstatus'] =  owner.registerStatus
                break
           
           if (isEmailAvailable == True and password != None):
@@ -327,6 +350,7 @@ class OwnerQueries():
                owner = Owners()
                owner.email = email
                owner.screenName = screenname.lower()
+               owner.registerStatus = "AWAITING"
                owner.favorites = []
                owner.followers = []
                if password == None:
@@ -334,14 +358,18 @@ class OwnerQueries():
                else:
                     owner.password = _hashPassword(password)
                owner.creationDate = datetime.now()
+               owner.lastModifiedDate = datetime.now()
                try:
                     data = owner.save()
                     resp['ownerid'] =  str(data.id)
                     resp['screenname'] =  owner.screenName
+                    resp['registerstatus'] =  owner.registerStatus
+                    self.__sendWelcomeMail('a@a.com',resp['screenname'])
                except Exception, e:
                     if 'duplicate' in str(e):
                          resp = {"error" : "Screen Name Already Exists"}
                     else:
+                         print str(e)
                          resp = {"error" : "Unknown Error"}
           
           
@@ -466,6 +494,30 @@ class OwnerQueries():
           
                
           return {'data' : resp}
+     
+     def confirmRegistration(self,name):
           
+          owner = None
+          resp = {}
+          
+          for o in Owners.objects(screenName=name):
+               owner = o
                
-          
+          if owner == None:
+               resp = {'error' : 'Given Name not found'}
+               
+          else:
+               currentDate = datetime.now()
+               signedDate = o.creationDate
+               diff = currentDate - signedDate
+               if (diff.days > 1):
+                    resp = {'error' : 'expired'}
+               else:
+                    owner.registerStatus = "CONFIRMED"
+                    owner.save()
+                    
+                    resp['ownerid'] =  str(owner.id)
+                    resp['screenname'] =  owner.screenName
+                    resp['registerstatus'] =  owner.registerStatus
+                    
+          return resp

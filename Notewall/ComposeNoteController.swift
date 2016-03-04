@@ -11,7 +11,7 @@ import UIKit
 
 protocol ComposeDelegate {
     
-    func postAWallNote(noteType:String?,noteText:String?,noteFont:String?,noteFontSize:CGFloat?,noteFontColor:Array<CGFloat>,noteProperty:String?,imageurl:String?)
+    func postAWallNote(noteType:String?,noteText:String?,noteFont:String?,noteFontSize:CGFloat?,noteFontColor:Array<CGFloat>,noteProperty:String?,imageurl:String?,isPinned:Bool)
 }
 
 
@@ -309,7 +309,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
                 
             }
             else if (runningLine <= previousLine) {
-                print(previousLine)
+               
                 centerOffset = self.notesImageView!.center.y + noteAdjustment
                 move = true
             }
@@ -410,9 +410,12 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         let tap = UITapGestureRecognizer(target: self, action: "dimissKeyboard")
         bgImage.addGestureRecognizer(tap)
         
+        
+        let composeDim = Common.sharedCommon.calculateDimensionForDevice(35)
+        
         if (self.composeTypeImageView == nil) {
             
-            let composeDim = Common.sharedCommon.calculateDimensionForDevice(35)
+            
             self.composeTypeImageView = UIImageView(frame: CGRectMake(0,0,composeDim,composeDim))
             self.composeTypeImageView!.userInteractionEnabled = true
             self.view.addSubview(self.composeTypeImageView!)
@@ -421,19 +424,41 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
             self.composeTypeImageView!.addGestureRecognizer(composeTap)
         }
         
-        let buttonWidth = Common.sharedCommon.calculateDimensionForDevice(80)
-        let buttonHeight = Common.sharedCommon.calculateDimensionForDevice(35)
+        //let buttonWidth = Common.sharedCommon.calculateDimensionForDevice(80)
+        //let buttonHeight = Common.sharedCommon.calculateDimensionForDevice(35)
         
         
-        let xOffset = UIScreen.mainScreen().bounds.width * 0.5 - (buttonWidth * 0.5)
-        let yOffset = Common.sharedCommon.calculateDimensionForDevice(10)
-        self.postButton = CustomButton(frame: CGRectMake(xOffset, yOffset, buttonWidth, buttonHeight), buttonTitle: kButtonPostText, normalColor: UIColor.redColor(), highlightColor: UIColor.blackColor())
+        //let xOffset = UIScreen.mainScreen().bounds.width * 0.5 - (buttonWidth * 0.5)
+        //let yOffset = Common.sharedCommon.calculateDimensionForDevice(10)
+        /*self.postButton = CustomButton(frame: CGRectMake(xOffset, yOffset, buttonWidth, buttonHeight), buttonTitle: kButtonPostText, normalColor: UIColor.redColor(), highlightColor: UIColor.blackColor())
         self.postButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(UIViewAutoresizing.FlexibleTopMargin).union(.FlexibleBottomMargin)
         self.postButton!.addTarget(self, action: "postTapped:", forControlEvents: UIControlEvents.TouchUpInside)
-        self.newNoteView!.addSubview(self.postButton!)
+        self.newNoteView!.addSubview(self.postButton!)*/
         
-        let closeImage = CloseView(frame: CGRectMake(UIScreen.mainScreen().bounds.width - Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
-        closeImage.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
+        let xOffset = UIScreen.mainScreen().bounds.width * 0.5 - (1.5 * composeDim)
+        let postNote  = UIImageView(frame: CGRectMake(xOffset, 0, composeDim, composeDim))
+        postNote.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(UIViewAutoresizing.FlexibleRightMargin).union(.FlexibleBottomMargin)
+        postNote.image = UIImage(named: "noteBlue1.png")
+        postNote.userInteractionEnabled = true
+        postNote.tag = 1
+        let postTap = UITapGestureRecognizer(target: self, action: "postTapped:")
+        postNote.addGestureRecognizer(postTap)
+        self.newNoteView!.addSubview(postNote)
+        
+        
+        let pinNote  = UIImageView(frame: CGRectMake(xOffset + (1.5 * composeDim), 0, composeDim, composeDim))
+        pinNote.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(UIViewAutoresizing.FlexibleRightMargin).union(.FlexibleBottomMargin)
+        pinNote.image = UIImage(named: "pin.png")
+        pinNote.userInteractionEnabled = true
+        pinNote.tag = 2
+        let pinTap = UITapGestureRecognizer(target: self, action: "postTapped:")
+        pinNote.addGestureRecognizer(pinTap)
+        self.newNoteView!.addSubview(pinNote)
+        
+        
+        
+        let closeImage = CloseView(frame: CGRectMake(UIScreen.mainScreen().bounds.width - composeDim, 0, composeDim, composeDim))
+        closeImage.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleBottomMargin)
         closeImage.closeViewDelegate = self
         self.newNoteView!.addSubview(closeImage)
         
@@ -648,7 +673,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     }
     
     
-    func postTapped(sender:CustomButton) {
+    func postTapped(sender:UITapGestureRecognizer) {
         
         var characterCount:Int?
         
@@ -703,8 +728,15 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
                     imgFileName = "Pol_" + ownerID + "_" + date.stringFromDate(NSDate()) + ".jpg"
                     
                 }
+                
+                var isPinned = false
+                
+                if (sender.view!.tag == 2) {
                     
-                self.composeDelegate!.postAWallNote(kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex] as String, noteText: enteredText!, noteFont: kSupportedFonts[selectedFontIndex], noteFontSize: kFontSizes[selectedFontSizeIndex], noteFontColor: kFontColor[selectedFontColorIndex],noteProperty:composeProperty,imageurl: imgFileName)
+                    isPinned = true
+                }
+                    
+                self.composeDelegate!.postAWallNote(kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex] as String, noteText: enteredText!, noteFont: kSupportedFonts[selectedFontIndex], noteFontSize: kFontSizes[selectedFontSizeIndex], noteFontColor: kFontColor[selectedFontColorIndex],noteProperty:composeProperty,imageurl: imgFileName, isPinned:isPinned)
                 
             }
             
@@ -720,6 +752,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         }
         
     }
+    
     
     func noteSwiped() {
         

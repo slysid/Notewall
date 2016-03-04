@@ -18,7 +18,7 @@ def __createOwners():
     for i in range(0,5):
         email = id_generator() + '@a.com'
         name = id_generator()
-        owner = Owners(email=email, screenName=name, password="social:login",favorites=[],followers=[],following=[],creationDate = datetime.datetime.now()).save()
+        owner = Owners(email=email, screenName=name, password="social:login",registerStatus="CONFIRMED",favorites=[],followers=[],following=[],creationDate = datetime.datetime.now(),lastModifiedDate = datetime.datetime.now()).save()
         allOwners.append(owner)
     
 

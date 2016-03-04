@@ -16,6 +16,7 @@
 		8E15F5241C823EB200E852FC /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E15F5231C823EB200E852FC /* AboutView.swift */; };
 		8E15F5261C82566F00E852FC /* edit.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E15F5251C82566F00E852FC /* edit.png */; };
 		8E15F5281C825ACE00E852FC /* save.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E15F5271C825ACE00E852FC /* save.png */; };
+		8E15F58C1C85EA9100E852FC /* pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E15F58B1C85EA9100E852FC /* pin.png */; };
 		8E1B42491C7F18DF0094CD64 /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B42481C7F18DF0094CD64 /* TutorialView.swift */; };
 		8E1B424E1C7F29A30094CD64 /* Roboto-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8E1B424D1C7F29A30094CD64 /* Roboto-Regular.ttf */; };
 		8E1B42511C7F3BAD0094CD64 /* OptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B42501C7F3BAD0094CD64 /* OptionsView.swift */; };
@@ -124,6 +125,7 @@
 		8E15F5251C82566F00E852FC /* edit.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = edit.png; sourceTree = "<group>"; };
 		8E15F5271C825ACE00E852FC /* save.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = save.png; sourceTree = "<group>"; };
 		8E15F58A1C83A0BD00E852FC /* Pinwall copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Pinwall copy-Info.plist"; path = "/Users/bharath/Documents/iOS/Notewall/Notewall/Pinwall copy-Info.plist"; sourceTree = "<absolute>"; };
+		8E15F58B1C85EA9100E852FC /* pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pin.png; sourceTree = "<group>"; };
 		8E1B42481C7F18DF0094CD64 /* TutorialView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
 		8E1B424D1C7F29A30094CD64 /* Roboto-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Regular.ttf"; sourceTree = "<group>"; };
 		8E1B42501C7F3BAD0094CD64 /* OptionsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsView.swift; sourceTree = "<group>"; };
@@ -359,6 +361,7 @@
 				8E15F5181C80854D00E852FC /* unfollow.png */,
 				8E15F5251C82566F00E852FC /* edit.png */,
 				8E15F5271C825ACE00E852FC /* save.png */,
+				8E15F58B1C85EA9100E852FC /* pin.png */,
 				8E64D72A1C52CF95001CF659 /* StickyNotes */,
 			);
 			name = Images;
@@ -597,6 +600,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E15F58C1C85EA9100E852FC /* pin.png in Resources */,
 				8EA8BFE41C668B470034D50B /* noteWhite4.png in Resources */,
 				8EAD0CD81C79104300CA0E65 /* imagenote.png in Resources */,
 				8E15F51B1C80E68A00E852FC /* options.png in Resources */,

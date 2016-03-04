@@ -30,17 +30,21 @@ class WallNote:UIImageView {
     var favedOwners:Array<String>?
     var polaroid:UIImageView?
     var isNote = true
+    var isPinned = false
     var imageFileName:String?
     var imageThumbData:NSData?
     var followingNoteOwner:Bool?
     var ownerID:String?
     var ownerName:String?
+    var pinImage:UIImageView?
     
-    init(frame: CGRect, noteType:String?, noteText:String, noteFont:String?, noteFontSize:CGFloat?,noteFontColor:UIColor?, isNote:Bool, imageFileName:String?) {
+    init(frame: CGRect, noteType:String?, noteText:String, noteFont:String?, noteFontSize:CGFloat?,noteFontColor:UIColor?, isNote:Bool, imageFileName:String?,isPinned:Bool) {
         
         super.init(frame: frame)
         
         self.isNote = isNote
+        self.isPinned = isPinned
+    
         
         if (isNote == true) {
             
@@ -126,6 +130,15 @@ class WallNote:UIImageView {
             })
             
             //self.image = UIImage(data: Common.sharedCommon.config!["polaroid"] as! NSData)
+        }
+        
+        pinImage = UIImageView(frame: CGRectMake((self.bounds.size.width * 0.5),10,10,10))
+        pinImage!.image = UIImage(named:"pin.png")
+        self.addSubview(pinImage!)
+        
+        if (self.isPinned == false) {
+            
+            pinImage!.alpha = 0.0
         }
         
         self.userInteractionEnabled = true

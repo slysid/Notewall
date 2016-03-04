@@ -448,13 +448,13 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     // Compose Delegate Methods
     
-    func postAWallNote(noteType: String?, noteText: String?, noteFont: String?, noteFontSize:CGFloat?, noteFontColor:Array<CGFloat>, noteProperty:String?, imageurl:String? ) {
+    func postAWallNote(noteType: String?, noteText: String?, noteFont: String?, noteFontSize:CGFloat?, noteFontColor:Array<CGFloat>, noteProperty:String?, imageurl:String?, isPinned:Bool) {
         
         let ownerID = Common.sharedCommon.config!["ownerId"] as! String
         var contentType = kContentTypes.kApplicationJson
         var isNote = true
         var data = [String:AnyObject]()
-        data = ["ownerid" : ownerID as String, "notetype" : noteType! as String, "notetext" : noteText! as String, "notetextfont" : noteFont! as String, "notetextfontsize" : noteFontSize! as CGFloat, "notepinned": false, "notetextcolor" : noteFontColor,"noteProperty" : noteProperty!, "imageurl" : imageurl!]
+        data = ["ownerid" : ownerID as String, "notetype" : noteType! as String, "notetext" : noteText! as String, "notetextfont" : noteFont! as String, "notetextfontsize" : noteFontSize! as CGFloat, "notepinned": isPinned, "notetextcolor" : noteFontColor,"noteProperty" : noteProperty!, "imageurl" : imageurl!]
         
         if (noteProperty == "P") {
             
@@ -470,7 +470,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                     
                     let newNote = response["data"]![0]
                     let RBGColor = Common.sharedCommon.formColorWithRGB(noteFontColor)
-                    let note = WallNote(frame: CGRectMake(100, 30, Common.sharedCommon.calculateDimensionForDevice(kNoteDim), Common.sharedCommon.calculateDimensionForDevice(kNoteDim)), noteType: noteType, noteText: noteText!, noteFont: noteFont, noteFontSize:noteFontSize!, noteFontColor:RBGColor, isNote:isNote, imageFileName:imageurl)
+                    let note = WallNote(frame: CGRectMake(100, 30, Common.sharedCommon.calculateDimensionForDevice(kNoteDim), Common.sharedCommon.calculateDimensionForDevice(kNoteDim)), noteType: noteType, noteText: noteText!, noteFont: noteFont, noteFontSize:noteFontSize!, noteFontColor:RBGColor, isNote:isNote, imageFileName:imageurl, isPinned:isPinned)
                     note.stickyNoteID = newNote["noteID"] as? String
                     note.favedOwners = newNote["owners"] as? Array<String>
                     note.stickyNoteCreationDate = newNote["creationDate"] as? String
@@ -827,9 +827,10 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             let noteType = printNote["noteType"] as! String
             let noteTextColor = printNote["noteTextColor"] as! Array<CGFloat>
             let imageName = printNote["imageurl"] as! String
+            let isPinned = printNote["notePinned"] as! Bool
             
             
-            let note = WallNote(frame: CGRectMake(0,0,dim,dim), noteType:noteType, noteText: noteText, noteFont:noteTextFont, noteFontSize:noteTextFontSize, noteFontColor:Common.sharedCommon.formColorWithRGB(noteTextColor), isNote:noteProperty, imageFileName: imageName)
+            let note = WallNote(frame: CGRectMake(0,0,dim,dim), noteType:noteType, noteText: noteText, noteFont:noteTextFont, noteFontSize:noteTextFontSize, noteFontColor:Common.sharedCommon.formColorWithRGB(noteTextColor), isNote:noteProperty, imageFileName: imageName, isPinned:isPinned)
             note.center = CGPointMake(xPoint,yPoint)
             note.stickyNoteID = printNote["noteID"] as? String
             note.favedOwners = printNote["owners"] as? Array<String>
