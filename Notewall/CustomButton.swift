@@ -11,13 +11,15 @@ import UIKit
 
 class CustomButton:UIButton {
     
+    var indexPath:NSIndexPath?
+    
     init(frame: CGRect, buttonTitle:String, normalColor:UIColor?, highlightColor:UIColor?) {
         
         super.init(frame: frame)
         
         self.setTitle(buttonTitle, forState: UIControlState.Normal)
-        self.setTitleColor(normalColor!, forState: UIControlState.Normal)
-        self.setTitleColor(highlightColor!, forState: UIControlState.Highlighted)
+        self.setTitleColor(normalColor, forState: UIControlState.Normal)
+        self.setTitleColor(highlightColor, forState: UIControlState.Highlighted)
         self.backgroundColor = UIColor.whiteColor()
     }
     

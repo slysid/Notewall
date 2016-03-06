@@ -16,7 +16,7 @@ protocol NoteWallProtocolDelegate {
     func handleLogout()
 }
 
-class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegate, NoteDelegate,UITextViewDelegate,ComposeDelegate, CloseViewProtocolDelegate, ConfirmProtocolDelegate,OptionsViewProtocolDelegate,ProfileViewProtocolDelegate {
+class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegate, NoteDelegate,UITextViewDelegate,ComposeDelegate, CloseViewProtocolDelegate, ConfirmProtocolDelegate,OptionsViewProtocolDelegate,ProfileViewProtocolDelegate, OptionsOptionViewProtocolDelegate {
     
     var bgImage:UIImageView?
     var transImage:UIImageView?
@@ -75,7 +75,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.view.addSubview(self.bgScrollView!) */
 
         
-        self.loadMainView()
+        self.loadMainView(resetDataSource:true)
         
     }
 
@@ -120,7 +120,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     }
 
     
-    func loadMainView() {
+    func loadMainView( resetDataSource resetDataSource:Bool) {
         
         self.blownUpCount = 0
         self.allBlownUpNotes.removeAll()
@@ -170,7 +170,23 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
         }
         
-        self.fillInDataSource(true,ignoreCache:false)
+        if (resetDataSource == true) {
+        
+            if (self.dataSourceAPI! == kAllowedPaths.kPathGetFavNotesForOwner) {
+                
+                self.fillInDataSource(true,ignoreCache:true)
+            }
+            else {
+                
+                self.fillInDataSource(true,ignoreCache:false)
+            }
+        }
+        else {
+            
+            self.showExistingNotes()
+        }
+        
+        
         
     }
     
@@ -588,6 +604,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             //let yPos = self.wallTypeNotifyImage!.frame.origin.y + self.wallTypeNotifyImage!.frame.size.height
             //optionsOptionView = OptionsOptionView(frame: CGRectMake(0,-UIScreen.mainScreen().bounds.size.height,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - yPos))
             optionsOptionView = OptionsOptionView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height))
+            self.optionsOptionView!.optionsOptionsDelegate = self
             
             self.view.addSubview(optionsOptionView!)
             self.view.insertSubview(self.wallTypeNotifyImage! , aboveSubview: self.optionsOptionView!)
@@ -720,6 +737,51 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 completion(false,"Unknown Error")
             }
         }
+        
+    }
+    
+    
+    // OPTIONSOPTIONS DELEGATE METHOD
+    
+    func followingUpdated(followingID: String) {
+        
+        self.fillInDataSource(false, ignoreCache: true)
+        
+        for v in self.masterView!.subviews {
+            
+            if v is WallNote {
+                
+                if ((v as? WallNote)!.ownerID == followingID) {
+                    
+                    (v as? WallNote)!.followingNoteOwner = false
+                }
+            }
+        }
+    }
+    
+    func showNotesForSelectedFollowingOwner(dataList: NSArray) {
+        
+        self.backgroundImageIndex = self.backgroundImageIndex - 1
+        
+        self.notesDataList = dataList as! Array<Dictionary<String, AnyObject>>
+        
+        self.showOptionsMenu()
+        
+        self.backgroundImageName = "bg4.jpg"
+        self.dataSourceAPI = kBackGrounds[0]["datasource"] as? kAllowedPaths
+        self.wallTypeNotifyImageName = kBackGrounds[0]["icon"] as? String
+        
+        transImage!.image = nil
+        transImage!.image = UIImage(named: self.backgroundImageName!)
+        
+        self.backgroundImage!.removeFromSuperview()
+        self.backgroundImage = nil
+        self.masterView!.removeFromSuperview()
+        self.masterView = nil
+        self.wallTypeNotifyImage!.removeFromSuperview()
+        self.wallTypeNotifyImage = nil
+        self.loadMainView(resetDataSource:false)
+        self.transImage!.image = nil
         
     }
     
@@ -1052,7 +1114,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 self.masterView = nil
                 self.wallTypeNotifyImage!.removeFromSuperview()
                 self.wallTypeNotifyImage = nil
-                self.loadMainView()
+                self.loadMainView(resetDataSource:true)
                 self.transImage!.image = nil
                 
                 
@@ -1193,7 +1255,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 
-                UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
+                UIView.animateWithDuration(0.3, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
                     
                     self.masterView!.alpha = 1.0
                     
@@ -1252,7 +1314,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 
-                UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
+                UIView.animateWithDuration(0.3, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
                     
                     var newFrame = self.subOptions!.frame
                     newFrame.origin.y = -newFrame.size.height

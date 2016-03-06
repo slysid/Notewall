@@ -9,6 +9,12 @@
 import Foundation
 import UIKit
 
+protocol OptionsOptionViewProtocolDelegate {
+    
+    func followingUpdated(followingID:String)
+    func showNotesForSelectedFollowingOwner(dataList:NSArray)
+}
+
 class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
     
     var followersTable:UITableView?
@@ -16,14 +22,17 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
     var sectionIndexSet:NSMutableIndexSet?
     var rowsInFollowingSection = 0
     var rowsInFollowersSection = 0
+    var followingDict:Dictionary<String,String> = [:]
     var following:Array<String> = []
+    var followedDict:Dictionary<String,String> = [:]
     var followed:Array<String> = []
+    var optionsOptionsDelegate:OptionsOptionViewProtocolDelegate?
     
     override init(frame: CGRect) {
         
         super.init(frame:frame)
         
-        self.backgroundColor = UIColor.blackColor() //kOptionsBgColor
+        self.backgroundColor = kOptionsBgColor
         
         let ownerId = Common.sharedCommon.config!["ownerId"] as! String
         let data = ["ownerid" : ownerId]
@@ -35,27 +44,12 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
                 self.following.removeAll()
                 self.followed.removeAll()
                 
-                let following = response["data"]!["followingnames"]
+                self.followingDict = response["data"]!["following"] as! Dictionary<String,String>
+                self.following = Array(self.followingDict.keys)
                 
-                if (following != nil) {
-                    
-                    self.following = following as! Array<String>
-                }
-                else {
-                    
-                    self.following = []
-                }
                 
-                let followed = response["data"]!["followersnames"]
-                
-                if (followed != nil) {
-                    
-                    self.followed = followed as! Array<String>
-                }
-                else {
-                    
-                    self.followed = []
-                }
+                self.followedDict = response["data"]!["followers"] as! Dictionary<String,String>
+                self.followed = Array(self.followedDict.keys)
                 
             }
             else {
@@ -111,10 +105,27 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
         var cell = tableView.dequeueReusableCellWithIdentifier("cell")
         if (cell == nil) {
             
-           cell = UITableViewCell(style: UITableViewCellStyle.Default , reuseIdentifier: "cell")
-           cell?.textLabel!.backgroundColor = UIColor.blackColor()
-            cell?.contentView.backgroundColor = UIColor.blackColor()
-           cell?.textLabel!.textColor = UIColor.whiteColor()
+            cell = UITableViewCell(style: UITableViewCellStyle.Default , reuseIdentifier: "cell")
+            cell?.textLabel!.backgroundColor = self.backgroundColor
+            cell?.contentView.backgroundColor = self.backgroundColor
+            cell?.textLabel!.textColor = UIColor.blackColor()
+            
+            let bgView = UIView()
+            bgView.backgroundColor = self.backgroundColor
+            bgView.userInteractionEnabled = true
+            cell?.selectedBackgroundView = bgView
+            
+            
+            let showButton = CustomButton(frame: CGRectMake(0,0,Common.sharedCommon.calculateDimensionForDevice(70) ,cell!.contentView.frame.size.height), buttonTitle: "Show", normalColor: UIColor.whiteColor(), highlightColor: nil)
+            showButton.userInteractionEnabled = true
+            showButton.center = CGPointMake(cell!.contentView.frame.size.width - (showButton.frame.size.width * 0.75), cell!.contentView.frame.size.height * 0.5)
+            showButton.indexPath = indexPath
+            //showButton.setTitle("Show", forState: UIControlState.Normal)
+            //showButton.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
+            showButton.addTarget(self, action: "showButtonTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+            showButton.hidden = true
+            cell!.contentView.addSubview(showButton)
+            
         }
         
         if (indexPath.section == 0) {
@@ -140,7 +151,7 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
         
         let sectionLabel = UILabel(frame: CGRectMake(0,0,self.followersTable!.frame.size.width,tableSectionHeight))
         sectionLabel.textAlignment = NSTextAlignment.Center
-        sectionLabel.textColor = UIColor.whiteColor()
+        sectionLabel.textColor = UIColor.blackColor()
         sectionLabel.font = UIFont(name: "Roboto", size: 24.0)
         sectionLabel.tag = section
         sectionLabel.userInteractionEnabled = true
@@ -167,6 +178,129 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
     }
     
     
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
+       /* var selectedOwner:String?
+        
+        let section = indexPath.section
+        let row = indexPath.row
+    
+        if (section == 0) {
+            
+            selectedOwner = self.followed[row]
+        }
+        else if (section == 1) {
+            
+            selectedOwner = self.following[row]
+        } */
+        
+        let cell = tableView.cellForRowAtIndexPath(indexPath)
+        
+        for b in cell!.contentView.subviews {
+            
+            if b is UIButton {
+                
+                (b as? UIButton)!.hidden = false
+            }
+        }
+    }
+    
+    
+    func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
+        
+        let cell = tableView.cellForRowAtIndexPath(indexPath)
+        
+        for b in cell!.contentView.subviews {
+            
+            if b is UIButton {
+                
+                (b as? UIButton)!.hidden = true
+            }
+        }
+        
+    }
+    
+    
+    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
+        
+         return UITableViewCellEditingStyle.Delete
+    }
+    
+    func tableView(tableView: UITableView, willBeginEditingRowAtIndexPath indexPath: NSIndexPath) {
+        
+        let cell = tableView.cellForRowAtIndexPath(indexPath)
+        
+        for b in cell!.contentView.subviews {
+            
+            if b is UIButton {
+                
+                (b as? UIButton)!.hidden = true
+            }
+        }
+
+    }
+    
+    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        
+        if editingStyle == .Delete {
+            
+            let section = indexPath.section
+            let row = indexPath.row
+            let ownerName = tableView.cellForRowAtIndexPath(indexPath)?.textLabel!.text
+            var selectedOwner:String?
+            
+            if (section == 0) {
+                
+                self.followed.removeAtIndex(row)
+                selectedOwner = self.followedDict[ownerName!]
+            }
+            else if (section == 1) {
+                
+                self.following.removeAtIndex(row)
+                selectedOwner = self.followingDict[ownerName!]
+            }
+            
+            rowsInFollowersSection = self.followed.count
+            rowsInFollowingSection = self.following.count
+            
+            let ownerID = Common.sharedCommon.config!["ownerId"] as! String
+            let paramData = NSDictionary(objects: [selectedOwner!], forKeys: ["<followownerid>"])
+            let data = ["ownerid" : ownerID]
+            
+            Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathFollow, body: data, replace: paramData, requestContentType: kContentTypes.kApplicationJson, completion: { (result, response) -> Void in
+                
+                if (result == true) {
+                    
+                    if (response["error"] == nil) {
+                        
+                        dispatch_async(dispatch_get_main_queue() , { () -> Void in
+                            
+                            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Fade)
+                            
+                            if (self.optionsOptionsDelegate != nil) {
+                                
+                                self.optionsOptionsDelegate!.followingUpdated(selectedOwner!)
+                            }
+                        })
+                        
+                    }
+                    else {
+                        
+                        print(response)
+                    }
+                    
+                }
+                else {
+                    
+                    print(response)
+                }
+                
+            })
+            
+        }
+    }
+    
+    
     // CUSTOM METHODS
     
     func showFollowersTable() {
@@ -179,7 +313,8 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
             let height = self.frame.size.height - (2 * yPos)
             
             self.followersTable = UITableView(frame: CGRectMake(xPos,yPos,width,height), style: UITableViewStyle.Grouped)
-            self.followersTable!.backgroundColor = UIColor.blackColor() //kOptionsBgColor
+            self.followersTable!.backgroundColor = self.backgroundColor
+            self.followersTable!.separatorStyle = .None
             self.followersTable!.delegate = self
             self.followersTable!.dataSource = self
             self.addSubview(self.followersTable!)
@@ -209,5 +344,34 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
         self.followersTable!.reloadSections(sectionIndexSet!, withRowAnimation: UITableViewRowAnimation.Automatic)
         
         
+    }
+    
+    func showButtonTapped(sender:CustomButton) {
+        
+        let section = sender.indexPath!.section
+        let row = sender.indexPath!.row
+        var selectedOwner:String? = nil
+        
+        if (section == 0) {
+            
+            selectedOwner = self.followedDict[self.followed[row]]
+        }
+        else if (section == 1) {
+            
+            selectedOwner = self.followingDict[self.following[row]]
+        }
+        
+        if (selectedOwner != nil ) {
+            
+            
+            let selectedOwnerPredicate = NSPredicate(format: "ownerID = %@", selectedOwner!)
+            
+            CacheManager.sharedCacheManager.selectedOwnerNotesDataList = ((CacheManager.sharedCacheManager.allNotesDataList as NSArray).filteredArrayUsingPredicate(selectedOwnerPredicate) as? Array<Dictionary<String,AnyObject>>)!
+            
+            if (self.optionsOptionsDelegate != nil) {
+                
+                self.optionsOptionsDelegate!.showNotesForSelectedFollowingOwner(CacheManager.sharedCacheManager.selectedOwnerNotesDataList)
+            }
+        }
     }
 }

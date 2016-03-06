@@ -118,7 +118,7 @@ let kStickyNoteFontSize:CGFloat = 28.0
 
 let kRunMode = kRunModes.modeLive
 let kHttpProtocol = "http"
-let kHttpHost = "qacloud.accedo.tv" //"172.17.50.170" //"192.168.0.12"
+let kHttpHost = "192.168.0.12" //"172.17.50.170" //"192.168.0.12"
 let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/owner/register", "method" : "POST" ],
                   ["path" : "/api/notes/all", "method" : "POST"],
@@ -166,7 +166,12 @@ let kDebugAllNotesResponse = [ "data" : [
 let kMenuOptions = [1:["title":"GENERAL","icon":"home.png","selector":"optionItemGeneral"],2:["title":"LOGOUT","icon":"logout.png","selector":"optionItemLogout"]]
 let kGeneralMenuOptions = [1:["title":"PROFILE","icon":"my.png","selector":"optionItemProfile"],2:["title":"OPTIONS","icon":"options.png","selector":"optionItemOptions"],3:["title":"ABOUT","icon":"noteBlue3.png","selector":"optionItemAbout"]]
 
-let kOptionsBgColor = UIColor(red: CGFloat(195.0/255.0), green: CGFloat(58.0/255.0), blue: (58.0/255.0), alpha: 1.0)
+
+let kMenuColor = UIColor(red: CGFloat(236.0/255.0), green: CGFloat(79.0/255.0), blue: (79.0/255.0), alpha: 1.0)
+//let kOptionsBgColor = UIColor(red: CGFloat(195.0/255.0), green: CGFloat(58.0/255.0), blue: (58.0/255.0), alpha: 1.0)
+let kOptionsBgColor = UIColor(red: CGFloat(66.0/255.0), green: CGFloat(121.0/255.0), blue: (132.0/255.0), alpha: 1.0)
+let kOptionsBgColor1 = UIColor.whiteColor()
+
 
 
 var kDevice:String {

@@ -15,6 +15,7 @@ class CacheManager:NSObject {
     var allNotesDataList:Array<Dictionary<String,AnyObject>> = []
     var myNotesDataList:Array<Dictionary<String,AnyObject>> = []
     var myFavsNotesDataList:Array<Dictionary<String,AnyObject>> = []
+    var selectedOwnerNotesDataList:Array<Dictionary<String,AnyObject>> = []
     
     override init() {
         

@@ -90,6 +90,7 @@
 		8ECE6A831C5E3B0D00B3B8BA /* Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8ECE6A821C5E3B0D00B3B8BA /* Config.plist */; };
 		8ECE6A8D1C5E865D00B3B8BA /* bg1.png in Resources */ = {isa = PBXBuildFile; fileRef = 8ECE6A8C1C5E865D00B3B8BA /* bg1.png */; };
 		8EDBC96F1C6F6ABE0016A5E2 /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EDBC96E1C6F6ABE0016A5E2 /* MessageView.swift */; };
+		8EED41D41C8C70C6006921C5 /* bg4.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8EED41D31C8C70C6006921C5 /* bg4.jpg */; };
 		8EEDD63B1C6D303200DE5CC2 /* addfav.png in Resources */ = {isa = PBXBuildFile; fileRef = 8EEDD6391C6D303200DE5CC2 /* addfav.png */; };
 		8EEDD63C1C6D303200DE5CC2 /* removefav.png in Resources */ = {isa = PBXBuildFile; fileRef = 8EEDD63A1C6D303200DE5CC2 /* removefav.png */; };
 		C14E958E234CED877FAA8E53 /* Pods_Pinwall.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 699E10DB47D50E381FC76201 /* Pods_Pinwall.framework */; };
@@ -206,6 +207,7 @@
 		8ECE6A821C5E3B0D00B3B8BA /* Config.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Config.plist; sourceTree = "<group>"; };
 		8ECE6A8C1C5E865D00B3B8BA /* bg1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bg1.png; sourceTree = "<group>"; };
 		8EDBC96E1C6F6ABE0016A5E2 /* MessageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
+		8EED41D31C8C70C6006921C5 /* bg4.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = bg4.jpg; sourceTree = "<group>"; };
 		8EEDD6391C6D303200DE5CC2 /* addfav.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = addfav.png; sourceTree = "<group>"; };
 		8EEDD63A1C6D303200DE5CC2 /* removefav.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = removefav.png; sourceTree = "<group>"; };
 		A9CD683E62626D33C9F5865F /* Pods-Pinwall.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Pinwall.release.xcconfig"; path = "Pods/Target Support Files/Pods-Pinwall/Pods-Pinwall.release.xcconfig"; sourceTree = "<group>"; };
@@ -419,6 +421,7 @@
 				8ECE6A8C1C5E865D00B3B8BA /* bg1.png */,
 				8EA8BFCB1C665B0A0034D50B /* bg2.jpg */,
 				8EA8BFCC1C665B0A0034D50B /* bg3.jpg */,
+				8EED41D31C8C70C6006921C5 /* bg4.jpg */,
 			);
 			name = BG;
 			sourceTree = "<group>";
@@ -649,6 +652,7 @@
 				8E5D7A1B1C61336900E3815C /* noteWhite.png in Resources */,
 				8EAD0CD21C79052800CA0E65 /* heart.png in Resources */,
 				8ECE6A8D1C5E865D00B3B8BA /* bg1.png in Resources */,
+				8EED41D41C8C70C6006921C5 /* bg4.jpg in Resources */,
 				8E5D7A1C1C61336900E3815C /* noteYellow.png in Resources */,
 				8E5D7A181C61336900E3815C /* noteBlue.png in Resources */,
 				8EA8BFEC1C668B590034D50B /* noteGreen3.png in Resources */,

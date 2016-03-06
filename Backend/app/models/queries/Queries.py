@@ -477,20 +477,20 @@ class OwnerQueries():
                resp['followers'] = o.followers
                resp['following'] = o.following
                
-          followerNames = []
+          names = {}
           for oid in resp['followers']:
                for o in Owners.objects(id=oid):
-                   followerNames.append(o.screenName)
+                   names[o.screenName] = oid
+     
+          resp['followers'] = names
           
-          resp["followersnames"] = followerNames
           
-          
-          followingNames = []
+          names = {}
           for oid in resp['following']:
                for o in Owners.objects(id=oid):
-                   followingNames.append(o.screenName)
+                   names[o.screenName] = oid
           
-          resp["followingnames"] = followingNames
+          resp['following'] = names
           
                
           return {'data' : resp}

@@ -38,7 +38,7 @@ class ProfileView:UIView,UITextFieldDelegate {
         super.init(frame:frame)
 
         self.backgroundColor = kOptionsBgColor
-        self.backgroundColor = UIColor.blackColor()
+        //self.backgroundColor = UIColor.blackColor()
         let xOffset:CGFloat = 35.0
         let textFieldHeight:CGFloat = 45.0
         let textFieldWidth = UIScreen.mainScreen().bounds.size.width - (xOffset * 2)
@@ -54,7 +54,7 @@ class ProfileView:UIView,UITextFieldDelegate {
         nameView!.font = UIFont(name: "Roboto", size: 20.0)
         nameView!.textAlignment = NSTextAlignment.Left
         nameView!.alpha = 0.0
-        nameView!.textColor = UIColor.whiteColor()
+        nameView!.textColor = UIColor.blackColor()
         nameView!.returnKeyType = UIReturnKeyType.Send
         nameView!.autocapitalizationType = UITextAutocapitalizationType.None
         nameView!.autocorrectionType = UITextAutocorrectionType.No
