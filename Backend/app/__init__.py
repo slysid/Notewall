@@ -7,8 +7,8 @@ import yaml
 
 app = Flask(__name__)
 
-uploadPath = os.path.join(os.path.dirname(__file__),'uploads')
-app.config['UPLOAD_FOLDER'] = uploadPath
+uploadPath = os.path.join(os.path.dirname(os.path.abspath(__file__)),'uploads')
+app.config['UPLOAD_FOLDER'] = uploadPath 
 app.config['ALLOWED_EXTENSIONS'] = set(['png','jpeg','jpg'])
 app.config['SES_AWS_ACCESS_KEY'] = 'AKIAJBUAI5VGYYHUJZOA'
 app.config['SES_AWS_SECRET_KEY'] = 'Am+EdlFoxgikqmqVtr6IA/GCiV+IX/Z6kKGsBxUWjaSq'
