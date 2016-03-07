@@ -45,6 +45,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var optionsOptionView:OptionsOptionView?
     var aboutView:AboutView?
     var filledInOptionsView:UIView? = nil
+    var activity:UIActivityIndicatorView? = nil
     
     var screenWidth:CGFloat = UIScreen.mainScreen().bounds.size.width
     var screenHeight:CGFloat = UIScreen.mainScreen().bounds.size.height
@@ -170,6 +171,13 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
         }
         
+        if (activity == nil) {
+            
+            activity = UIActivityIndicatorView(frame: CGRectMake(0,0,30,30))
+            activity!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, UIScreen.mainScreen().bounds.size.height * 0.10)
+            self.masterView!.addSubview(activity!)
+        }
+        
         if (resetDataSource == true) {
         
             if (self.dataSourceAPI! == kAllowedPaths.kPathGetFavNotesForOwner) {
@@ -190,6 +198,22 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
     }
     
+    func activityStartAnimating() {
+        
+        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+            
+            self.activity!.startAnimating()
+        }
+    }
+    
+    func activityStopAnimating() {
+        
+        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+            
+            self.activity!.stopAnimating()
+        }
+    }
+    
     func filterResults() {
         
         let ownerid = Common.sharedCommon.config!["ownerId"] as! String
@@ -207,11 +231,15 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         let data = ["ownerid" : Common.sharedCommon.config!["ownerId"] as! String]
         
+        self.activityStartAnimating()
+        
         CacheManager.sharedCacheManager.decideOnCall(ignoreCache) { (result, response) -> () in
             
             if (result == true) {
                 
                 Common.sharedCommon.postRequestAndHadleResponse(self.dataSourceAPI!, body: data, replace: nil,requestContentType:kContentTypes.kApplicationJson) { (result, response) -> Void in
+                    
+                    self.activityStopAnimating()
                     
                     if (result == true) {
                         
@@ -248,6 +276,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                     else {
                         
                         Common.sharedCommon.showMessageViewWithMessage(self.view, message: "Network Error",startTimer:false)
+                        print(response)
                     }
                 }
                 

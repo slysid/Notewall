@@ -256,7 +256,7 @@ class Common:NSObject {
             
             
             let config = NSURLSessionConfiguration.defaultSessionConfiguration()
-            config.timeoutIntervalForRequest = 5.0
+            config.timeoutIntervalForRequest = 15.0
             let session = NSURLSession(configuration: config)
             let task = session.dataTaskWithRequest(restRequest) { (data, response, error) -> Void in
                 

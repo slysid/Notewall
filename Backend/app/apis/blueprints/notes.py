@@ -66,7 +66,6 @@ def poll():
 
 
 @notes.route('/notes/all',methods=["POST"])
-@auth.login_required
 def allnotes():
     
     authorization = canRespondToRequest()
