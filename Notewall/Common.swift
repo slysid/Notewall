@@ -128,7 +128,7 @@ class Common:NSObject {
     
     func formPostURLRequest(path:String) -> NSMutableURLRequest {
         
-        let postURL = NSURL(string:kHttpProtocol + "://" + kHttpHost + ":5000" + path)
+        let postURL = NSURL(string:kHttpProtocol + "://" + kHttpHost + ":" + kHttpPort + path)
         let postRequest = NSMutableURLRequest(URL: postURL!)
         return postRequest
     }
@@ -242,6 +242,15 @@ class Common:NSObject {
                     }
                     
                 }
+                
+                if (Common.sharedCommon.config!["token"] != nil) {
+                    
+                    let token = Common.sharedCommon.config!["token"] as! String + ":unused"
+                    //let token = "test:test"
+                    restRequest.setValue(token, forHTTPHeaderField: "Authorization")
+                }
+                
+                
                 
             }
             

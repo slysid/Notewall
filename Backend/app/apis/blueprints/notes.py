@@ -9,10 +9,13 @@ from werkzeug import secure_filename
 import os
 from app import app
 from PIL import Image
+from app.managers.authentication import Authentication, canRespondToRequest
+from app.managers.authentication import auth
 
 
 notes = Blueprint('notes',__name__)
 noteQueries = NoteQueries()
+authentication = Authentication()
     
 def validatePostParam(data=None):
     
@@ -40,93 +43,158 @@ def validatePostParam(data=None):
     
     return (response,postdata,ownerid)
 
+
+
 @notes.route('/poll',methods=["POST"])
 def poll():
-    response, postdata, ownerid = validatePostParam(request.json)
-    if response != None:
-        return jsonify(response)
     
-    data = noteQueries.getCount(ownerid)
-    return jsonify(data)
+    authorization = canRespondToRequest()
+    
+    if authorization[0] == True:
+        response, postdata, ownerid = validatePostParam(request.json)
+        ownerid = authorization[1]
+        
+        if response != None:
+            return jsonify(response)
+    
+        data = noteQueries.getCount(ownerid)
+        return jsonify(data)
+    
+    else:
+        
+        return jsonify({'data':{'error' : authorization[1]}})
 
 
 @notes.route('/notes/all',methods=["POST"])
+@auth.login_required
 def allnotes():
     
-    response, postdata, ownerid = validatePostParam(request.json)
+    authorization = canRespondToRequest()
     
-    if response != None:
-        return jsonify(response)
+    if authorization[0] == True:
+        response, postdata, ownerid = validatePostParam(request.json)
+        ownerid = authorization[1]
     
-    data = noteQueries.getAllNotes(ownerid)
-    return jsonify(data)
+        if response != None:
+            return jsonify(response)
+    
+        data = noteQueries.getAllNotes(ownerid)
+        return jsonify(data)
+    
+    else:
+        
+        return jsonify({'data':{'error' : authorization[1]}})
         
 
 @notes.route('/notes/all/owner',methods=["POST"])
 def notesForOwner():
     
-    response, postdata, ownerid = validatePostParam(request.json)
+    authorization = canRespondToRequest()
     
-    if response != None:
-        return jsonify(response)
+    if authorization[0] == True:
+        response, postdata, ownerid = validatePostParam(request.json)
+        ownerid = authorization[1]
     
-    data = noteQueries.getAllNotesForOwner(ownerid)
-    return jsonify(data)
+        if response != None:
+            return jsonify(response)
+    
+        data = noteQueries.getAllNotesForOwner(ownerid)
+        return jsonify(data)
+    
+    else:
+        
+        return jsonify({'data':{'error' : authorization[1]}})
+    
 
 @notes.route('/notes/<noteid>/favorite',methods=["PUT"])
 def addNotesToFavorite(noteid):
      
-     response, postdata, ownerid = validatePostParam(request.json)
+     authorization = canRespondToRequest()
+     
+     if authorization[0] == True:
+        response, postdata, ownerid = validatePostParam(request.json)
+        ownerid = authorization[1]
     
-     if response != None:
-        return jsonify(response)
+        if response != None:
+            return jsonify(response)
 
-     data = noteQueries.addNotesToFav(noteid,ownerid)
-     return jsonify(data)
+        data = noteQueries.addNotesToFav(noteid,ownerid)
+        return jsonify(data)
+    
+     else:
+        
+        return jsonify({'data':{'error' : authorization[1]}})
     
     
 @notes.route('/notes/<noteid>/remove',methods=["DELETE"])
 def removeNoteForOwner(noteid):
     
-    response, postdata, ownerid = validatePostParam(request.json)
+    authorization = canRespondToRequest()
     
-    if response != None:
-        return jsonify(response)
+    if authorization[0] == True:
+        response, postdata, ownerid = validatePostParam(request.json)
+        ownerid = authorization[1]
     
-    data = noteQueries.removeNoteForOwner(noteid,ownerid)
-    return jsonify(data)
+        if response != None:
+            return jsonify(response)
+    
+        data = noteQueries.removeNoteForOwner(noteid,ownerid)
+        return jsonify(data)
+    
+    else:
+        
+        return jsonify({'data':{'error' : authorization[1]}})
 
 
 @notes.route('/notes/all/favs',methods=["POST"])
 def getFavNotes():
     
-    response, postdata, ownerid = validatePostParam(request.json)
+    authorization = canRespondToRequest()
     
-    if response != None:
-        return jsonify(response)
+    if authorization[0] == True:
+        response, postdata, ownerid = validatePostParam(request.json)
+        ownerid = authorization[1]
     
-    data = noteQueries.getAllFavNotesForOwner(ownerid)
-    return jsonify(data)
+        if response != None:
+            return jsonify(response)
+    
+        data = noteQueries.getAllFavNotesForOwner(ownerid)
+        return jsonify(data)
+    
+    else:
+        
+        return jsonify({'data':{'error' : authorization[1]}})
 
 
 @notes.route('/notes/post', methods =["POST"])
 def postNewNote():
     
-    if (request.headers['Content-Type'] == 'application/json'):
+    authorization = canRespondToRequest()
     
-        response, postdata, ownerid = validatePostParam()
+    if authorization[0] == True:
     
-        if response != None:
-            return jsonify(response)
+        if (request.headers['Content-Type'] == 'application/json'):
     
-        data = noteQueries.postNewNote(postdata)
-        return jsonify(data)
-    elif ('multipart/form-data' in request.headers['Content-Type']):
-        return postImage()
+            response, postdata, ownerid = validatePostParam()
+            ownerid = authorization[1]
+    
+            if response != None:
+                return jsonify(response)
+    
+            data = noteQueries.postNewNote(postdata)
+            return jsonify(data)
+        elif ('multipart/form-data' in request.headers['Content-Type']):
+            return postImage(authorization[1])
+        else:
+            return jsonify({"warn":"No operation performed"})
+        
     else:
-        return jsonify({"warn":"No operation performed"})
+        
+        return jsonify({'data':{'error' : authorization[1]}})
 
-def postImage(): 
+
+
+def postImage(oid): 
     
     try:
         if 'jsondata' in request.form:
@@ -139,6 +207,7 @@ def postImage():
             return jsonify({"error" : "Missing postbody."})
         
         response, postdata, ownerid = validatePostParam(data)
+        ownerid = oid
         
         if response != None:
             return jsonify(response)
@@ -172,7 +241,7 @@ def postImage():
     
             
 
-@notes.route('/uploads/<filename>')
+@notes.route('/uploads/<filename>',methods=['GET'])
 def uploaded_file(filename):
     
     try:

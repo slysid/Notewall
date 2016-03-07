@@ -6,23 +6,16 @@ from app.models.Notes import Notes
 from app.models.Owners import Owners
 from datetime import datetime, timedelta
 from time import strftime
-import uuid
-import hashlib
 from PIL import Image
 import gridfs
 import os
 import pymongo
 from boto.ses.connection import SESConnection
 from app.managers.emailmanager import EmailManager
+from app.managers.authentication import Authentication, hashPassword, checkPassword
 
+authentication = Authentication()
 
-def _hashPassword(password):
-    salt = uuid.uuid4().hex
-    return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
-    
-def _checkPassword(hashed_password, user_password):
-    password, salt = hashed_password.split(':')
-    return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
 
 def formNoteDict(note,ownerid):
      
@@ -303,7 +296,6 @@ class OwnerQueries():
      
      def __sendWelcomeMail(self,email,name):
           
-          
           try:
                emailManager = EmailManager()
                emailURL = 'http://' + Configuration['EMAIL']['host'] + ':' + Configuration['EMAIL']['port'] + '/api/owner/register/confirm/' + name
@@ -313,6 +305,7 @@ class OwnerQueries():
                conn = SESConnection(aws_access_key_id=access_key,aws_secret_access_key=secret_key)
                conn.send_email(source='bharathkumar.devaraj@gmail.com',
                     subject='Welcome to NoteWall',
+                    return_path='bharathkumar.devaraj@gmail.com',
                     body=None,
                     to_addresses='bharathkumar.devaraj@gmail.com',
                     html_body=htmlBody)
@@ -329,14 +322,16 @@ class OwnerQueries():
           for owner in Owners.objects(email=email):
                isEmailAvailable = True
                ownerid = str(owner.id)
+               token = authentication.generateToken(ownerid)
                ownerpassword = owner.password
                resp['ownerid'] = ownerid
                resp['screenname'] =  owner.screenName
                resp['registerstatus'] =  owner.registerStatus
+               resp['token'] =  token
                break
           
           if (isEmailAvailable == True and password != None):
-               if _checkPassword(ownerpassword,password) == False:
+               if checkPassword(ownerpassword,password) == False:
                     resp = {'error':'Invalid password'}
                        
           
@@ -356,15 +351,20 @@ class OwnerQueries():
                if password == None:
                     owner.password = socialPassword
                else:
-                    owner.password = _hashPassword(password)
+                    owner.password = hashPassword(password)
                owner.creationDate = datetime.now()
                owner.lastModifiedDate = datetime.now()
                try:
                     data = owner.save()
                     resp['ownerid'] =  str(data.id)
+                    token = authentication.generateToken(str(data.id))
                     resp['screenname'] =  owner.screenName
                     resp['registerstatus'] =  owner.registerStatus
-                    self.__sendWelcomeMail('a@a.com',resp['screenname'])
+                    resp['token'] =  token
+                    print '******'
+                    print email
+                    print '******'
+                    self.__sendWelcomeMail(email,resp['screenname'])
                except Exception, e:
                     if 'duplicate' in str(e):
                          resp = {"error" : "Screen Name Already Exists"}
@@ -456,10 +456,10 @@ class OwnerQueries():
           if owner == None:
                resp = {"error" : "Given owner not found"}
           else:
-               if _checkPassword(existingPassword,oldpassword) == False:
+               if checkPassword(existingPassword,oldpassword) == False:
                     resp = {"error" : "Wrong old password"}
                else:
-                    owner.password = _hashPassword(newpassword)
+                    owner.password = hashPassword(newpassword)
                     owner.save()
                     resp = {"success" : "OK"}
                     
@@ -519,5 +519,5 @@ class OwnerQueries():
                     resp['ownerid'] =  str(owner.id)
                     resp['screenname'] =  owner.screenName
                     resp['registerstatus'] =  owner.registerStatus
-                    
+                    resp = {'success' : 'OK'}          
           return resp

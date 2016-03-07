@@ -215,22 +215,32 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                     
                     if (result == true) {
                         
-                        let respData = response.objectForKey("data")
-                        self.notesDataList = respData! as! Array<Dictionary<String, AnyObject>>
-                        
-                        if (self.dataSourceAPI! == kAllowedPaths.kPathGetAllNotes) {
+                        if (response["data"]!["error"] != nil) {
                             
-                            CacheManager.sharedCacheManager.allNotesDataList = respData! as! Array<Dictionary<String, AnyObject>>
-                            self.filterResults()
+                            Common.sharedCommon.showMessageViewWithMessage(self.view, message: response["data"]!["error"] as! String,startTimer:false)
+                            
                         }
-                        
-                        
-                        if (refreshUI == true) {
+                        else {
                             
-                            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                            
+                            let respData = response.objectForKey("data")
+                            self.notesDataList = respData! as! Array<Dictionary<String, AnyObject>>
+                            
+                            if (self.dataSourceAPI! == kAllowedPaths.kPathGetAllNotes) {
                                 
-                                self.showExistingNotes()
-                            })
+                                CacheManager.sharedCacheManager.allNotesDataList = respData! as! Array<Dictionary<String, AnyObject>>
+                                self.filterResults()
+                            }
+                            
+                            
+                            if (refreshUI == true) {
+                                
+                                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                                    
+                                    self.showExistingNotes()
+                                })
+                                
+                            }
                             
                         }
                         

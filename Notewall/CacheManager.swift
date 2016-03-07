@@ -36,16 +36,28 @@ class CacheManager:NSObject {
                 
                 if (result == true) {
                     
-                    let resultCount = response["data"]!["count"] as? Int
+                    let err:String? = response.objectForKey("data")?.objectForKey("error") as? String
                     
-                    if (resultCount == self.allNotesDataList.count) {
+                    if (err == nil) {
                         
-                        completion(false,"")
+                        let resultCount = response["data"]!["count"] as? Int
+                        
+                        if (resultCount == self.allNotesDataList.count) {
+                            
+                            completion(false,"")
+                        }
+                        else {
+                            
+                            completion(true,"")
+                        }
+                        
                     }
                     else {
                         
-                        completion(true,"")
+                        print(response["data"]!["error"] as! String)
+                        
                     }
+                    
                 }
                 else {
                     

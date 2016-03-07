@@ -43,6 +43,7 @@ class MainController:UIViewController,NoteWallProtocolDelegate {
         Common.sharedCommon.config!["loggedInMode"] = kLoggedInYetToLogin
         Common.sharedCommon.config!["ownerId"] = ""
         Common.sharedCommon.config!["email"] = ""
+        Common.sharedCommon.config!["token"] = ""
         Common.sharedCommon.config![kKeyRegisterStatus] = ""
         Common.sharedCommon.config!["isLoggedIn"] = false
         Common.sharedCommon.config!["loggedinDate"] = ""

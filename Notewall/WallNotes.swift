@@ -123,7 +123,7 @@ class WallNote:UIImageView {
                     }
                     else {
                         
-                        print("Image response is nil")
+                        print(response)
                     }
                 }
                 

@@ -455,11 +455,11 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
                 if (respData.objectForKey("error") == nil) {
                     
                     
-                    let ownerId = respData["ownerid"] as! String
-                    let screenName = respData["screenname"] as! String
+                    /*let ownerId = respData["ownerid"] as! String
+                    let screenName = respData["screenname"] as! String */
                     let registerStatus = respData[kKeyRegisterStatus] as! String
                     
-                    self.setConfigurationForSuccessfulLogin(loggedInMode, email: email, ownerid: ownerId,screenname:screenName,registerstatus:registerStatus)
+                    self.setConfigurationForSuccessfulLogin(loggedInMode, email: email, response:respData as! Dictionary<String, AnyObject>)
                     
                     if registerStatus == kAllowedRegisterStatus[kRegisterStatuses.kConfirmed.hashValue] {
                         
@@ -470,6 +470,11 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
                         })
                     }
                     else {
+                        
+                        dispatch_async(dispatch_get_main_queue() , { () -> Void in
+                            
+                            self.screenName?.alpha = 0.0
+                        })
                         
                         Common.sharedCommon.showMessageViewWithMessage(self.view, message: "Awaiting registration confirmation", startTimer:true)
                     }
@@ -512,7 +517,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         
     }
     
-    func setConfigurationForSuccessfulLogin(loggedInMode:String,email:String,ownerid:String,screenname:String,registerstatus:String) {
+    /*func setConfigurationForSuccessfulLogin(loggedInMode:String,email:String,ownerid:String,screenname:String,registerstatus:String) {
         
         Common.sharedCommon.config!["loggedInMode"] = loggedInMode
         Common.sharedCommon.config!["ownerId"] = ownerid
@@ -525,6 +530,25 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         Common.sharedCommon.config!["isFirstLogin"] = false
         
          FileHandler.sharedHandler.writeToFileWithData(Common.sharedCommon.config!, filename: "Config")
+        
+    }*/
+    
+    func setConfigurationForSuccessfulLogin(loggedInMode:String, email: String, response:Dictionary<String,AnyObject>) {
+        
+        print(response)
+        
+        Common.sharedCommon.config!["loggedInMode"] = loggedInMode
+        Common.sharedCommon.config!["ownerId"] = response["ownerid"] as! String
+        Common.sharedCommon.config!["screenname"] = response["screenname"] as! String
+        Common.sharedCommon.config!["token"] = response["token"] as! String
+        Common.sharedCommon.config![kKeyRegisterStatus] = response["registerstatus"] as! String
+        Common.sharedCommon.config!["email"] = email
+        Common.sharedCommon.config!["isLoggedIn"] = true
+        Common.sharedCommon.config!["loggedinDate"] = NSDate()
+        Common.sharedCommon.config![kKeyPolaroid] = nil
+        Common.sharedCommon.config!["isFirstLogin"] = false
+        
+        FileHandler.sharedHandler.writeToFileWithData(Common.sharedCommon.config!, filename: "Config")
         
     }
     
