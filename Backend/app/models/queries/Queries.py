@@ -13,6 +13,7 @@ import pymongo
 from boto.ses.connection import SESConnection
 from app.managers.emailmanager import EmailManager
 from app.managers.authentication import Authentication, hashPassword, checkPassword
+import logging
 
 authentication = Authentication()
 
@@ -50,6 +51,7 @@ class NoteQueries():
      
      def __init__(self):
           
+          self.logger = logging.getLogger(__name__)
           self.host = Configuration['mongodb']['uri']
           connect('notes',host=self.host)
           
@@ -69,7 +71,8 @@ class NoteQueries():
                          doc = formNoteDict(note,ownerid)
                          allNotes.append(doc)
           except Exception, e:
-               print str(e)
+               self.logger.error('getAllNotes_Exception')
+               self.logger.error(str(e),exc_info=True)
                return {"data" : []}
           
           return {"data" : allNotes }
@@ -85,7 +88,8 @@ class NoteQueries():
                          doc = formNoteDict(note,ownerid)
                          allNotes.append(doc)
           except Exception, e:
-               print str(e)
+               self.logger.error('getAllNotesForOwner_Exception')
+               self.logger.error(str(e),exc_info=True)
                return {"data" : []}
               
           return {"data" : allNotes }
@@ -106,7 +110,8 @@ class NoteQueries():
                               doc = formNoteDict(note,ownerid)
                               allNotes.append(doc)
           except Exception, e:
-               print str(e)
+               self.logger.error('getAllNotesFav_Exception')
+               self.logger.error(str(e),exc_info=True)
                return {"data" : []}
               
           return {"data" : allNotes }
@@ -157,7 +162,8 @@ class NoteQueries():
                
 
           except Exception, e:
-               print str(e)
+               self.logger.error('AddNotes_Exception')
+               self.logger.error(str(e),exc_info=True)
                return {"data" : {"error":"error in updating fav to notes"}}
           
           return {"data" : {"success":"OK"}}
@@ -211,7 +217,8 @@ class NoteQueries():
                     note.delete()          
                
           except Exception, e:
-               print str(e)
+               self.logger.error('removeNoteForOwner_Exception')
+               self.logger.error(str(e),exc_info=True)
                return {"data" : {"error":"error in removing notes"}}
           
           return {"data" : {"success":"OK"}}
@@ -245,7 +252,8 @@ class NoteQueries():
                         
                
           except Exception,e:
-               print str(e)
+               self.logger.error('postNewNote_Exception')
+               self.logger.error(str(e),exc_info=True)
                data = {"data" : {"error" : "Error in posting note"}}
                return data
           
@@ -279,6 +287,9 @@ class NoteQueries():
         
         except Exception, e:
             
+            self.logger.error('postImage_Exception')
+            self.logger.error(str(e),exc_info=True)
+            
             returnData["status"] = "error"
             returnData["message"] = str(e)
             
@@ -290,6 +301,7 @@ class OwnerQueries():
      
      def __init__(self):
           
+          self.logger = logging.getLogger(__name__)
           self.host = Configuration['mongodb']['uri']
           connect('owners',host=self.host)
           
@@ -311,7 +323,8 @@ class OwnerQueries():
                     html_body=htmlBody)
           except Exception, e:
                print ('Error in sending Welcome Email')
-               print (str(e))
+               self.logger.error('sendWelcomeMail_Exception')
+               self.logger.error(str(e),exc_info=True)
           
      def regitserOwner(self,email,password=None,screenname=None):
           
@@ -361,15 +374,13 @@ class OwnerQueries():
                     resp['screenname'] =  owner.screenName
                     resp['registerstatus'] =  owner.registerStatus
                     resp['token'] =  token
-                    print '******'
-                    print email
-                    print '******'
                     self.__sendWelcomeMail(email,resp['screenname'])
                except Exception, e:
                     if 'duplicate' in str(e):
                          resp = {"error" : "Screen Name Already Exists"}
                     else:
-                         print str(e)
+                         self.logger.error('registerOwner_Exception')
+                         self.logger.error(str(e),exc_info=True)
                          resp = {"error" : "Unknown Error"}
           
           
@@ -419,6 +430,8 @@ class OwnerQueries():
                     resp = {"error":"Not a valid follow owner id"}
           except Exception, e:
                     resp = {"error": str(e)}
+                    self.logger.error('followOwner_Exception')
+                    self.logger.error(str(e),exc_info=True)
           
           return {"data" : resp}
      
@@ -438,6 +451,8 @@ class OwnerQueries():
                else:
                     resp = {"error":"No owner found"}
           except Exception, e:
+                self.logger.error('updateScreenName_Exception')
+                self.logger.error(str(e),exc_info=True)
                 resp = {"error": str(e)}
                 
           

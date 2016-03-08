@@ -11,6 +11,7 @@ from app import app
 from PIL import Image
 from app.managers.authentication import Authentication, canRespondToRequest
 from app.managers.authentication import auth
+import logging
 
 
 notes = Blueprint('notes',__name__)
@@ -44,6 +45,18 @@ def validatePostParam(data=None):
     return (response,postdata,ownerid)
 
 
+def generalLogging(logger):
+        
+        logger.debug('URL:')
+        logger.debug(request.url)
+        
+        logger.debug('POST BODY:')
+        logger.debug(request.data)
+    
+        logger.debug('HEADERS:')
+        logger.debug(request.headers)
+
+
 
 @notes.route('/poll',methods=["POST"])
 def poll():
@@ -53,6 +66,8 @@ def poll():
     if authorization[0] == True:
         response, postdata, ownerid = validatePostParam(request.json)
         ownerid = authorization[1]
+        logger = logging.getLogger(__name__)
+        generalLogging(logger)
         
         if response != None:
             return jsonify(response)
@@ -73,6 +88,8 @@ def allnotes():
     if authorization[0] == True:
         response, postdata, ownerid = validatePostParam(request.json)
         ownerid = authorization[1]
+        logger = logging.getLogger(__name__)
+        generalLogging(logger)
     
         if response != None:
             return jsonify(response)
@@ -93,6 +110,8 @@ def notesForOwner():
     if authorization[0] == True:
         response, postdata, ownerid = validatePostParam(request.json)
         ownerid = authorization[1]
+        logger = logging.getLogger(__name__)
+        generalLogging(logger)
     
         if response != None:
             return jsonify(response)
@@ -113,6 +132,8 @@ def addNotesToFavorite(noteid):
      if authorization[0] == True:
         response, postdata, ownerid = validatePostParam(request.json)
         ownerid = authorization[1]
+        logger = logging.getLogger(__name__)
+        generalLogging(logger)
     
         if response != None:
             return jsonify(response)
@@ -133,6 +154,8 @@ def removeNoteForOwner(noteid):
     if authorization[0] == True:
         response, postdata, ownerid = validatePostParam(request.json)
         ownerid = authorization[1]
+        logger = logging.getLogger(__name__)
+        generalLogging(logger)
     
         if response != None:
             return jsonify(response)
@@ -153,6 +176,8 @@ def getFavNotes():
     if authorization[0] == True:
         response, postdata, ownerid = validatePostParam(request.json)
         ownerid = authorization[1]
+        logger = logging.getLogger(__name__)
+        generalLogging(logger)
     
         if response != None:
             return jsonify(response)
@@ -176,6 +201,8 @@ def postNewNote():
     
             response, postdata, ownerid = validatePostParam()
             ownerid = authorization[1]
+            logger = logging.getLogger(__name__)
+            generalLogging(logger)
     
             if response != None:
                 return jsonify(response)
@@ -196,6 +223,9 @@ def postNewNote():
 def postImage(oid): 
     
     try:
+        logger = logging.getLogger(__name__)
+        generalLogging(logger)
+        
         if 'jsondata' in request.form:
             data = request.form['jsondata']
             data = json.loads(data)

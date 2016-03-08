@@ -9,6 +9,7 @@ import hashlib
 from app.models.Owners import Owners
 from flask import request
 from app import Configuration
+import logging
 
 auth = HTTPBasicAuth()
 
@@ -23,11 +24,14 @@ class Authentication():
     
     @staticmethod
     def verify_auth_token(token):
+        logger = logging.getLogger(__name__)
         s = Serializer(Configuration['AUTH']['secret_key'])
         try:
             data = s.loads(token)
-            print data
+            logger.debug(data)
         except SignatureExpired:
+            logger.error('VerifyAuth_Exception')
+            logger.error(str(e))
             return None
         except BadSignature:
             return None
@@ -59,14 +63,19 @@ def canRespondToRequest():
     if Configuration['GENERAL']['debug'] == 'true':
         return [True,'Debug Mode']
     else:
+        
+        logger = logging.getLogger(__name__)
+        
         try:
-            print request.headers
             a = Authentication()
             token = request.headers.get('Authorization').split(':')[0]
+            logger.debug(token)
             did = a.verify_auth_token(token)
             if did != None:
                 return [True,did]
             return [False,'Access Denied. Invalid user token']
-        except:
+        except Exception, e:
+            logger.error('CanRespond_Exception')
+            logger.error(str(e),exc_info=True)
             return [False,'No Authorizationheader.Access Denied']
     

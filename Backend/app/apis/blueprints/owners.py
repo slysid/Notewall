@@ -5,14 +5,32 @@ import json
 from app.models.queries.Queries import OwnerQueries
 from app.managers.authentication import auth
 from app.managers.authentication import Authentication, canRespondToRequest
+import logging
 
 owners = Blueprint('owner',__name__)
 ownerQueries = OwnerQueries()
+
+
+def generalLogging(logger):
+        
+        logger.debug('URL:')
+        logger.debug(request.url)
+        
+        if request.method != 'GET': 
+            logger.debug('POST BODY:')
+            logger.debug(request.data)
+    
+        logger.debug('HEADERS:')
+        logger.debug(request.headers)
+
 
 @owners.route('/owner/register',methods=["POST"])
 def registerOwner():
     
     if request.method == 'POST':
+         
+         logger = logging.getLogger(__name__)
+         generalLogging(logger)
          
          try:
             if type(request.data) == str:
@@ -20,6 +38,8 @@ def registerOwner():
             else:
                 postdata = request.data
          except Exception, e:
+              logger.error('Exception Raised')
+              logger.error(str(e))
               response = {'data' : {'error' : 'Missing post body'}}
               return jsonify(response)
              
@@ -51,13 +71,18 @@ def followOwner(followingid):
         ownerid = authorization[1]
         
         if request.method == 'PUT':
-         
+            
+            logger = logging.getLogger(__name__)
+            generalLogging(logger)
+            
             try:
                 if type(request.data) == str:
                     postdata = json.loads(request.data)
                 else:
                     postdata = request.data
             except Exception, e:
+                logger.error('Exception Raised')
+                logger.error(str(e))
                 response = {'data' : {'error' : 'Missing post body'}}
                 return jsonify(response)
          
@@ -83,6 +108,8 @@ def updateScreenName():
         if request.method == 'PUT':
             
             ownerid = authorization[1]
+            logger = logging.getLogger(__name__)
+            generalLogging(logger)
             
             try:
                 if type(request.data) == str:
@@ -90,6 +117,8 @@ def updateScreenName():
                 else:
                     postdata = request.data
             except Exception, e:
+                logger.error('Exception Raised')
+                logger.error(str(e))
                 response = {'data' : {'error' : 'Missing post body'}}
                 return jsonify(response)
          
@@ -119,6 +148,8 @@ def updatePassword():
         if request.method == 'PUT':
             
             ownerid = authorization[1]
+            logger = logging.getLogger(__name__)
+            generalLogging(logger)
             
             try:
                 if type(request.data) == str:
@@ -126,6 +157,8 @@ def updatePassword():
                 else:
                     postdata = request.data
             except Exception, e:
+                logger.error('Exception Raised')
+                logger.error(str(e))
                 response = {'data' : {'error' : 'Missing post body'}}
                 return jsonify(response)
             
@@ -168,6 +201,8 @@ def getOwnerDetails():
         if request.method == 'POST':
             
             ownerid = authorization[1]
+            logger = logging.getLogger(__name__)
+            generalLogging(logger)
             
             try:
                 if type(request.data) == str:
@@ -195,6 +230,9 @@ def getOwnerDetails():
 def confirmRegistration(name):
     
     if request.method == 'GET':
+        
+        logger = logging.getLogger(__name__)
+        generalLogging(logger)
             
         resp = ownerQueries.confirmRegistration(name.lower())
         if 'error' in resp:

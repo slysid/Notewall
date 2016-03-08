@@ -235,7 +235,11 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         CacheManager.sharedCacheManager.decideOnCall(ignoreCache) { (result, response) -> () in
             
+            self.activityStopAnimating()
+            
             if (result == true) {
+                
+                self.activityStartAnimating()
                 
                 Common.sharedCommon.postRequestAndHadleResponse(self.dataSourceAPI!, body: data, replace: nil,requestContentType:kContentTypes.kApplicationJson) { (result, response) -> Void in
                     
