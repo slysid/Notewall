@@ -87,7 +87,6 @@ def allnotes():
     
     if authorization[0] == True:
         response, postdata, ownerid = validatePostParam(request.json)
-        ownerid = authorization[1]
         logger = logging.getLogger(__name__)
         generalLogging(logger)
     

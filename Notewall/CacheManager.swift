@@ -42,7 +42,11 @@ class CacheManager:NSObject {
                         
                         let resultCount = response["data"]!["count"] as? Int
                         
-                        if (resultCount == self.allNotesDataList.count) {
+                        if (resultCount == 0) {
+                            
+                            completion(true,"")
+                        }
+                        else if (resultCount == self.allNotesDataList.count) {
                             
                             completion(false,"")
                         }
@@ -54,7 +58,8 @@ class CacheManager:NSObject {
                     }
                     else {
                         
-                        print(response["data"]!["error"] as! String)
+                        let errMsg = response["data"]!["error"] as! String
+                        completion(false,errMsg)
                         
                     }
                     

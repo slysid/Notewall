@@ -52,17 +52,23 @@ class MainController:UIViewController,NoteWallProtocolDelegate {
         
         FileHandler.sharedHandler.writeToFileWithData(Common.sharedCommon.config!, filename: "Config")
         
-        let topViewController = UIApplication.sharedApplication().windows[0].rootViewController
-        topViewController!.dismissViewControllerAnimated(false) { () -> Void in
+        dispatch_async(dispatch_get_main_queue()) { () -> Void in
             
-            self.notewallController = nil
+            let topViewController = UIApplication.sharedApplication().windows[0].rootViewController
+            topViewController!.dismissViewControllerAnimated(false) { () -> Void in
+                
+                self.notewallController = nil
+            }
         }
+        
     }
     
     
     // Custom Methods
     
     func checkAgeAndDecideOnApplication() {
+        
+        print(Common.sharedCommon.config)
         
         if (Common.sharedCommon.config!["isLoggedIn"]!.boolValue == true) {
             
@@ -124,8 +130,12 @@ class MainController:UIViewController,NoteWallProtocolDelegate {
             self.notewallController!.noteWallDelegate = self
         }
         
-        self.presentViewController(self.notewallController!, animated: false) { () -> Void in
+        dispatch_async(dispatch_get_main_queue()) { () -> Void in
             
+            self.presentViewController(self.notewallController!, animated: false) { () -> Void in
+                
+                
+            }
             
         }
     }

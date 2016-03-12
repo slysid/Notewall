@@ -464,9 +464,12 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
                     if registerStatus == kAllowedRegisterStatus[kRegisterStatuses.kConfirmed.hashValue] {
                         
                         self.handleCloseViewTap()
-                        self.dismissViewControllerAnimated(false, completion: { () -> Void in
+                        dispatch_async(dispatch_get_main_queue() , { () -> Void in
                             
-                            
+                            self.dismissViewControllerAnimated(false, completion: { () -> Void in
+                                
+                                
+                            })
                         })
                     }
                     else {

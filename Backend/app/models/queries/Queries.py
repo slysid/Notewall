@@ -65,7 +65,6 @@ class NoteQueries():
           allNotes = []
           
           try:
-          
                for note in Notes.objects(noteDeletionDate__gt=datetime.now()):
                     if ownerid not in note.excludedOwners:
                          doc = formNoteDict(note,ownerid)

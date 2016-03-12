@@ -287,28 +287,37 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             }
             else {
                 
-                switch self.dataSourceAPI! {
-                    
-                case kAllowedPaths.kPathGetAllNotes:
-                        self.notesDataList = CacheManager.sharedCacheManager.allNotesDataList
-                case kAllowedPaths.kPathGetNotesForOwner:
-                        self.notesDataList = CacheManager.sharedCacheManager.myNotesDataList
-                case kAllowedPaths.kPathGetFavNotesForOwner:
-                        self.notesDataList = CacheManager.sharedCacheManager.myFavsNotesDataList
-                default:
-                        break
-                    
-                }
+                print(response)
                 
-                if (refreshUI == true) {
+                if response.rangeOfString("Denied") != nil {
                     
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                     self.noteWallDelegate!.handleLogout()
+                }
+                else {
+                    
+                    switch self.dataSourceAPI! {
                         
-                        self.showExistingNotes()
-                    })
+                    case kAllowedPaths.kPathGetAllNotes:
+                        self.notesDataList = CacheManager.sharedCacheManager.allNotesDataList
+                    case kAllowedPaths.kPathGetNotesForOwner:
+                        self.notesDataList = CacheManager.sharedCacheManager.myNotesDataList
+                    case kAllowedPaths.kPathGetFavNotesForOwner:
+                        self.notesDataList = CacheManager.sharedCacheManager.myFavsNotesDataList
+                    default:
+                        break
+                        
+                    }
                     
+                    if (refreshUI == true) {
+                        
+                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                            
+                            self.showExistingNotes()
+                        })
+                        
+                    }
                 }
-                
+
             }
         }
         

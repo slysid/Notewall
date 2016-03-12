@@ -19,21 +19,22 @@ class Authentication():
         self.auth = HTTPBasicAuth()
     
     def generateToken(self,username):
-        s = Serializer(Configuration['AUTH']['secret_key'])
+        s = Serializer(Configuration['AUTH']['secret_key'],expires_in=3600000)
         return s.dumps({'id':username})
     
     @staticmethod
     def verify_auth_token(token):
         logger = logging.getLogger(__name__)
+        logger.debug('Authorizing Token...')
         s = Serializer(Configuration['AUTH']['secret_key'])
         try:
             data = s.loads(token)
             logger.debug(data)
         except SignatureExpired:
-            logger.error('VerifyAuth_Exception')
-            logger.error(str(e))
+            logger.error('SignatureExpired')
             return None
         except BadSignature:
+            logger.error('BadSignature')
             return None
         
         oid = data['id']
@@ -72,6 +73,7 @@ def canRespondToRequest():
             logger.debug(token)
             did = a.verify_auth_token(token)
             if did != None:
+                logger.debug('Authorized Successfully')
                 return [True,did]
             return [False,'Access Denied. Invalid user token']
         except Exception, e:
