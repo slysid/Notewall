@@ -11,7 +11,7 @@ AWS:
     access_key: 'AKIAJTTC27WJIKJ2ILBQ'
     secret_key: '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'
 EMAIL:
-    host : 'qacloud.accedo.tv'
+    host : 'appgrid.qa.accedo.tv'
     port : '8085'
 GENERAL:
     debug: 'false'
