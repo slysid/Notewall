@@ -119,6 +119,11 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         return UIInterfaceOrientationMask.All
     }
+    
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        
+        Common.sharedCommon.invalidateTimerAndRemoveMessage()
+    }
 
     
     func loadMainView( resetDataSource resetDataSource:Bool) {
@@ -491,26 +496,38 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     func noteDownSwiped(note: Note) {
         
         note.alpha = 0.5
+        let ownerID = Common.sharedCommon.config!["ownerId"] as! String
         
-        let confirm = ConfirmView(frame: CGRectMake(0,0,380,200),requester:note)
-        confirm.confirmDelegate = self
-        confirm.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, -confirm.frame.size.height)
-        self.view.addSubview(confirm)
-        
-        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+        if note.sourceWallNote!.isPinned == true && ownerID != note.sourceWallNote!.ownerID! {
             
-            UIView.animateWithDuration(1.0, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
-                
-                
-                confirm.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, UIScreen.mainScreen().bounds.size.height * 0.5)
-                self.favButton!.alpha = 0.0
-                self.followButton!.alpha = 0.0
-                self.noteOwnerLabel!.alpha = 0.0
-                
-                }, completion: { (Bool) -> Void in
-                    
-            })
+            
+            Common.sharedCommon.showMessageViewWithMessage(self.view, message: "Pinned Note cannot be deleted", startTimer: true)
+            note.alpha = 1.0
         }
+        else {
+            
+            let confirm = ConfirmView(frame: CGRectMake(0,0,380,200),requester:note)
+            confirm.confirmDelegate = self
+            confirm.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, -confirm.frame.size.height)
+            self.view.addSubview(confirm)
+            
+            dispatch_async(dispatch_get_main_queue()) { () -> Void in
+                
+                UIView.animateWithDuration(1.0, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
+                    
+                    
+                    confirm.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, UIScreen.mainScreen().bounds.size.height * 0.5)
+                    self.favButton!.alpha = 0.0
+                    self.followButton!.alpha = 0.0
+                    self.noteOwnerLabel!.alpha = 0.0
+                    
+                    }, completion: { (Bool) -> Void in
+                        
+                })
+            }
+
+        }
+        
         
     }
     

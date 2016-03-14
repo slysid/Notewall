@@ -149,6 +149,11 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         }
     }
     
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        
+        Common.sharedCommon.invalidateTimerAndRemoveMessage()
+    }
+    
     func calculateConstraints() {
         
         let buttonWidth:CGFloat = Common.sharedCommon.calculateDimensionForDevice(60)

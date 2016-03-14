@@ -13,6 +13,7 @@ class SettingsScroll:UIView {
     
     var titleLabel:UILabel?
     var scrollView:UIScrollView?
+    var titleImage:UIImageView?
     
     init<T>(frame: CGRect, fillSettings:Array<T>, contentTypeTitle:String) {
         
@@ -29,6 +30,9 @@ class SettingsScroll:UIView {
         self.titleLabel!.backgroundColor = UIColor.grayColor()
         self.addSubview(self.titleLabel!)
         
+        self.titleImage = UIImageView(frame:self.titleLabel!.frame)
+        self.addSubview(self.titleImage!)
+        
         self.scrollView = UIScrollView(frame: CGRectMake(0,self.titleLabel!.frame.size.height,self.frame.size.width,self.frame.size.height - self.titleLabel!.frame.size.height))
         self.scrollView!.contentSize = CGSizeMake((CGFloat(fillSettings.count) * self.scrollView!.frame.size.width), self.scrollView!.frame.size.height)
         self.scrollView!.backgroundColor = UIColor.clearColor()
@@ -43,6 +47,10 @@ class SettingsScroll:UIView {
         
         if (contentTypeTitle == "NOTES")
         {
+            
+            let image = UIImage(named:"notesL.png")
+            self.titleImage!.image = image
+            
             for (var index = 0;index < fillSettings.count; index++) {
                 
                 let img = UIImageView(frame: CGRectMake(xPos, yPos, width, height))
@@ -55,6 +63,9 @@ class SettingsScroll:UIView {
         
         if (contentTypeTitle == "FONTS")
         {
+            let image = UIImage(named:"fonts.png")
+            self.titleImage!.image = image
+            
             for (var index = 0;index < fillSettings.count; index++) {
                 
                 let lbl = UILabel(frame: CGRectMake(xPos, yPos, width, height))
@@ -74,6 +85,9 @@ class SettingsScroll:UIView {
         
         if (contentTypeTitle == "SIZE") {
             
+            let image = UIImage(named:"size.png")
+            self.titleImage!.image = image
+            
             for (var index = 0;index < fillSettings.count; index++) {
                 
                 let lbl = UILabel(frame: CGRectMake(xPos, yPos, width, height))
@@ -91,6 +105,9 @@ class SettingsScroll:UIView {
         }
         
         if (contentTypeTitle == "COLORS") {
+            
+            let image = UIImage(named:"colors.png")
+            self.titleImage!.image = image
             
             for (var index = 0;index < kFontColor.count; index++) {
                 

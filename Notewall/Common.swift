@@ -312,7 +312,7 @@ class Common:NSObject {
     
     func showMessageViewWithMessage(controller:UIView,message:String,startTimer:Bool) {
         
-        if (true) {
+        if (true && self.timer == nil) {
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 
@@ -340,11 +340,29 @@ class Common:NSObject {
         
         if (self.timerCount >= 5) {
             
-            self.timer!.invalidate()
-            self.timerCount = 0
-            self.messageView!.removeFromSuperview()
-            self.timer = nil
+            self.invalidateTimerAndRemoveMessage()
         }
+    }
+    
+    func invalidateTimerAndRemoveMessage() {
+        
+        dispatch_async(dispatch_get_main_queue(),{() -> Void in
+            
+            if (self.timer != nil) {
+                
+                self.timer!.invalidate()
+            }
+            self.timerCount = 0
+            
+            if (self.messageView != nil) {
+                
+                self.messageView!.removeFromSuperview()
+            }
+            
+            self.timer = nil
+        })
+        
+        
     }
     
 }

@@ -239,7 +239,10 @@ class NoteQueries():
                note.noteTextFont = postdata['notetextfont']
                note.notePinned = postdata['notepinned']
                note.creationDate = datetime.now()
-               note.noteDeletionDate = datetime.now() + timedelta(days=3)
+               if note.notePinned == True:
+                    note.noteDeletionDate = datetime.now() + timedelta(days=10)
+               else:
+                    note.noteDeletionDate = datetime.now() + timedelta(days=5)
                note.excludedOwners = []
                note.favedOwners = []
                note.noteProperty = postdata['noteProperty']

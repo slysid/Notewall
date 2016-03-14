@@ -24,6 +24,10 @@
 		8E1B42551C7F52590094CD64 /* logout.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E1B42541C7F52590094CD64 /* logout.png */; };
 		8E1B42571C7F52630094CD64 /* setting.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E1B42561C7F52630094CD64 /* setting.png */; };
 		8E1B42591C7F526F0094CD64 /* home.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E1B42581C7F526F0094CD64 /* home.png */; };
+		8E228FE41C96D75A00A5D861 /* fonts.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E228FE31C96D75A00A5D861 /* fonts.png */; };
+		8E228FE61C96D94600A5D861 /* size.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E228FE51C96D94600A5D861 /* size.png */; };
+		8E228FE81C96D97900A5D861 /* colors.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E228FE71C96D97900A5D861 /* colors.png */; };
+		8E228FEA1C96D98800A5D861 /* notesL.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E228FE91C96D98800A5D861 /* notesL.png */; };
 		8E37A2261C54EF55002E776F /* ComposeNoteController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E37A2251C54EF55002E776F /* ComposeNoteController.swift */; };
 		8E37A2281C5505FF002E776F /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E37A2271C5505FF002E776F /* CustomButton.swift */; };
 		8E37A22A1C55168A002E776F /* SettingsScroll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E37A2291C55168A002E776F /* SettingsScroll.swift */; };
@@ -134,6 +138,10 @@
 		8E1B42541C7F52590094CD64 /* logout.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logout.png; sourceTree = "<group>"; };
 		8E1B42561C7F52630094CD64 /* setting.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = setting.png; sourceTree = "<group>"; };
 		8E1B42581C7F526F0094CD64 /* home.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = home.png; sourceTree = "<group>"; };
+		8E228FE31C96D75A00A5D861 /* fonts.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fonts.png; sourceTree = "<group>"; };
+		8E228FE51C96D94600A5D861 /* size.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = size.png; sourceTree = "<group>"; };
+		8E228FE71C96D97900A5D861 /* colors.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = colors.png; sourceTree = "<group>"; };
+		8E228FE91C96D98800A5D861 /* notesL.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = notesL.png; sourceTree = "<group>"; };
 		8E37A2251C54EF55002E776F /* ComposeNoteController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComposeNoteController.swift; sourceTree = "<group>"; };
 		8E37A2271C5505FF002E776F /* CustomButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		8E37A2291C55168A002E776F /* SettingsScroll.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsScroll.swift; sourceTree = "<group>"; };
@@ -364,6 +372,10 @@
 				8E15F5251C82566F00E852FC /* edit.png */,
 				8E15F5271C825ACE00E852FC /* save.png */,
 				8E15F58B1C85EA9100E852FC /* pin.png */,
+				8E228FE31C96D75A00A5D861 /* fonts.png */,
+				8E228FE51C96D94600A5D861 /* size.png */,
+				8E228FE71C96D97900A5D861 /* colors.png */,
+				8E228FE91C96D98800A5D861 /* notesL.png */,
 				8E64D72A1C52CF95001CF659 /* StickyNotes */,
 			);
 			name = Images;
@@ -618,16 +630,19 @@
 				8ECE6A831C5E3B0D00B3B8BA /* Config.plist in Resources */,
 				8E1B42551C7F52590094CD64 /* logout.png in Resources */,
 				8EAD0CDC1C79248F00CA0E65 /* nophoto.png in Resources */,
+				8E228FE81C96D97900A5D861 /* colors.png in Resources */,
 				8EA8BFE11C668B470034D50B /* noteBlue4.png in Resources */,
 				8EA8BFCD1C665B0A0034D50B /* bg2.jpg in Resources */,
 				8EBA873D1C5E9721006F091E /* GoogleService-Info.plist in Resources */,
 				8EEDD63B1C6D303200DE5CC2 /* addfav.png in Resources */,
 				8EA8BFF71C668B680034D50B /* notePink2.png in Resources */,
+				8E228FE41C96D75A00A5D861 /* fonts.png in Resources */,
 				8EA8BFEE1C668B590034D50B /* noteWhite3.png in Resources */,
 				8EA8BFC71C6647DC0034D50B /* mail.png in Resources */,
 				8EA8BFED1C668B590034D50B /* notePink3.png in Resources */,
 				8EA8C0021C668B790034D50B /* noteWhite1.png in Resources */,
 				8E1B424E1C7F29A30094CD64 /* Roboto-Regular.ttf in Resources */,
+				8E228FE61C96D94600A5D861 /* size.png in Resources */,
 				8E1B42591C7F526F0094CD64 /* home.png in Resources */,
 				8E15F5171C80854300E852FC /* follow.png in Resources */,
 				8E15F5281C825ACE00E852FC /* save.png in Resources */,
@@ -642,6 +657,7 @@
 				8EA8C0011C668B790034D50B /* notePink1.png in Resources */,
 				8EAD0CD31C79052800CA0E65 /* my.png in Resources */,
 				8EA8BFEF1C668B590034D50B /* noteYellow3.png in Resources */,
+				8E228FEA1C96D98800A5D861 /* notesL.png in Resources */,
 				8EA8BFF51C668B680034D50B /* noteBlue2.png in Resources */,
 				8E5D7A1E1C613E5500E3815C /* close.png in Resources */,
 				8EA8BFF61C668B680034D50B /* noteGreen2.png in Resources */,
@@ -858,7 +874,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PROVISIONING_PROFILE = "b476dfd9-2b10-4d75-b784-6bbf51296184";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -898,7 +914,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PROVISIONING_PROFILE = "b476dfd9-2b10-4d75-b784-6bbf51296184";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -911,7 +927,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Bharath Kumar Devaraj (3R2AX52B9X)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Notewall/Info.plist;
@@ -919,7 +935,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.dev.pinwall;
 				PRODUCT_NAME = Pinwall;
-				PROVISIONING_PROFILE = "b476dfd9-2b10-4d75-b784-6bbf51296184";
+				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Pinwall-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -931,7 +947,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Bharath Kumar Devaraj (3R2AX52B9X)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Notewall/Info.plist;
@@ -940,7 +956,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dev.pinwall;
 				PRODUCT_NAME = Pinwall;
-				PROVISIONING_PROFILE = "b476dfd9-2b10-4d75-b784-6bbf51296184";
+				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Pinwall-Bridging-Header.h";
 			};
 			name = Release;
