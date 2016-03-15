@@ -20,7 +20,7 @@ class ComposeNote:UIImageView {
     var composeTextView:UITextView?
     var composeNoteDelegate:ComposeNoteDelegate?
     
-    init(frame: CGRect, withImage:String, withFontIndex:Int) {
+    init(frame: CGRect, withImage:String, withFontSize:CGFloat) {
         
         super.init(frame: frame)
         
@@ -32,7 +32,7 @@ class ComposeNote:UIImageView {
         composeTextView = UITextView(frame: textFieldFrame)
         composeTextView!.backgroundColor = UIColor.clearColor()
         composeTextView!.textColor = Common.sharedCommon.formColorWithRGB(kFontColor[0])
-        composeTextView!.font = UIFont(name: "Chalkduster", size: kFontSizes[withFontIndex])
+        composeTextView!.font = UIFont(name: "Chalkduster", size: withFontSize)
         composeTextView!.becomeFirstResponder()
         composeTextView!.userInteractionEnabled = false
         self.addSubview(composeTextView!)

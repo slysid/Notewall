@@ -10,7 +10,7 @@ from PIL import Image
 import gridfs
 import os
 import pymongo
-from boto.ses.connection import SESConnection
+import boto.ses
 from app.managers.emailmanager import EmailManager
 from app.managers.authentication import Authentication, hashPassword, checkPassword
 import logging
@@ -316,12 +316,12 @@ class OwnerQueries():
                htmlBody = emailManager.generateConfirmationTemplate(emailURL)
                access_key = Configuration['AWS']['access_key']
                secret_key = Configuration['AWS']['secret_key']
-               conn = SESConnection(aws_access_key_id=access_key,aws_secret_access_key=secret_key)
+               conn = boto.ses.connect_to_region('eu-west-1',aws_access_key_id=access_key,aws_secret_access_key=secret_key)
                conn.send_email(source='bharathkumar.devaraj@gmail.com',
                     subject='Welcome to NoteWall',
                     return_path='bharathkumar.devaraj@gmail.com',
                     body=None,
-                    to_addresses='bharathkumar.devaraj@gmail.com',
+                    to_addresses=email,
                     html_body=htmlBody)
           except Exception, e:
                print ('Error in sending Welcome Email')

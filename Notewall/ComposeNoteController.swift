@@ -51,6 +51,9 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     var composeTypeImageView:UIImageView?
     var imgPicker:UIImagePickerController = UIImagePickerController()
     
+    var pinchScale:CGFloat = 0.0
+    var textFontSize:CGFloat = 30.0
+    
     override func viewDidLoad() {
         
         for noteTypes in kPinNotes {
@@ -126,7 +129,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
         
-        if (scrollView == noteTypesScroll!.scrollView!) {
+        if (scrollView == noteTypesScroll?.scrollView!) {
             
             let contentOffset:CGFloat = self.noteTypesScroll!.scrollView!.contentOffset.x
             selectedNoteIndex = Int(contentOffset / self.noteTypesScroll!.scrollView!.frame.size.width)
@@ -134,7 +137,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
             
         }
         
-        if (scrollView == noteFontsScroll!.scrollView!) {
+        if (scrollView == noteFontsScroll?.scrollView!) {
             
             let contentOffset:CGFloat = self.noteFontsScroll!.scrollView!.contentOffset.x
             selectedFontIndex = Int(contentOffset / self.noteFontsScroll!.scrollView!.frame.size.width)
@@ -142,7 +145,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
             self.assignedTextAttributes()
         }
         
-        if (scrollView == noteFontSizeScroll!.scrollView!) {
+        if (scrollView == noteFontSizeScroll?.scrollView!) {
             
             let contentOffset:CGFloat = self.noteFontSizeScroll!.scrollView!.contentOffset.x
             selectedFontSizeIndex = Int(contentOffset / self.noteFontSizeScroll!.scrollView!.frame.size.width)
@@ -151,7 +154,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
             
         }
         
-        if (scrollView == noteFontColorScroll!.scrollView!) {
+        if (scrollView == noteFontColorScroll?.scrollView!) {
             
             let contentOffset:CGFloat = self.noteFontColorScroll!.scrollView!.contentOffset.x
             selectedFontColorIndex = Int(contentOffset / self.noteFontColorScroll!.scrollView!.frame.size.width)
@@ -479,23 +482,109 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         
     }
     
+    
+    func composeNoteChangeType(sender:UISwipeGestureRecognizer) {
+        
+        
+        let dummyNoteView = UIImageView(frame:self.notesImageView!.frame)
+        dummyNoteView.image = self.notesImageView!.image
+        self.newNoteView!.addSubview(dummyNoteView)
+        var currentCenter = dummyNoteView.center
+        
+        if (sender.direction == UISwipeGestureRecognizerDirection.Right) {
+            
+            selectedNoteIndex = selectedNoteIndex + 1
+            
+            if (selectedNoteIndex >= stickyNotes.count) {
+                
+                selectedNoteIndex = 0
+            }
+            
+            currentCenter = CGPointMake(currentCenter.x + (dummyNoteView.frame.size.width * 1.5),currentCenter.y)
+
+        }
+        else if (sender.direction == UISwipeGestureRecognizerDirection.Left) {
+            
+            selectedNoteIndex = selectedNoteIndex - 1
+            
+            if (selectedNoteIndex < 0) {
+                
+                selectedNoteIndex = stickyNotes.count - 1
+            }
+            
+            currentCenter = CGPointMake(currentCenter.x - (dummyNoteView.frame.size.width * 1.5),currentCenter.y)
+        }
+        
+        
+        dispatch_async(dispatch_get_main_queue(),{ () -> Void in
+            
+            
+            //self.notesImageView!.image = UIImage(named: self.stickyNotes[self.selectedNoteIndex])
+            self.notesImageView!.image = UIImage(named: kPinNotes[self.selectedNoteIndex][self.selectedNoteInNoteIndex])
+            
+             UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
+                
+                
+                    dummyNoteView.center = currentCenter
+                
+                
+                }, completion: { (Bool) -> Void in
+                    
+                    dummyNoteView.removeFromSuperview();
+             })
+            
+        })
+    }
+    
+    
+    func handlePinch(sender:UIPinchGestureRecognizer) {
+        
+        self.textFontSize = self.textField!.font!.pointSize
+        //let font = kSupportedFonts[selectedFontIndex]
+        
+        let scale = sender.scale
+        
+        if (scale > self.pinchScale) {
+            
+            if (self.textFontSize <= 60.0) {
+                
+                self.textFontSize = self.textFontSize + 1.0
+            }
+        }
+        else {
+            
+            if (self.textFontSize > 20.0) {
+                
+                self.textFontSize = self.textFontSize - 1.0
+            }
+        }
+        
+        self.pinchScale = scale
+        
+        
+        //self.textField!.font = UIFont(name: font, size: self.textFontSize);
+        self.assignedTextAttributes()
+    }
+    
+    
+    
     func composeNewNote() {
         
         
-        for font in kFontSizes {
+       /* for font in kFontSizes {
             
             if (font == 30.0) {
                 
                 selectedFontSizeIndex = kFontSizes.indexOf(font)!
             }
-        }
+        } */
         
         
         
         let width = Common.sharedCommon.calculateDimensionForDevice(290)
         noteDefaultYPos = Common.sharedCommon.calculateDimensionForDevice(30) + (width * 0.5)
         let noteFrame = CGRectMake(0,0,width,width * 0.90)
-        notesImageView = ComposeNote(frame: noteFrame, withImage: stickyNotes[0], withFontIndex:selectedFontSizeIndex)
+        notesImageView = ComposeNote(frame: noteFrame, withImage: stickyNotes[0], withFontSize:textFontSize)
         notesImageView!.center = CGPointMake(UIScreen.mainScreen().bounds.width * 0.5 , noteDefaultYPos!)
         notesImageView!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin)
         notesImageView!.composeNoteDelegate = self
@@ -505,7 +594,14 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         textField = notesImageView!.composeTextView
         textField!.delegate = self
         self.newNoteView!.addSubview(notesImageView!)
-        
+        let rightSwipe = UISwipeGestureRecognizer(target: self, action: "composeNoteChangeType:")
+        rightSwipe.direction = .Right
+        self.notesImageView!.addGestureRecognizer(rightSwipe)
+        let leftSwipe = UISwipeGestureRecognizer(target: self, action: "composeNoteChangeType:")
+        leftSwipe.direction = .Left
+        self.notesImageView!.addGestureRecognizer(leftSwipe)
+        let pinch = UIPinchGestureRecognizer(target: self, action: "handlePinch:")
+        self.notesImageView!.addGestureRecognizer(pinch)
         
         var xOffset:CGFloat = 5.0
         var yOffset:CGFloat = 0.0
@@ -524,18 +620,25 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         
         var frameRect = CGRectMake(xOffset,yOffset,scrollDimWidth,scrollDimHeight)
         
-        noteTypesScroll = SettingsScroll(frame: frameRect, fillSettings: stickyNotes, contentTypeTitle: "NOTES")
+       /* noteTypesScroll = SettingsScroll(frame: frameRect, fillSettings: stickyNotes, contentTypeTitle: "NOTES")
         noteTypesScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin
         noteTypesScroll!.scrollView!.delegate = self
         noteTypesScroll!.scrollView!.backgroundColor = UIColor.blackColor()
         noteTypesScroll!.hidden = false
-        self.newNoteView!.addSubview(noteTypesScroll!)
+        //self.newNoteView!.addSubview(noteTypesScroll!) */
+        
+        noteFontColorScroll = SettingsScroll(frame: frameRect, fillSettings: kFontColor, contentTypeTitle: "COLORS")
+        noteFontColorScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin
+        noteFontColorScroll!.scrollView!.delegate = self
+        noteFontColorScroll!.scrollView!.backgroundColor = UIColor.blackColor()
+        noteFontColorScroll!.hidden = false
+        self.newNoteView!.addSubview(noteFontColorScroll!)
        
         
         //xOffset = self.notesImageView!.frame.origin.x + self.notesImageView!.frame.size.width + Common.sharedCommon.calculateDimensionForDevice(10)
-        xOffset = UIScreen.mainScreen().bounds.width - scrollDimWidth - noteTypesScroll!.frame.origin.x
-        yOffset = self.noteTypesScroll!.frame.origin.y
-        frameRect = CGRectMake(xOffset,yOffset,noteTypesScroll!.frame.size.width,noteTypesScroll!.frame.size.height)
+        xOffset = UIScreen.mainScreen().bounds.width - scrollDimWidth - noteFontColorScroll!.frame.origin.x
+        yOffset = self.noteFontColorScroll!.frame.origin.y
+        frameRect = CGRectMake(xOffset,yOffset,noteFontColorScroll!.frame.size.width,noteFontColorScroll!.frame.size.height)
         
         noteFontsScroll = SettingsScroll(frame: frameRect, fillSettings: kSupportedFonts, contentTypeTitle:"FONTS")
         noteFontsScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin.union(.FlexibleLeftMargin).union(.FlexibleRightMargin)
@@ -544,7 +647,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         self.newNoteView!.addSubview(noteFontsScroll!)
         
         
-        xOffset = self.noteTypesScroll!.frame.origin.x
+      /*  xOffset = self.noteTypesScroll!.frame.origin.x
         yOffset = self.noteTypesScroll!.frame.origin.y + self.noteTypesScroll!.frame.size.height + Common.sharedCommon.calculateDimensionForDevice(15)
         frameRect = CGRectMake(xOffset,yOffset,noteTypesScroll!.frame.size.width,noteTypesScroll!.frame.size.height)
         
@@ -552,7 +655,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         noteFontSizeScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin
         noteFontSizeScroll!.scrollView!.delegate = self
         noteFontSizeScroll!.hidden = false
-        self.newNoteView!.addSubview(noteFontSizeScroll!)
+        //self.newNoteView!.addSubview(noteFontSizeScroll!)
         
         
        xOffset = noteFontSizeScroll!.frame.size.width * CGFloat(selectedFontSizeIndex)
@@ -567,7 +670,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         noteFontColorScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin.union(.FlexibleLeftMargin).union(.FlexibleRightMargin)
         noteFontColorScroll!.scrollView!.delegate = self
         noteFontColorScroll!.hidden = false
-        self.newNoteView!.addSubview(noteFontColorScroll!)
+        self.newNoteView!.addSubview(noteFontColorScroll!) */
         
         self.assignedTextAttributes()
         
@@ -624,16 +727,16 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func assignedTextAttributes() {
         
-        let fontSize = kFontSizes[selectedFontSizeIndex]
+        //let fontSize = kFontSizes[selectedFontSizeIndex]
         let font = kSupportedFonts[selectedFontIndex]
         let color = Common.sharedCommon.formColorWithRGB(kFontColor[selectedFontColorIndex])
         
-        self.textField!.font = UIFont(name: font, size: fontSize);
+        self.textField!.font = UIFont(name: font, size: self.textFontSize);
         self.textField!.textColor = color
         //maxLinesAllowed = Int(self.notesImageView!.frame.size.height / kFontSizes[selectedFontSizeIndex]) - 1
         //maxLinesAllowed = Int(self.textField!.frame.size.height / kFontSizes[selectedFontSizeIndex]) - 2
         
-        let fSize = kFontSizes[selectedFontSizeIndex]
+        let fSize = self.textFontSize
         if ( fSize < 17) {
             
             maxLineForNoteMovement = 4
@@ -655,7 +758,6 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
             maxLineForNoteMovement = 1
             maxLinesAllowed = 2
         }
-        
     }
     
     
@@ -736,7 +838,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
                     isPinned = true
                 }
                     
-                self.composeDelegate!.postAWallNote(kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex] as String, noteText: enteredText!, noteFont: kSupportedFonts[selectedFontIndex], noteFontSize: kFontSizes[selectedFontSizeIndex], noteFontColor: kFontColor[selectedFontColorIndex],noteProperty:composeProperty,imageurl: imgFileName, isPinned:isPinned)
+                self.composeDelegate!.postAWallNote(kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex] as String, noteText: enteredText!, noteFont: kSupportedFonts[selectedFontIndex], noteFontSize: textFontSize , noteFontColor: kFontColor[selectedFontColorIndex],noteProperty:composeProperty,imageurl: imgFileName, isPinned:isPinned)
                 
             }
             

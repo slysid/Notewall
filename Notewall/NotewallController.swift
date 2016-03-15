@@ -120,7 +120,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         return UIInterfaceOrientationMask.All
     }
     
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+   override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        
         
         Common.sharedCommon.invalidateTimerAndRemoveMessage()
     }
@@ -147,15 +148,21 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             backgroundImage!.image = UIImage(named: self.backgroundImageName!)
             self.masterView!.addSubview(backgroundImage!)
             
-            let singleTap = UITapGestureRecognizer(target: self, action: "changeNoteWall:")
+            let bgImageSwipe = UISwipeGestureRecognizer(target: self, action: "changeNoteWall:")
+            bgImageSwipe.direction = .Right
+            backgroundImage!.addGestureRecognizer(bgImageSwipe)
+            
+            
+           /* let singleTap = UITapGestureRecognizer(target: self, action: "changeNoteWall:")
             singleTap.numberOfTapsRequired = 1
-            backgroundImage!.addGestureRecognizer(singleTap)
+            backgroundImage!.addGestureRecognizer(singleTap)*/
             
             let doubleTap = UITapGestureRecognizer(target: self, action: "switchToCompose:")
-            doubleTap.numberOfTapsRequired = 2
+            //doubleTap.numberOfTapsRequired = 2
+            doubleTap.numberOfTapsRequired = 1
             backgroundImage!.addGestureRecognizer(doubleTap)
             
-            singleTap.requireGestureRecognizerToFail(doubleTap)
+            //singleTap.requireGestureRecognizerToFail(doubleTap)
             
             
             let wallTypeDim = Common.sharedCommon.calculateDimensionForDevice(35)
@@ -463,9 +470,9 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     func cancelTapped(sender: ConfirmView, requester:AnyObject?) {
         
         (requester as? Note)!.alpha = 1.0
-        self.favButton!.alpha = 1.0
-        self.followButton!.alpha = 1.0
-        self.noteOwnerLabel!.alpha = 1.0
+        self.favButton?.alpha = 1.0
+        self.followButton?.alpha = 1.0
+        self.noteOwnerLabel?.alpha = 1.0
         
     }
     
@@ -1072,7 +1079,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     func switchToCompose(sender:UITapGestureRecognizer) {
         
-        if (sender.numberOfTapsRequired == 2 && self.dataSourceAPI != kAllowedPaths.kPathGetFavNotesForOwner) {
+        if (sender.numberOfTapsRequired == 1 && self.dataSourceAPI != kAllowedPaths.kPathGetFavNotesForOwner) {
             
             if (self.allBlownUpNotes.count == 0) {
                 
@@ -1143,11 +1150,14 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
     }
     
-    func changeNoteWall(sender:UITapGestureRecognizer) {
+    func changeNoteWall(sender:AnyObject) {
         
         self.removeExistingNotes()
-        self.moveWall(sender.numberOfTapsRequired)
         
+        if (sender is UISwipeGestureRecognizer) {
+            
+             self.moveWall(1)
+        }
     }
     
     func moveWall(numberOfTaps:Int) {
