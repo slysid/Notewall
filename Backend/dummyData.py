@@ -32,6 +32,9 @@ def __createNotes():
         index = random.randint(0,maxInt)
         randomOwner = allOwners[index]
         
+        xPoint  = random.randint(100,300)
+        yPoint  = random.randint(70,400)
+        
         note = Notes(ownerId=randomOwner,
                      noteType=noteTypes[randomNoteIndex],
                      noteText="My Note " + str(i),
@@ -44,7 +47,8 @@ def __createNotes():
                      favedOwners = [],
                      excludedOwners = [],
                      noteProperty =  "N",
-                     imageURL = ""
+                     imageURL = "",
+                     pinPoint = [xPoint,yPoint]
         ).save()
 
 

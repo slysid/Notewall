@@ -12,6 +12,7 @@ import UIKit
 protocol WallNoteDelegate {
     
     func blowupWallNote(note:WallNote)
+    func wallNoteMovedToPoint(note:WallNote,point:CGPoint)
 }
 
 class WallNote:UIImageView {
@@ -37,6 +38,7 @@ class WallNote:UIImageView {
     var ownerID:String?
     var ownerName:String?
     var pinImage:UIImageView?
+    var pinPoint:CGPoint?
     
     init(frame: CGRect, noteType:String?, noteText:String, noteFont:String?, noteFontSize:CGFloat?,noteFontColor:UIColor?, isNote:Bool, imageFileName:String?,isPinned:Bool) {
         
@@ -205,6 +207,24 @@ class WallNote:UIImageView {
         }
         
         
+    }
+    
+    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        
+        super.touchesEnded(touches, withEvent: event)
+        
+        let touch  = touches.first
+        let movePoint = touch!.locationInView(self.superview)
+        
+        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+            
+            self.center = movePoint
+            
+            if (self.wallnoteDelegate != nil) {
+                
+                self.wallnoteDelegate!.wallNoteMovedToPoint(self, point: movePoint)
+            }
+        }
     }
 
     

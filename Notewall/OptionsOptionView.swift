@@ -32,7 +32,7 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
         
         super.init(frame:frame)
         
-        self.backgroundColor = kOptionsBgColor
+        self.backgroundColor = UIColor.clearColor() //kOptionsBgColor
         
         let ownerId = Common.sharedCommon.config!["ownerId"] as! String
         let data = ["ownerid" : ownerId]

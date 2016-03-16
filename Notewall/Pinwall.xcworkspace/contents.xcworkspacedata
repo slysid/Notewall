@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Pinwall.xcodeproj">
+      location = "group:/Users/bharath/Documents/iOS/Notewall/Notewall/Pin!t.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">

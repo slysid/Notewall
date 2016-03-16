@@ -26,12 +26,13 @@ class ConfirmView:UIView {
         self.userInteractionEnabled = true
         self.requester = requester
         
-        self.backgroundColor = UIColor.redColor()
+        self.backgroundColor = UIColor.clearColor()
         self.autoresizingMask = UIViewAutoresizing.FlexibleBottomMargin.union(.FlexibleTopMargin).union(.FlexibleLeftMargin).union(.FlexibleRightMargin)
         
         let textLabel = UILabel(frame: CGRectMake(0,0,self.bounds.size.width,self.bounds.size.height * 0.70))
         textLabel.font = UIFont(name: "chalkduster", size: 40.0)
         textLabel.textAlignment = NSTextAlignment.Center
+        textLabel.textColor = UIColor.whiteColor()
         textLabel.text = "Delete Note"
         self.addSubview(textLabel)
         

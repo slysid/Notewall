@@ -26,7 +26,7 @@ class CacheManager:NSObject {
         
         if (ignoreCache == true) {
             
-            completion(true,"cahce ignoreed")
+            completion(false,"cahce ignoreed")
         }
         else {
             

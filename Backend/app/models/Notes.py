@@ -22,5 +22,6 @@ class Notes(Document):
      creationDate = DateTimeField(required=True)
      favedOwners = ListField()
      excludedOwners = ListField()
+     pinPoint = ListField()
      noteProperty =  StringField(required=True,max_length=1,choices=properties.keys())
      imageURL = StringField()

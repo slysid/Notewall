@@ -365,4 +365,18 @@ class Common:NSObject {
         
     }
     
+    func getACoordinate(screenwidth:CGFloat,screenheight:CGFloat) -> CGPoint {
+        
+        let xPoint = (screenwidth * 0.50) +  CGFloat(Int.random(-130 ... 130))
+        var yPoint = (screenheight * 0.50) + CGFloat(Int.random(-150 ... 150))
+        
+        if yPoint < 40 {
+            
+            yPoint = 40
+        }
+        
+        return CGPointMake(xPoint,yPoint)
+        
+    }
+    
 }

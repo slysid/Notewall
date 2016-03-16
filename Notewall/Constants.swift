@@ -27,6 +27,7 @@ enum kAllowedPaths {
     case kPathUpdateScreenName
     case kPathUpdatePaswword
     case kPathGetOwnerDetails
+    case kPathNil
 }
 
 enum kRunModes {
@@ -85,6 +86,7 @@ let kDefaultBGImageName = "bg1.png"
 let kBG1:[String:Any] = ["bg":"bg1.png","datasource":kAllowedPaths.kPathGetAllNotes,"icon":"notes.png"]
 let kBG2:[String:Any] = ["bg":"bg2.jpg","datasource":kAllowedPaths.kPathGetNotesForOwner,"icon":"my.png"]
 let kBG3:[String:Any] = ["bg":"bg3.jpg","datasource":kAllowedPaths.kPathGetFavNotesForOwner,"icon":"heart.png"]
+let kBG4:[String:Any] = ["bg":"bg4.jpg","datasource":kAllowedPaths.kPathNil,"icon":"followers.png"]
 let kBackGrounds = [kBG1,kBG2,kBG3]
 
 /*let kStickyNotes = ["noteBlue1.png",
@@ -118,8 +120,8 @@ let kStickyNoteFontSize:CGFloat = 28.0
 
 let kRunMode = kRunModes.modeLive
 let kHttpProtocol = "http"
-let kHttpHost = "appgrid.qa.accedo.tv" //"172.17.50.170" //"192.168.0.12"
-let kHttpPort = "8085"
+let kHttpHost = "localhost" //"172.17.50.170" //"192.168.0.12"
+let kHttpPort = "5000" //"8085"
 let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/owner/register", "method" : "POST" ],
                   ["path" : "/api/notes/all", "method" : "POST"],

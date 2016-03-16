@@ -35,6 +35,7 @@ def formNoteDict(note,ownerid):
      doc['deletionDate'] = note.noteDeletionDate
      doc['noteProperty'] = note.noteProperty
      doc['imageurl'] = note.imageURL
+     doc['pinPoint'] = note.pinPoint
      
      for o in Owners.objects(id=doc['ownerID']):
           doc['screenName'] = o.screenName
@@ -247,6 +248,7 @@ class NoteQueries():
                note.favedOwners = []
                note.noteProperty = postdata['noteProperty']
                note.imageURL = postdata['imageurl']
+               note.pinPoint = postdata['pinPoint']
         
                newNote = note.save()
                

@@ -187,23 +187,38 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             activity = UIActivityIndicatorView(frame: CGRectMake(0,0,30,30))
             activity!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, UIScreen.mainScreen().bounds.size.height * 0.10)
-            self.masterView!.addSubview(activity!)
+            
         }
+        self.masterView!.addSubview(activity!)
         
-        if (resetDataSource == true) {
+        if (resetDataSource == true && self.dataSourceAPI != kAllowedPaths.kPathNil) {
         
-            if (self.dataSourceAPI! == kAllowedPaths.kPathGetFavNotesForOwner) {
                 
-                self.fillInDataSource(true,ignoreCache:true)
-            }
-            else {
-                
-                self.fillInDataSource(true,ignoreCache:false)
-            }
+                if ( CacheManager.sharedCacheManager.allNotesDataList.count == 0) {
+                    
+                    self.fillInDataSource(true,ignoreCache:false,overrideDatasourceAPIWith:nil)
+                }
+                else {
+                    
+                    self.fillInDataSource(true,ignoreCache:true,overrideDatasourceAPIWith:nil)
+                }
+            
         }
         else {
             
-            self.showExistingNotes()
+            if (self.dataSourceAPI != kAllowedPaths.kPathNil) {
+                
+                self.showExistingNotes()
+            }
+            else {
+                
+                if (self.optionsOptionView == nil) {
+                    
+                    self.optionsOptionView = OptionsOptionView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height))
+                    self.optionsOptionView!.optionsOptionsDelegate = self
+                    self.view.addSubview(optionsOptionView!)
+                }
+            }
         }
         
         
@@ -239,7 +254,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     }
     
 
-    func fillInDataSource(refreshUI:Bool,ignoreCache:Bool) {
+    func fillInDataSource(refreshUI:Bool,ignoreCache:Bool,overrideDatasourceAPIWith:kAllowedPaths?) {
         
         let data = ["ownerid" : Common.sharedCommon.config!["ownerId"] as! String]
         
@@ -253,7 +268,14 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 
                 self.activityStartAnimating()
                 
-                Common.sharedCommon.postRequestAndHadleResponse(self.dataSourceAPI!, body: data, replace: nil,requestContentType:kContentTypes.kApplicationJson) { (result, response) -> Void in
+                var finalDatasourceAPI = self.dataSourceAPI!
+                
+                if (overrideDatasourceAPIWith != nil) {
+                    
+                    finalDatasourceAPI = overrideDatasourceAPIWith!
+                }
+                
+                Common.sharedCommon.postRequestAndHadleResponse(finalDatasourceAPI, body: data, replace: nil,requestContentType:kContentTypes.kApplicationJson) { (result, response) -> Void in
                     
                     self.activityStopAnimating()
                     
@@ -298,8 +320,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 
             }
             else {
-                
-                print(response)
                 
                 if response.rangeOfString("Denied") != nil {
                     
@@ -431,6 +451,16 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
     }
     
+    
+    func wallNoteMovedToPoint(note: WallNote, point: CGPoint) {
+        
+        note.pinPoint = point
+        let index = CacheManager.sharedCacheManager.allNotesDataList.indexOf({$0["noteID"] as! String == note.stickyNoteID!})
+        var tempNote = CacheManager.sharedCacheManager.allNotesDataList[index!]
+        tempNote["pinPoint"] = [point.x,point.y]
+        CacheManager.sharedCacheManager.allNotesDataList[index!] = tempNote
+    }
+    
     // Confirm Delegate
     
     func okTapped(sender: ConfirmView, requester: AnyObject?) {
@@ -503,10 +533,10 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     func noteDownSwiped(note: Note) {
         
         note.alpha = 0.5
+        
         let ownerID = Common.sharedCommon.config!["ownerId"] as! String
         
         if note.sourceWallNote!.isPinned == true && ownerID != note.sourceWallNote!.ownerID! {
-            
             
             Common.sharedCommon.showMessageViewWithMessage(self.view, message: "Pinned Note cannot be deleted", startTimer: true)
             note.alpha = 1.0
@@ -520,7 +550,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             dispatch_async(dispatch_get_main_queue()) { () -> Void in
                 
-                UIView.animateWithDuration(1.0, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
+                UIView.animateWithDuration(0.3, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
                     
                     
                     confirm.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, UIScreen.mainScreen().bounds.size.height * 0.5)
@@ -543,10 +573,13 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     func postAWallNote(noteType: String?, noteText: String?, noteFont: String?, noteFontSize:CGFloat?, noteFontColor:Array<CGFloat>, noteProperty:String?, imageurl:String?, isPinned:Bool) {
         
         let ownerID = Common.sharedCommon.config!["ownerId"] as! String
+        let point = Common.sharedCommon.getACoordinate(screenWidth, screenheight: screenHeight)
+        let xPoint = point.x
+        let yPoint = point.y
         var contentType = kContentTypes.kApplicationJson
         var isNote = true
         var data = [String:AnyObject]()
-        data = ["ownerid" : ownerID as String, "notetype" : noteType! as String, "notetext" : noteText! as String, "notetextfont" : noteFont! as String, "notetextfontsize" : noteFontSize! as CGFloat, "notepinned": isPinned, "notetextcolor" : noteFontColor,"noteProperty" : noteProperty!, "imageurl" : imageurl!]
+        data = ["ownerid" : ownerID as String, "notetype" : noteType! as String, "notetext" : noteText! as String, "notetextfont" : noteFont! as String, "notetextfontsize" : noteFontSize! as CGFloat, "notepinned": isPinned, "notetextcolor" : noteFontColor,"noteProperty" : noteProperty!, "imageurl" : imageurl!,"pinPoint":[xPoint,yPoint]]
         
         if (noteProperty == "P") {
             
@@ -563,6 +596,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                     let newNote = response["data"]![0]
                     let RBGColor = Common.sharedCommon.formColorWithRGB(noteFontColor)
                     let note = WallNote(frame: CGRectMake(100, 30, Common.sharedCommon.calculateDimensionForDevice(kNoteDim), Common.sharedCommon.calculateDimensionForDevice(kNoteDim)), noteType: noteType, noteText: noteText!, noteFont: noteFont, noteFontSize:noteFontSize!, noteFontColor:RBGColor, isNote:isNote, imageFileName:imageurl, isPinned:isPinned)
+                    //let note = WallNote(frame: CGRectMake(xPoint, yPoint, Common.sharedCommon.calculateDimensionForDevice(kNoteDim), Common.sharedCommon.calculateDimensionForDevice(kNoteDim)), noteType: noteType, noteText: noteText!, noteFont: noteFont, noteFontSize:noteFontSize!, noteFontColor:RBGColor, isNote:isNote, imageFileName:imageurl, isPinned:isPinned)
                     note.stickyNoteID = newNote["noteID"] as? String
                     note.favedOwners = newNote["owners"] as? Array<String>
                     note.stickyNoteCreationDate = newNote["creationDate"] as? String
@@ -570,8 +604,13 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                     note.followingNoteOwner = newNote["followingNoteOwner"] as? Bool
                     note.ownerID = newNote["ownerID"] as? String
                     note.ownerName = newNote["screenName"] as? String
+                    note.pinPoint = CGPointMake(0,0)
                     note.wallnoteDelegate = self
                     self.masterView!.addSubview(note)
+                    
+                    self.fillInDataSource(false,ignoreCache:false,overrideDatasourceAPIWith:kAllowedPaths.kPathGetAllNotes)
+                    CacheManager.sharedCacheManager.allNotesDataList.append(newNote as! ([String : AnyObject]))
+                    self.filterResults()
 
                     
                 })
@@ -821,7 +860,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     func followingUpdated(followingID: String) {
         
-        self.fillInDataSource(false, ignoreCache: true)
+        self.fillInDataSource(false, ignoreCache: true,overrideDatasourceAPIWith:nil)
         
         for v in self.masterView!.subviews {
             
@@ -856,7 +895,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.masterView = nil
         self.wallTypeNotifyImage!.removeFromSuperview()
         self.wallTypeNotifyImage = nil
-        self.loadMainView(resetDataSource:false)
+        self.loadMainView(resetDataSource:true)
         self.transImage!.image = nil
         
     }
@@ -936,20 +975,17 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
     }
     
+    
+    
     func showExistingNotes() {
         
         
         if (self.notesDataList.count > 0 ){
             
             let dim = Common.sharedCommon.calculateDimensionForDevice(kNoteDim)
-            let xPoint = (screenWidth * 0.50) +  CGFloat(Int.random(-50 ... 50))
-            var yPoint = (screenHeight * 0.50) + CGFloat(Int.random(-30 ... 30))
-            
-            if yPoint < 40 {
-                
-                yPoint = 40
-            }
-            
+            //let point = Common.sharedCommon.getACoordinate(screenWidth, screenheight: screenHeight)
+            //let xPoint = point.x
+            //let yPoint = point.y
             
             let printNote = notesDataList[0]
             var noteProperty = false
@@ -966,10 +1002,12 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             let noteTextColor = printNote["noteTextColor"] as! Array<CGFloat>
             let imageName = printNote["imageurl"] as! String
             let isPinned = printNote["notePinned"] as! Bool
+            let pinPointData = printNote["pinPoint"] as! Array<CGFloat>
+            let pinPoint = CGPointMake(pinPointData[0],pinPointData[1])
             
             
             let note = WallNote(frame: CGRectMake(0,0,dim,dim), noteType:noteType, noteText: noteText, noteFont:noteTextFont, noteFontSize:noteTextFontSize, noteFontColor:Common.sharedCommon.formColorWithRGB(noteTextColor), isNote:noteProperty, imageFileName: imageName, isPinned:isPinned)
-            note.center = CGPointMake(xPoint,yPoint)
+            note.center = pinPoint
             note.stickyNoteID = printNote["noteID"] as? String
             note.favedOwners = printNote["owners"] as? Array<String>
             note.stickyNoteCreationDate = printNote["creationDate"] as? String
@@ -977,6 +1015,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             note.followingNoteOwner = printNote["followingNoteOwner"] as? Bool
             note.ownerID = printNote["ownerID"] as? String
             note.ownerName = printNote["screenName"] as? String
+            note.pinPoint = pinPoint
             note.wallnoteDelegate = self
             self.masterView!.addSubview(note)
             
@@ -986,7 +1025,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
 
                     
                     note.frame = CGRectMake(note.frame.origin.x, note.frame.origin.y, dim, dim)
-                    note.center = CGPointMake(xPoint,yPoint)
+                    //note.center = CGPointMake(xPoint,yPoint)
+                    note.center = pinPoint
                     
                     }, completion: { (Bool) -> Void in
                         
@@ -1193,6 +1233,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 self.masterView = nil
                 self.wallTypeNotifyImage!.removeFromSuperview()
                 self.wallTypeNotifyImage = nil
+                self.activity?.removeFromSuperview()
+                self.activity = nil
                 self.loadMainView(resetDataSource:true)
                 self.transImage!.image = nil
                 
@@ -1226,7 +1268,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 }
                 
                 self.setFavImage(note)
-                self.fillInDataSource(false,ignoreCache:false)
+                self.fillInDataSource(false,ignoreCache:false,overrideDatasourceAPIWith:kAllowedPaths.kPathGetAllNotes)
                 
             }
         }
@@ -1256,7 +1298,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 }
                 
                 self.setFollowImage(note)
-                self.fillInDataSource(false,ignoreCache:true)
+                self.fillInDataSource(false,ignoreCache:true,overrideDatasourceAPIWith:nil)
                 
                 for v in self.masterView!.subviews {
                     
