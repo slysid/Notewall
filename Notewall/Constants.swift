@@ -120,8 +120,8 @@ let kStickyNoteFontSize:CGFloat = 28.0
 
 let kRunMode = kRunModes.modeLive
 let kHttpProtocol = "http"
-let kHttpHost = "localhost" //"172.17.50.170" //"192.168.0.12"
-let kHttpPort = "5000" //"8085"
+let kHttpHost = "appgrid.qa.accedo.tv" //"172.17.50.170" //"192.168.0.12"
+let kHttpPort = "8085" //"8085"
 let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/owner/register", "method" : "POST" ],
                   ["path" : "/api/notes/all", "method" : "POST"],
