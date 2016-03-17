@@ -191,37 +191,17 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
         self.masterView!.addSubview(activity!)
         
-        if (resetDataSource == true && self.dataSourceAPI != kAllowedPaths.kPathNil) {
-        
-                
-                if ( CacheManager.sharedCacheManager.allNotesDataList.count == 0) {
-                    
-                    self.fillInDataSource(true,ignoreCache:false,overrideDatasourceAPIWith:nil)
-                }
-                else {
-                    
-                    self.fillInDataSource(true,ignoreCache:true,overrideDatasourceAPIWith:nil)
-                }
+        if (CacheManager.sharedCacheManager.allNotesDataList.count == 0 ) {
+            
+            self.fillInDataSource(true,ignoreCache:true,overrideDatasourceAPIWith:nil)
             
         }
-        else {
+        else if (resetDataSource == true) {
+        
             
-            if (self.dataSourceAPI != kAllowedPaths.kPathNil) {
-                
-                self.showExistingNotes()
-            }
-            else {
-                
-                if (self.optionsOptionView == nil) {
-                    
-                    self.optionsOptionView = OptionsOptionView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height))
-                    self.optionsOptionView!.optionsOptionsDelegate = self
-                    self.view.addSubview(optionsOptionView!)
-                }
-            }
+            self.fillInDataSource(true,ignoreCache:false,overrideDatasourceAPIWith:nil)
+            
         }
-        
-        
         
     }
     
@@ -241,20 +221,9 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
     }
     
-    func filterResults() {
-        
-        let ownerid = Common.sharedCommon.config!["ownerId"] as! String
-        
-        let onlyOwnerPredicate = NSPredicate(format: "ownerID = %@", ownerid)
-        CacheManager.sharedCacheManager.myNotesDataList = ((CacheManager.sharedCacheManager.allNotesDataList as NSArray).filteredArrayUsingPredicate(onlyOwnerPredicate) as? Array<Dictionary<String,AnyObject>>)!
-        
-        let onlyOwnerFavPredicate = NSPredicate(format: "owners contains[c] %@", ownerid)
-        CacheManager.sharedCacheManager.myFavsNotesDataList = ((CacheManager.sharedCacheManager.allNotesDataList as NSArray).filteredArrayUsingPredicate(onlyOwnerFavPredicate) as? Array<Dictionary<String,AnyObject>>)!
-        
-    }
     
 
-    func fillInDataSource(refreshUI:Bool,ignoreCache:Bool,overrideDatasourceAPIWith:kAllowedPaths?) {
+  /*  func fillInDataSource(refreshUI:Bool,ignoreCache:Bool,overrideDatasourceAPIWith:kAllowedPaths?) {
         
         let data = ["ownerid" : Common.sharedCommon.config!["ownerId"] as! String]
         
@@ -353,7 +322,96 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             }
         }
         
+    } */
+    
+    
+    func fillInDataSource(refreshUI:Bool,ignoreCache:Bool,overrideDatasourceAPIWith:kAllowedPaths?) {
+        
+        let data = ["ownerid" : Common.sharedCommon.config!["ownerId"] as! String]
+        
+        if (ignoreCache == true) {
+            
+                self.activityStartAnimating()
+                var finalDatasourceAPI = self.dataSourceAPI!
+                if (overrideDatasourceAPIWith != nil) {
+                
+                    finalDatasourceAPI = overrideDatasourceAPIWith!
+                }
+            
+                Common.sharedCommon.postRequestAndHadleResponse(finalDatasourceAPI, body: data, replace: nil,requestContentType:kContentTypes.kApplicationJson) { (result, response) -> Void in
+                
+                        self.activityStopAnimating()
+                
+                        if (result == true) {
+                    
+                                if (response["data"]!["error"] != nil) {
+                                    
+                                        let errMessage = response["data"]!["error"] as! String
+                                        if errMessage.rangeOfString("Denied") != nil {
+                                        
+                                                self.noteWallDelegate!.handleLogout()
+                                        }
+                                        else {
+                                            
+                                            Common.sharedCommon.showMessageViewWithMessage(self.view, message: response["data"]!["error"] as! String,startTimer:false)
+                                        }
+                        
+                                }
+                                else {
+                    
+                        
+                                        let respData = response.objectForKey("data")
+                                        self.notesDataList = respData! as! Array<Dictionary<String, AnyObject>>
+                        
+                                        if (self.dataSourceAPI! == kAllowedPaths.kPathGetAllNotes) {
+                            
+                                                CacheManager.sharedCacheManager.allNotesDataList = respData! as! Array<Dictionary<String, AnyObject>>
+                                                CacheManager.sharedCacheManager.filterResults()
+                                        }
+                                        if (refreshUI == true) {
+                            
+                                                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                                
+                                                        self.showExistingNotes()
+                                                })
+                                        }
+                                }
+                    
+                      }
+                      else {
+                    
+                                Common.sharedCommon.showMessageViewWithMessage(self.view, message: "Network Error",startTimer:false)
+                                print(response)
+                      }
+               }
+            
+        }
+        else {
+                
+                switch self.dataSourceAPI! {
+                    
+                case kAllowedPaths.kPathGetAllNotes:
+                    self.notesDataList = CacheManager.sharedCacheManager.allNotesDataList
+                case kAllowedPaths.kPathGetNotesForOwner:
+                    self.notesDataList = CacheManager.sharedCacheManager.myNotesDataList
+                case kAllowedPaths.kPathGetFavNotesForOwner:
+                    self.notesDataList = CacheManager.sharedCacheManager.myFavsNotesDataList
+                default:
+                    break
+                    
+                }
+                
+                if (refreshUI == true) {
+                    
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        
+                        self.showExistingNotes()
+                    })
+                    
+                }
+            }
     }
+
     
     //Scrollview Delegate methods
     
@@ -609,9 +667,9 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                     note.wallnoteDelegate = self
                     self.masterView!.addSubview(note)
                     
-                    self.fillInDataSource(false,ignoreCache:false,overrideDatasourceAPIWith:kAllowedPaths.kPathGetAllNotes)
+                    self.fillInDataSource(false,ignoreCache:true,overrideDatasourceAPIWith:kAllowedPaths.kPathGetAllNotes)
                     CacheManager.sharedCacheManager.allNotesDataList.append(newNote as! ([String : AnyObject]))
-                    self.filterResults()
+                    CacheManager.sharedCacheManager.filterResults()
 
                     
                 })
@@ -873,6 +931,18 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 }
             }
         }
+        
+        var index = 0
+        for cachedNote in CacheManager.sharedCacheManager.allNotesDataList {
+            
+            if cachedNote["ownerID"] as! String == followingID {
+                
+                CacheManager.sharedCacheManager.allNotesDataList[index]["followingNoteOwner"] = false
+            }
+            
+            index = index + 1
+        }
+
     }
     
     func showNotesForSelectedFollowingOwner(dataList: NSArray) {
@@ -1300,7 +1370,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 }
                 
                 self.setFollowImage(note)
-                self.fillInDataSource(false,ignoreCache:true,overrideDatasourceAPIWith:nil)
                 
                 for v in self.masterView!.subviews {
                     
@@ -1314,6 +1383,19 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                         }
                     }
                 }
+                
+                var index = 0
+                for cachedNote in CacheManager.sharedCacheManager.allNotesDataList {
+                    
+                    if cachedNote["ownerID"] as! String == followOwner {
+                        
+                        CacheManager.sharedCacheManager.allNotesDataList[index]["followingNoteOwner"] = note.followingNoteOwner
+                    }
+                    
+                    index = index + 1
+                }
+                
+               self.fillInDataSource(false,ignoreCache:true,overrideDatasourceAPIWith:nil)
             }
         }
         

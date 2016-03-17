@@ -61,6 +61,8 @@ class MainController:UIViewController,NoteWallProtocolDelegate {
             }
         }
         
+        CacheManager.sharedCacheManager.clearCache()
+        
     }
     
     

@@ -107,4 +107,13 @@ class CacheManager:NSObject {
         self.filterResults()
     }
     
+    func clearCache() {
+        
+        self.allNotesDataList.removeAll()
+        self.myNotesDataList.removeAll()
+        self.myFavsNotesDataList.removeAll()
+        self.selectedOwnerNotesDataList.removeAll()
+        
+    }
+    
 }
