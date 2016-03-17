@@ -295,7 +295,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                             if (self.dataSourceAPI! == kAllowedPaths.kPathGetAllNotes) {
                                 
                                 CacheManager.sharedCacheManager.allNotesDataList = respData! as! Array<Dictionary<String, AnyObject>>
-                                self.filterResults()
+                                CacheManager.sharedCacheManager.filterResults()
                             }
                             
                             
@@ -475,23 +475,24 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathRemoveNote, body: data, replace: paramData, requestContentType:kContentTypes.kApplicationJson, completion: { (result, response) -> Void in
         
-        if (result == true) {
+            if (result == true) {
         
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
         
-        UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
+                            UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
         
-        note!.center = CGPointMake(note!.center.x, note!.center.y + UIScreen.mainScreen().bounds.size.height)
-        
-        
-        }) { (Bool) -> Void in
+                                    note!.center = CGPointMake(note!.center.x, note!.center.y + UIScreen.mainScreen().bounds.size.height)
         
         
-                note!.sourceWallNote!.removeAttributes(note!.sourceWallNote!)
-                self.blowUpRemovalCommonActions(note!)
+                            }) { (Bool) -> Void in
         
-                    }
         
+                                    note!.sourceWallNote!.removeAttributes(note!.sourceWallNote!)
+                                    self.blowUpRemovalCommonActions(note!)
+                                    CacheManager.sharedCacheManager.removeNoteFromCache(note!.sourceWallNote!)
+                                    self.fillInDataSource(false,ignoreCache:true,overrideDatasourceAPIWith:kAllowedPaths.kPathGetAllNotes)
+        
+                        }
                 })
             }
         })
@@ -895,7 +896,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.masterView = nil
         self.wallTypeNotifyImage!.removeFromSuperview()
         self.wallTypeNotifyImage = nil
-        self.loadMainView(resetDataSource:true)
+        self.loadMainView(resetDataSource:false)
         self.transImage!.image = nil
         
     }
@@ -1268,7 +1269,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 }
                 
                 self.setFavImage(note)
-                self.fillInDataSource(false,ignoreCache:false,overrideDatasourceAPIWith:kAllowedPaths.kPathGetAllNotes)
+                CacheManager.sharedCacheManager.replaceWallNote(note, key: "owners", value: note.favedOwners!)
+                self.fillInDataSource(false,ignoreCache:true,overrideDatasourceAPIWith:kAllowedPaths.kPathGetAllNotes)
                 
             }
         }
@@ -1307,14 +1309,13 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                         if (v as? WallNote)!.ownerID == followOwner {
                             
                             (v as? WallNote)!.followingNoteOwner = note.followingNoteOwner
+                            CacheManager.sharedCacheManager.replaceWallNote((v as? WallNote)!, key: "followingNoteOwner", value:  note.followingNoteOwner)
                             
                         }
                     }
                 }
-                
             }
         }
-        
         
     }
     

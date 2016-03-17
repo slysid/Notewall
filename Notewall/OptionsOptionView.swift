@@ -32,7 +32,7 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
         
         super.init(frame:frame)
         
-        self.backgroundColor = UIColor.clearColor() //kOptionsBgColor
+        self.backgroundColor = kOptionsBgColor
         
         let ownerId = Common.sharedCommon.config!["ownerId"] as! String
         let data = ["ownerid" : ownerId]
@@ -367,6 +367,8 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
             let selectedOwnerPredicate = NSPredicate(format: "ownerID = %@", selectedOwner!)
             
             CacheManager.sharedCacheManager.selectedOwnerNotesDataList = ((CacheManager.sharedCacheManager.allNotesDataList as NSArray).filteredArrayUsingPredicate(selectedOwnerPredicate) as? Array<Dictionary<String,AnyObject>>)!
+            
+            print(CacheManager.sharedCacheManager.selectedOwnerNotesDataList.count)
             
             if (self.optionsOptionsDelegate != nil) {
                 

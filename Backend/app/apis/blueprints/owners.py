@@ -68,8 +68,6 @@ def followOwner(followingid):
     
     if authorization[0] == True:
         
-        ownerid = authorization[1]
-        
         if request.method == 'PUT':
             
             logger = logging.getLogger(__name__)
@@ -107,7 +105,6 @@ def updateScreenName():
     
         if request.method == 'PUT':
             
-            ownerid = authorization[1]
             logger = logging.getLogger(__name__)
             generalLogging(logger)
             
@@ -147,7 +144,6 @@ def updatePassword():
     
         if request.method == 'PUT':
             
-            ownerid = authorization[1]
             logger = logging.getLogger(__name__)
             generalLogging(logger)
             
@@ -200,7 +196,6 @@ def getOwnerDetails():
     
         if request.method == 'POST':
             
-            ownerid = authorization[1]
             logger = logging.getLogger(__name__)
             generalLogging(logger)
             

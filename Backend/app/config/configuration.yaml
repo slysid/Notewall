@@ -14,4 +14,4 @@ EMAIL:
     host : 'appgrid.qa.accedo.tv'
     port : '8085'
 GENERAL:
-    debug: 'true'
+    debug: 'false'

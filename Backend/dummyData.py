@@ -15,7 +15,7 @@ def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
 
 def __createOwners():
     
-    for i in range(0,5):
+    for i in range(0,1):
         email = id_generator() + '@a.com'
         name = id_generator()
         owner = Owners(email=email, screenName=name, password="social:login",registerStatus="CONFIRMED",favorites=[],followers=[],following=[],creationDate = datetime.datetime.now(),lastModifiedDate = datetime.datetime.now()).save()
@@ -27,7 +27,7 @@ def __createNotes():
     maxInt = len(allOwners) - 1
     noteTypes = ["noteBlue1.png","noteGreen2.png","notePink3.png","noteYellow4.png"]
     
-    for i in range(0,15):
+    for i in range(0,5):
         randomNoteIndex = random.randint(0,len(noteTypes) - 1)
         index = random.randint(0,maxInt)
         randomOwner = allOwners[index]

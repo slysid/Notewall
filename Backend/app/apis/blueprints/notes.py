@@ -65,7 +65,6 @@ def poll():
     
     if authorization[0] == True:
         response, postdata, ownerid = validatePostParam(request.json)
-        ownerid = authorization[1]
         logger = logging.getLogger(__name__)
         generalLogging(logger)
         
@@ -108,7 +107,6 @@ def notesForOwner():
     
     if authorization[0] == True:
         response, postdata, ownerid = validatePostParam(request.json)
-        ownerid = authorization[1]
         logger = logging.getLogger(__name__)
         generalLogging(logger)
     
@@ -130,7 +128,6 @@ def addNotesToFavorite(noteid):
      
      if authorization[0] == True:
         response, postdata, ownerid = validatePostParam(request.json)
-        ownerid = authorization[1]
         logger = logging.getLogger(__name__)
         generalLogging(logger)
     
@@ -152,7 +149,6 @@ def removeNoteForOwner(noteid):
     
     if authorization[0] == True:
         response, postdata, ownerid = validatePostParam(request.json)
-        ownerid = authorization[1]
         logger = logging.getLogger(__name__)
         generalLogging(logger)
     
@@ -174,7 +170,6 @@ def getFavNotes():
     
     if authorization[0] == True:
         response, postdata, ownerid = validatePostParam(request.json)
-        ownerid = authorization[1]
         logger = logging.getLogger(__name__)
         generalLogging(logger)
     
@@ -199,7 +194,6 @@ def postNewNote():
         if (request.headers['Content-Type'] == 'application/json'):
     
             response, postdata, ownerid = validatePostParam()
-            ownerid = authorization[1]
             logger = logging.getLogger(__name__)
             generalLogging(logger)
     

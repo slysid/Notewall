@@ -26,7 +26,7 @@ class CacheManager:NSObject {
         
         if (ignoreCache == true) {
             
-            completion(false,"cahce ignoreed")
+            completion(true,"cache ignoreed")
         }
         else {
             
@@ -42,11 +42,7 @@ class CacheManager:NSObject {
                         
                         let resultCount = response["data"]!["count"] as? Int
                         
-                        if (resultCount == 0) {
-                            
-                            completion(true,"")
-                        }
-                        else if (resultCount == self.allNotesDataList.count) {
+                        if (resultCount == self.allNotesDataList.count && resultCount != 0) {
                             
                             completion(false,"")
                         }
@@ -72,4 +68,43 @@ class CacheManager:NSObject {
             }
         }
     }
+    
+    func filterResults() {
+        
+        let ownerid = Common.sharedCommon.config!["ownerId"] as! String
+        
+        let onlyOwnerPredicate = NSPredicate(format: "ownerID = %@", ownerid)
+        self.myNotesDataList = ((self.allNotesDataList as NSArray).filteredArrayUsingPredicate(onlyOwnerPredicate) as? Array<Dictionary<String,AnyObject>>)!
+        
+        let onlyOwnerFavPredicate = NSPredicate(format: "owners contains[c] %@", ownerid)
+        self.myFavsNotesDataList = ((self.allNotesDataList as NSArray).filteredArrayUsingPredicate(onlyOwnerFavPredicate) as? Array<Dictionary<String,AnyObject>>)!
+        
+    }
+    
+    
+    func removeNoteFromCache(note:WallNote) {
+        
+        let index = self.allNotesDataList.indexOf({$0["noteID"] as! String == note.stickyNoteID!})
+        self.allNotesDataList.removeAtIndex(index!)
+        
+        self.filterResults()
+        
+    }
+    
+    func addNoteToCache(note:WallNote) {
+        
+        
+    }
+    
+    
+    func replaceWallNote(note:WallNote,key:String,value:AnyObject?) {
+        
+        let index = self.allNotesDataList.indexOf({$0["noteID"] as! String == note.stickyNoteID!})
+        var tempNote = self.allNotesDataList[index!]
+        tempNote[key] = value
+        self.allNotesDataList[index!] = tempNote
+        
+        self.filterResults()
+    }
+    
 }
