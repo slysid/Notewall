@@ -331,6 +331,18 @@ class Common:NSObject {
             })
             
         }
+        else {
+            
+            self.timer?.invalidate()
+            self.timerCount = 0
+            self.timer = nil
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                
+                self.messageView!.removeFromSuperview()
+            })
+            
+            self.showMessageViewWithMessage(controller, message: message, startTimer: startTimer)
+        }
         
     }
     

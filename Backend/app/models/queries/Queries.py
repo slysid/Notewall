@@ -242,6 +242,8 @@ class NoteQueries():
                note.creationDate = datetime.now()
                if note.notePinned == True:
                     note.noteDeletionDate = datetime.now() + timedelta(days=10)
+                    ownerQ = OwnerQueries()
+                    ownerQ.updatePinCount(postdata['ownerid'],postdata['pintype'],-1)
                else:
                     note.noteDeletionDate = datetime.now() + timedelta(days=5)
                note.excludedOwners = []
@@ -329,6 +331,40 @@ class OwnerQueries():
                print ('Error in sending Welcome Email')
                self.logger.error('sendWelcomeMail_Exception')
                self.logger.error(str(e),exc_info=True)
+               
+     
+     def resendConfirmationEmail(self,ownerid):
+          
+          
+          ownername = None
+          email = None
+          owner = None
+          
+          try:
+               for o in Owners.objects(id=ownerid):
+                    owner = o
+                    ownername = o.screenName
+                    email = o.email
+                    
+               if owner != None:
+                    d = owner.stats
+                    if d['mailCount'] <= 10:
+                         self.__sendWelcomeMail(email,ownername)
+                         d['mailCount'] = d['mailCount'] + 1
+                         owner.stats = d
+                         owner.save()
+                         resp = {"success":"OK"}
+                    else:
+                         resp = {"error" : "Quota Breached"}
+               else:
+                    resp = {"error":"No owner found"}
+          except Exception, e:
+                self.logger.error('resendConfirmationEmail_Exception')
+                self.logger.error(str(e),exc_info=True)
+                resp = {"error": str(e)}
+                
+          
+          return {"data" : resp}
           
      def regitserOwner(self,email,password=None,screenname=None):
           
@@ -345,6 +381,7 @@ class OwnerQueries():
                resp['screenname'] =  owner.screenName
                resp['registerstatus'] =  owner.registerStatus
                resp['token'] =  token
+               resp['stats'] = owner.stats
                break
           
           if (isEmailAvailable == True and password != None):
@@ -365,6 +402,8 @@ class OwnerQueries():
                owner.registerStatus = "AWAITING"
                owner.favorites = []
                owner.followers = []
+               owner.stats = {'mailCount' : 1}
+               owner.pins = {}
                if password == None:
                     owner.password = socialPassword
                else:
@@ -378,6 +417,7 @@ class OwnerQueries():
                     resp['screenname'] =  owner.screenName
                     resp['registerstatus'] =  owner.registerStatus
                     resp['token'] =  token
+                    resp['stats'] = owner.stats
                     self.__sendWelcomeMail(email,resp['screenname'])
                except Exception, e:
                     if 'duplicate' in str(e):
@@ -540,3 +580,59 @@ class OwnerQueries():
                     resp['registerstatus'] =  owner.registerStatus
                     resp = {'success' : 'OK'}          
           return resp
+     
+     
+     def getPins(self, ownerid ):
+          
+          owner = None
+          resp = {}
+          
+          for o in Owners.objects(id=ownerid):
+               owner = o
+               
+          if owner == None:
+               resp = {'error' : 'Given owner id not found'}
+          else:
+               resp = owner.pins
+               
+          return {'data' : resp}
+     
+     
+     def updatePinCount(self,ownerid,pintype,pincount):
+          
+          owner = None
+          resp = {}
+          
+          for o in Owners.objects(id=ownerid):
+               owner = o
+               
+          if owner == None:
+               resp = {'error' : 'Given owner id not found'}
+          else:
+               try:
+                    pinsDict = owner.pins
+                    
+                    
+                    if pintype in pinsDict:
+                         existingCount = pinsDict[pintype]
+                         newPinCount = existingCount + pincount
+                    else:
+                         newPinCount = pincount
+                    
+                    pinsDict[pintype] = newPinCount
+                    owner.pins = pinsDict
+                    owner.save()
+               
+                    resp = {'success' : 'OK'}
+                    
+               except Exception, e:
+                    resp = {'error' : str(e)}
+                    
+          return {'data' : resp}
+               
+          
+          
+          
+     
+               
+               

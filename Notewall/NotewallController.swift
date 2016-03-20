@@ -30,7 +30,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var dataSourceAPI:kAllowedPaths?
     var backgroundImageName:String?
     var allBlownUpNotes:Array<WallNote> = []
-    var notesDataList:Array<Dictionary<String,AnyObject>> = []
+    //var notesDataList:Array<Dictionary<String,AnyObject>> = []
+    var notesDataList:Array<WallNote> = []
     var favButton:UIImageView?
     var followButton:UIImageView?
     var noteOwnerLabel:UILabel?
@@ -191,7 +192,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
         self.masterView!.addSubview(activity!)
         
-        if (CacheManager.sharedCacheManager.allNotesDataList.count == 0 ) {
+       /* if (CacheManager.sharedCacheManager.allNotesDataList.count == 0 ) {
             
             self.fillInDataSource(true,ignoreCache:true,overrideDatasourceAPIWith:nil)
             
@@ -201,6 +202,23 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             self.fillInDataSource(true,ignoreCache:false,overrideDatasourceAPIWith:nil)
             
+        } */
+        
+        
+        if (CacheManager.sharedCacheManager.allNotes.count == 0 ) {
+            
+            self.fillInDataSource(true,ignoreCache:true,overrideDatasourceAPIWith:nil)
+            
+        }
+        else if (resetDataSource == true) {
+            
+            
+            self.fillInDataSource(true,ignoreCache:false,overrideDatasourceAPIWith:nil)
+            
+        }
+        else {
+            
+            self.showExistingNotes()
         }
         
     }
@@ -361,9 +379,22 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                     
                         
                                         let respData = response.objectForKey("data")
-                                        self.notesDataList = respData! as! Array<Dictionary<String, AnyObject>>
-                        
+                                        //self.notesDataList = respData! as! Array<Dictionary<String, AnyObject>>
+                                    
+                                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                                        
+                                        self.notesDataList.removeAll()
+                                        self.formNoteFromData(respData! as! Array<Dictionary<String, AnyObject>>,api:finalDatasourceAPI,refreshUI:refreshUI)
+                                        
                                         if (self.dataSourceAPI! == kAllowedPaths.kPathGetAllNotes) {
+                                            
+                                            //CacheManager.sharedCacheManager.allNotesDataList = respData! as! Array<Dictionary<String, AnyObject>>
+                                            //CacheManager.sharedCacheManager.filterResults()
+                                        }
+                                        
+                                    })
+                        
+                                       /* if (self.dataSourceAPI! == kAllowedPaths.kPathGetAllNotes) {
                             
                                                 CacheManager.sharedCacheManager.allNotesDataList = respData! as! Array<Dictionary<String, AnyObject>>
                                                 CacheManager.sharedCacheManager.filterResults()
@@ -374,7 +405,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                                 
                                                         self.showExistingNotes()
                                                 })
-                                        }
+                                        } */
                                 }
                     
                       }
@@ -388,7 +419,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
         else {
                 
-                switch self.dataSourceAPI! {
+               /* switch self.dataSourceAPI! {
                     
                 case kAllowedPaths.kPathGetAllNotes:
                     self.notesDataList = CacheManager.sharedCacheManager.allNotesDataList
@@ -399,8 +430,21 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 default:
                     break
                     
-                }
+                } */
+            
+            switch self.dataSourceAPI! {
                 
+            case kAllowedPaths.kPathGetAllNotes:
+                self.notesDataList = CacheManager.sharedCacheManager.allNotes
+            case kAllowedPaths.kPathGetNotesForOwner:
+                self.notesDataList = CacheManager.sharedCacheManager.myNotes
+            case kAllowedPaths.kPathGetFavNotesForOwner:
+                self.notesDataList = CacheManager.sharedCacheManager.favNotes
+            default:
+                break
+                
+            }
+            
                 if (refreshUI == true) {
                     
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
@@ -411,6 +455,71 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 }
             }
     }
+    
+    
+    func formNoteFromData(var data:Array<Dictionary<String, AnyObject>>,api:kAllowedPaths,refreshUI:Bool) {
+        
+        CacheManager.sharedCacheManager.clearCache()
+        
+        while (data.count > 0 ){
+            
+            let dim = Common.sharedCommon.calculateDimensionForDevice(kNoteDim)
+            
+            let note = WallNote(frame: CGRectMake(0,0,dim,dim),data:data[0])
+            self.notesDataList.append(note)
+            
+            if (refreshUI == true) {
+                
+                //self.showExistingNotes()
+                self.addNoteToFav(note)
+            }
+            
+            
+            if (api == kAllowedPaths.kPathGetAllNotes) {
+                
+                CacheManager.sharedCacheManager.allNotes.append(note)
+            }
+            
+            data.removeFirst()
+        }
+        
+        CacheManager.sharedCacheManager.filterResults()
+    }
+    
+    
+    
+    func addNoteToFav(note:WallNote) {
+            
+        let dim = Common.sharedCommon.calculateDimensionForDevice(kNoteDim)
+            
+        note.center = note.pinPoint!
+        note.wallnoteDelegate = self
+        note.center = note.pinPoint!
+            
+        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+                
+                UIView.animateWithDuration(0.0, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
+                    
+                    
+                    note.frame = CGRectMake(note.frame.origin.x, note.frame.origin.y, 0, 0)
+                   
+                    
+                    }, completion: { (Bool) -> Void in
+                        
+                        self.masterView!.addSubview(note)
+                        
+                        UIView.animateWithDuration(0.1, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
+                            
+                            note.frame = CGRectMake(note.frame.origin.x, note.frame.origin.y, dim, dim)
+                            
+                            }, completion: { (Bool) -> Void in
+                                
+                                
+                        })
+                })
+        }
+    }
+    
 
     
     //Scrollview Delegate methods
@@ -424,6 +533,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     // WallNote Delegate
     
     func blowupWallNote(note: WallNote) {
+        
+        self.backgroundImage?.userInteractionEnabled = false
         
         if (favButton == nil) {
             
@@ -485,6 +596,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             }
             
                 v.frame = CGRectMake(0, 0, Common.sharedCommon.calculateDimensionForDevice(kBlownupNoteDim), Common.sharedCommon.calculateDimensionForDevice(kBlownupNoteDim))
+                v.pinImage?.center = CGPointMake(v.frame.size.width * 0.5,v.pinImage!.center.y)
                 let center = CGPointMake(self.blownUpCenterX, UIScreen.mainScreen().bounds.size.height * 0.60)
                 v.center = center
                 //self.bgScrollView!.zoomToRect(self.view.frame, animated: true)
@@ -512,11 +624,17 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     func wallNoteMovedToPoint(note: WallNote, point: CGPoint) {
         
-        note.pinPoint = point
+        /* note.pinPoint = point
         let index = CacheManager.sharedCacheManager.allNotesDataList.indexOf({$0["noteID"] as! String == note.stickyNoteID!})
         var tempNote = CacheManager.sharedCacheManager.allNotesDataList[index!]
         tempNote["pinPoint"] = [point.x,point.y]
-        CacheManager.sharedCacheManager.allNotesDataList[index!] = tempNote
+        CacheManager.sharedCacheManager.allNotesDataList[index!] = tempNote */
+        
+        note.pinPoint = point
+        let index = CacheManager.sharedCacheManager.allNotes.indexOf({$0.stickyNoteID == note.stickyNoteID!})
+        let tempNote = CacheManager.sharedCacheManager.allNotes[index!]
+        tempNote.pinPoint = CGPointMake(point.x, point.y)
+        CacheManager.sharedCacheManager.allNotes[index!] = tempNote
     }
     
     // Confirm Delegate
@@ -629,21 +747,21 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     // Compose Delegate Methods
     
-    func postAWallNote(noteType: String?, noteText: String?, noteFont: String?, noteFontSize:CGFloat?, noteFontColor:Array<CGFloat>, noteProperty:String?, imageurl:String?, isPinned:Bool) {
+    func postAWallNote(noteType: String?, noteText: String?, noteFont: String?, noteFontSize:CGFloat?, noteFontColor:Array<CGFloat>, noteProperty:String?, imageurl:String?, isPinned:Bool, pinType:String?) {
         
-        let ownerID = Common.sharedCommon.config!["ownerId"] as! String
+       let ownerID = Common.sharedCommon.config!["ownerId"] as! String
         let point = Common.sharedCommon.getACoordinate(screenWidth, screenheight: screenHeight)
         let xPoint = point.x
         let yPoint = point.y
         var contentType = kContentTypes.kApplicationJson
-        var isNote = true
+        //var isNote = true
         var data = [String:AnyObject]()
-        data = ["ownerid" : ownerID as String, "notetype" : noteType! as String, "notetext" : noteText! as String, "notetextfont" : noteFont! as String, "notetextfontsize" : noteFontSize! as CGFloat, "notepinned": isPinned, "notetextcolor" : noteFontColor,"noteProperty" : noteProperty!, "imageurl" : imageurl!,"pinPoint":[xPoint,yPoint]]
+        data = ["ownerid" : ownerID as String, "notetype" : noteType! as String, "notetext" : noteText! as String, "notetextfont" : noteFont! as String, "notetextfontsize" : noteFontSize! as CGFloat, "notepinned": isPinned, "pintype":pinType!, "notetextcolor" : noteFontColor,"noteProperty" : noteProperty!, "imageurl" : imageurl!,"pinPoint":[xPoint,yPoint]]
         
         if (noteProperty == "P") {
             
            contentType = kContentTypes.kMultipartFormData
-            isNote = false
+            //isNote = false
         }
         
        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathPostNewNote, body: data, replace: nil, requestContentType:contentType) { (result, response) -> Void in
@@ -652,23 +770,28 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     
-                    let newNote = response["data"]![0]
-                    let RBGColor = Common.sharedCommon.formColorWithRGB(noteFontColor)
-                    let note = WallNote(frame: CGRectMake(100, 30, Common.sharedCommon.calculateDimensionForDevice(kNoteDim), Common.sharedCommon.calculateDimensionForDevice(kNoteDim)), noteType: noteType, noteText: noteText!, noteFont: noteFont, noteFontSize:noteFontSize!, noteFontColor:RBGColor, isNote:isNote, imageFileName:imageurl, isPinned:isPinned)
+                    let newNote = response["data"]![0] as! Dictionary<String, AnyObject>
+                    let note = WallNote(frame: CGRectMake(100, 30, Common.sharedCommon.calculateDimensionForDevice(kNoteDim),Common.sharedCommon.calculateDimensionForDevice(kNoteDim)), data: newNote)
+                    
+                    //let note = WallNote(frame: CGRectMake(100, 30, Common.sharedCommon.calculateDimensionForDevice(kNoteDim), Common.sharedCommon.calculateDimensionForDevice(kNoteDim)), noteType: noteType, noteText: noteText!, noteFont: noteFont, noteFontSize:noteFontSize!, noteFontColor:RBGColor, isNote:isNote, imageFileName:imageurl, isPinned:isPinned)
                     //let note = WallNote(frame: CGRectMake(xPoint, yPoint, Common.sharedCommon.calculateDimensionForDevice(kNoteDim), Common.sharedCommon.calculateDimensionForDevice(kNoteDim)), noteType: noteType, noteText: noteText!, noteFont: noteFont, noteFontSize:noteFontSize!, noteFontColor:RBGColor, isNote:isNote, imageFileName:imageurl, isPinned:isPinned)
-                    note.stickyNoteID = newNote["noteID"] as? String
+                    /* note.stickyNoteID = newNote["noteID"] as? String
                     note.favedOwners = newNote["owners"] as? Array<String>
                     note.stickyNoteCreationDate = newNote["creationDate"] as? String
                     note.stickyNoteDeletionDate = newNote["deletionDate"] as? String
                     note.followingNoteOwner = newNote["followingNoteOwner"] as? Bool
                     note.ownerID = newNote["ownerID"] as? String
                     note.ownerName = newNote["screenName"] as? String
-                    note.pinPoint = CGPointMake(0,0)
+                    note.pinPoint = CGPointMake(0,0) */
                     note.wallnoteDelegate = self
                     self.masterView!.addSubview(note)
                     
+                    //self.fillInDataSource(false,ignoreCache:true,overrideDatasourceAPIWith:kAllowedPaths.kPathGetAllNotes)
+                    //CacheManager.sharedCacheManager.allNotesDataList.append(newNote as! ([String : AnyObject]))
+                    //CacheManager.sharedCacheManager.filterResults()
+                    
                     self.fillInDataSource(false,ignoreCache:true,overrideDatasourceAPIWith:kAllowedPaths.kPathGetAllNotes)
-                    CacheManager.sharedCacheManager.allNotesDataList.append(newNote as! ([String : AnyObject]))
+                    CacheManager.sharedCacheManager.allNotes.append(note)
                     CacheManager.sharedCacheManager.filterResults()
 
                     
@@ -681,7 +804,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             
         }
-        
     }
     
     // CloseView Delegate Methods
@@ -949,7 +1071,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         self.backgroundImageIndex = self.backgroundImageIndex - 1
         
-        self.notesDataList = dataList as! Array<Dictionary<String, AnyObject>>
+        //self.notesDataList = dataList as! Array<Dictionary<String, AnyObject>>
+        self.notesDataList = dataList as! Array<WallNote>
         
         self.showOptionsMenu()
         
@@ -966,6 +1089,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.masterView = nil
         self.wallTypeNotifyImage!.removeFromSuperview()
         self.wallTypeNotifyImage = nil
+        print(dataList)
         self.loadMainView(resetDataSource:false)
         self.transImage!.image = nil
         
@@ -1048,8 +1172,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     
     
-    func showExistingNotes() {
-        
+    /* func showExistingNotes() {
         
         if (self.notesDataList.count > 0 ){
             
@@ -1118,7 +1241,49 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             self.showNoNotes()
         }
         
+    } */
+    
+    
+    
+    func showExistingNotes() {
+        
+        if (self.notesDataList.count > 0 ) {
+            
+            let dim = Common.sharedCommon.calculateDimensionForDevice(kNoteDim)
+            let note = self.notesDataList[0]
+            
+            note.center = note.pinPoint!
+            note.wallnoteDelegate = self
+            self.masterView!.addSubview(note)
+            
+            dispatch_async(dispatch_get_main_queue()) { () -> Void in
+                
+                UIView.animateWithDuration(0.00001, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
+                    
+                    
+                    note.frame = CGRectMake(note.frame.origin.x, note.frame.origin.y, dim, dim)
+                    note.center = note.pinPoint!
+                    
+                    }, completion: { (Bool) -> Void in
+                        
+                        if (self.notesDataList.count > 1) {
+                            
+                            self.notesDataList.removeFirst()
+                            self.showExistingNotes()
+                        }
+                        
+                })
+                
+            }
+        }
+        else {
+            
+            
+            self.showNoNotes()
+        }
     }
+    
+    
     
     func removeExistingNotes() {
         
@@ -1243,6 +1408,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 
                 //self.bgScrollView!.zoomToRect(self.view.frame, animated: true)
+                self.backgroundImage?.userInteractionEnabled = true
                 self.masterView!.alpha = 1.0
                 self.blownUpCenterX = kScreenWidth * 0.5
                 self.favButton!.removeFromSuperview()
@@ -1338,8 +1504,9 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                     note.favedOwners!.append(ownerID)
                 }
                 
+                
                 self.setFavImage(note)
-                CacheManager.sharedCacheManager.replaceWallNote(note, key: "owners", value: note.favedOwners!)
+                CacheManager.sharedCacheManager.replaceWallNote(note, key: "favedOwners", value: note.favedOwners!)
                 self.fillInDataSource(false,ignoreCache:true,overrideDatasourceAPIWith:kAllowedPaths.kPathGetAllNotes)
                 
             }
@@ -1378,18 +1545,21 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                         if (v as? WallNote)!.ownerID == followOwner {
                             
                             (v as? WallNote)!.followingNoteOwner = note.followingNoteOwner
-                            CacheManager.sharedCacheManager.replaceWallNote((v as? WallNote)!, key: "followingNoteOwner", value:  note.followingNoteOwner)
+                            //let index =  CacheManager.sharedCacheManager.allNotes.indexOf((v as? WallNote)!)
+                            //let temp = CacheManager.sharedCacheManager.allNotes[index!]
+                            //temp.followingNoteOwner = note.followingNoteOwner
+                            //CacheManager.sharedCacheManager.allNotes[index!] = temp
                             
                         }
                     }
                 }
                 
                 var index = 0
-                for cachedNote in CacheManager.sharedCacheManager.allNotesDataList {
+                for cachedNote in CacheManager.sharedCacheManager.allNotes {
                     
-                    if cachedNote["ownerID"] as! String == followOwner {
+                    if cachedNote.ownerID == followOwner {
                         
-                        CacheManager.sharedCacheManager.allNotesDataList[index]["followingNoteOwner"] = note.followingNoteOwner
+                        CacheManager.sharedCacheManager.allNotes[index].followingNoteOwner = note.followingNoteOwner
                     }
                     
                     index = index + 1

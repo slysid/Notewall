@@ -233,3 +233,111 @@ def confirmRegistration(name):
         if 'error' in resp:
             return render_template('error.html')
         return render_template('confirm.html')
+    
+    
+@owners.route('/owner/resend',methods=['POST'])
+def resendConfirmationMail():
+    
+    
+    authorization = canRespondToRequest()
+    
+    if authorization[0] == True:
+        logger = logging.getLogger(__name__)
+        generalLogging(logger)
+    
+        try:
+            if type(request.data) == str:
+                postdata = json.loads(request.data)
+            else:
+                postdata = request.data
+        except Exception, e:
+            response = {'data' : {'error' : 'Missing post body'}}
+            return jsonify(response)
+            
+            
+        if 'ownerid' not in postdata:
+            response = {'data' : {'error' : 'Missing owner id'}}
+            return jsonify(response)
+        
+        return jsonify(ownerQueries.resendConfirmationEmail(postdata['ownerid']))
+    else:
+        
+        return jsonify({'data':{'error' : authorization[1]}})
+    
+    
+    
+@owners.route('/owner/getpins',methods=['POST'])
+def getPinsForOwner():
+    
+    
+    authorization = canRespondToRequest()
+    
+    if authorization[0] == True:
+        logger = logging.getLogger(__name__)
+        generalLogging(logger)
+    
+        try:
+            if type(request.data) == str:
+                postdata = json.loads(request.data)
+            else:
+                postdata = request.data
+        except Exception, e:
+            response = {'data' : {'error' : 'Missing post body'}}
+            return jsonify(response)
+            
+            
+        if 'ownerid' not in postdata:
+            response = {'data' : {'error' : 'Missing owner id'}}
+            return jsonify(response)
+        
+        return jsonify(ownerQueries.getPins(postdata['ownerid']))
+    else:
+        
+        return jsonify({'data':{'error' : authorization[1]}})
+    
+    
+    
+@owners.route('/owner/pins/update',methods=["POST"])
+def updatePinCount():
+    
+    authorization = canRespondToRequest()
+    
+    if authorization[0] == True:
+        logger = logging.getLogger(__name__)
+        generalLogging(logger)
+    
+        try:
+            if type(request.data) == str:
+                postdata = json.loads(request.data)
+            else:
+                postdata = request.data
+        except Exception, e:
+            response = {'data' : {'error' : 'Missing post body'}}
+            return jsonify(response)
+            
+            
+        if 'ownerid' not in postdata:
+            response = {'data' : {'error' : 'Missing owner id'}}
+            return jsonify(response)
+        
+        if 'type' not in postdata:
+            response = {'data' : {'error' : 'Missing pin type'}}
+            return jsonify(response)
+        
+        if 'count' not in postdata:
+            response = {'data' : {'error' : 'Missing pin type count'}}
+            return jsonify(response)
+        
+        return jsonify(ownerQueries.updatePinCount(postdata['ownerid'],postdata['type'],postdata['count']))
+    else:
+        
+        return jsonify({'data':{'error' : authorization[1]}})
+    
+    
+    
+@owners.route('/pins/products', methods=["GET"])
+def getPinProducts():
+    
+    return jsonify({'data' : {'BronzeID':20,'SilverID':45,'GoldID':70}})
+
+    

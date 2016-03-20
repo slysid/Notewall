@@ -364,15 +364,15 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
         if (selectedOwner != nil ) {
             
             
-            let selectedOwnerPredicate = NSPredicate(format: "ownerID = %@", selectedOwner!)
+            //let selectedOwnerPredicate = NSPredicate(format: "ownerID = %@", selectedOwner!)
             
-            CacheManager.sharedCacheManager.selectedOwnerNotesDataList = ((CacheManager.sharedCacheManager.allNotesDataList as NSArray).filteredArrayUsingPredicate(selectedOwnerPredicate) as? Array<Dictionary<String,AnyObject>>)!
+            //CacheManager.sharedCacheManager.selectedOwnerNotesDataList = ((CacheManager.sharedCacheManager.allNotes as NSArray).filteredArrayUsingPredicate(selectedOwnerPredicate) as? Array<Dictionary<String,AnyObject>>)!
             
-            print(CacheManager.sharedCacheManager.selectedOwnerNotesDataList.count)
+            CacheManager.sharedCacheManager.selectedOwnerNotes = CacheManager.sharedCacheManager.allNotes.filter({$0.ownerID == selectedOwner!})
             
             if (self.optionsOptionsDelegate != nil) {
                 
-                self.optionsOptionsDelegate!.showNotesForSelectedFollowingOwner(CacheManager.sharedCacheManager.selectedOwnerNotesDataList)
+                self.optionsOptionsDelegate!.showNotesForSelectedFollowingOwner(CacheManager.sharedCacheManager.selectedOwnerNotes)
             }
         }
     }

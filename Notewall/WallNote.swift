@@ -1,5 +1,5 @@
 //
-//  WallNotes.swift
+//  WallNote.swift
 //  Notewall
 //
 //  Created by Bharath on 22/01/16.
@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-/*protocol WallNoteDelegate {
+protocol WallNoteDelegate {
     
     func blowupWallNote(note:WallNote)
     func wallNoteMovedToPoint(note:WallNote,point:CGPoint)
@@ -40,65 +40,39 @@ class WallNote:UIImageView {
     var pinImage:UIImageView?
     var pinPoint:CGPoint?
     
-    init(frame: CGRect, noteType:String?, noteText:String, noteFont:String?, noteFontSize:CGFloat?,noteFontColor:UIColor?, isNote:Bool, imageFileName:String?,isPinned:Bool) {
+    init(frame: CGRect,data:Dictionary<String, AnyObject>) {
         
         super.init(frame: frame)
         
-        self.isNote = isNote
-        self.isPinned = isPinned
-    
+        if data["noteProperty"] as? String == "N" {
+            
+            self.isNote = true
+        }
+        else {
+            
+            self.isNote = false
+        }
         
-        if (isNote == true) {
+        self.isPinned = data["notePinned"] as! Bool
+        
+        
+        if (self.isNote == true) {
             
-            if (noteType != nil) {
-                
-                stickyNoteType = noteType
-            }
-            else {
-                
-                stickyNoteType = kDefaultNoteType
-            }
-            
-            stickyNoteText = noteText
-            
-            if (noteFont != nil) {
-                
-                stickyNoteFont = noteFont
-            }
-            else {
-                
-                stickyNoteFont = kDefaultFont
-            }
-            
-            if (noteFontSize != nil) {
-                
-                stickyNoteFontSize = noteFontSize
-            }
-            else {
-                
-                stickyNoteFontSize = kStickyNoteFontSize
-            }
-            
-            if (noteFontColor != nil) {
-                
-                stickyNoteFontColor = noteFontColor
-            }
-            else {
-                
-                stickyNoteFontColor = kDefaultFontColor
-            }
-            
-            
-            let rawImage = UIImage(named: stickyNoteType!)
-            let textWrittenImage = Common.sharedCommon.textToImage(stickyNoteText!, inImage: rawImage!, atPoint: CGPointMake(5,10),preferredFont:noteFont,preferredFontSize:noteFontSize,preferredFontColor:stickyNoteFontColor,addExpiry:false,expiryDate:nil)
+            self.stickyNoteType = data["noteType"] as? String
+            self.stickyNoteText = data["noteText"] as! String
+            self.stickyNoteFont = data["noteTextFont"] as? String
+            self.stickyNoteFontSize = data["noteTextFontSize"] as? CGFloat
+            self.stickyNoteFontColor = Common.sharedCommon.formColorWithRGB(data["noteTextColor"] as! Array<CGFloat>)
+            let rawImage = UIImage(named: self.stickyNoteType!)
+            let textWrittenImage = Common.sharedCommon.textToImage(stickyNoteText!, inImage: rawImage!, atPoint: CGPointMake(5,10),preferredFont:self.stickyNoteFont,preferredFontSize:self.stickyNoteFontSize,preferredFontColor:self.stickyNoteFontColor,addExpiry:false,expiryDate:nil)
             self.image = textWrittenImage
             
         }
         else {
             
+            self.imageFileName = data["imageurl"] as? String
             self.backgroundColor = UIColor.whiteColor()
             let thumbName = "THUMB_" + imageFileName!
-            self.imageFileName = imageFileName!
             
             if (self.polaroid == nil) {
                 
@@ -130,13 +104,12 @@ class WallNote:UIImageView {
                 }
                 
             })
-            
-            //self.image = UIImage(data: Common.sharedCommon.config!["polaroid"] as! NSData)
         }
         
-        pinImage = UIImageView(frame: CGRectMake((self.bounds.size.width * 0.5),10,10,10))
-        pinImage!.image = UIImage(named:"pin.png")
-        self.addSubview(pinImage!)
+        let pinDim = Common.sharedCommon.calculateDimensionForDevice(10)
+        self.pinImage = UIImageView(frame: CGRectMake((self.bounds.size.width * 0.5),pinDim,pinDim,pinDim))
+        self.pinImage!.image = UIImage(named:"pin.png")
+        self.addSubview(self.pinImage!)
         
         if (self.isPinned == false) {
             
@@ -148,16 +121,30 @@ class WallNote:UIImageView {
         self.addGestureRecognizer(tap)
         self.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
         
+        
+        self.stickyNoteID = data["noteID"] as? String
+        self.favedOwners = data["owners"] as? Array<String>
+        self.stickyNoteCreationDate = data["creationDate"] as? String
+        self.stickyNoteDeletionDate = data["deletionDate"] as? String
+        self.followingNoteOwner = data["followingNoteOwner"] as? Bool
+        self.ownerID = data["ownerID"] as? String
+        self.ownerName = data["screenName"] as? String
+        
+        let pinPointData = data["pinPoint"] as! Array<CGFloat>
+        let pinPoint = CGPointMake(pinPointData[0],pinPointData[1])
+        self.pinPoint = pinPoint
+        
     }
-
+    
     required init?(coder aDecoder: NSCoder) {
         
         fatalError("init(coder:) has not been implemented")
     }
     
+    
     func wallNoteTapped(sender:UITapGestureRecognizer) {
         
-       if (wallnoteDelegate != nil && self.isAlreadyBlownUp == false) {
+        if (wallnoteDelegate != nil && self.isAlreadyBlownUp == false) {
             
             self.isAlreadyBlownUp = true
             wallnoteDelegate!.blowupWallNote(self)
@@ -181,18 +168,18 @@ class WallNote:UIImageView {
         
     }
     
-   override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         
         super.touchesBegan(touches, withEvent: event)
-    
+        
         let touch  = touches.first
         let movePoint = touch!.locationInView(self.superview)
-    
-        dispatch_async(dispatch_get_main_queue()) { () -> Void in
         
+        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+            
             self.center = movePoint
         }
-    
+        
     }
     
     override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
@@ -226,6 +213,4 @@ class WallNote:UIImageView {
             }
         }
     }
-
-    
-} */
+}

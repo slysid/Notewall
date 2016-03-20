@@ -27,6 +27,10 @@ enum kAllowedPaths {
     case kPathUpdateScreenName
     case kPathUpdatePaswword
     case kPathGetOwnerDetails
+    case kPathResendMail
+    case kPathGetPins
+    case kPathUpdatePinCount
+    case kPathGetPinPacks
     case kPathNil
 }
 
@@ -120,8 +124,8 @@ let kStickyNoteFontSize:CGFloat = 28.0
 
 let kRunMode = kRunModes.modeLive
 let kHttpProtocol = "http"
-let kHttpHost = "appgrid.qa.accedo.tv" //"172.17.50.170" //"192.168.0.12"
-let kHttpPort = "8085" //"8085"
+let kHttpHost = "172.17.50.170" //"172.17.50.170" //"192.168.0.12"
+let kHttpPort = "5000" //"8085"
 let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/owner/register", "method" : "POST" ],
                   ["path" : "/api/notes/all", "method" : "POST"],
@@ -135,7 +139,11 @@ let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/poll","method" : "POST"],
                   ["path" : "/api/owner/update/screenname","method" : "PUT"],
                   ["path" : "/api/owner/update/password","method" : "PUT"],
-                  ["path" : "/api/owner/details","method" : "POST"]
+                  ["path" : "/api/owner/details","method" : "POST"],
+                  ["path" : "/api/owner/resend","method" : "POST"],
+                  ["path" : "/api/owner/getpins","method" : "POST"],
+                  ["path" : "/api/owner/pins/update","method" : "POST"],
+                  ["path" : "/api/pins/products","method" : "GET"]
 ]
 
 
@@ -174,6 +182,12 @@ let kMenuColor = UIColor(red: CGFloat(236.0/255.0), green: CGFloat(79.0/255.0), 
 //let kOptionsBgColor = UIColor(red: CGFloat(195.0/255.0), green: CGFloat(58.0/255.0), blue: (58.0/255.0), alpha: 1.0)
 let kOptionsBgColor = UIColor(red: CGFloat(66.0/255.0), green: CGFloat(121.0/255.0), blue: (132.0/255.0), alpha: 1.0)
 let kOptionsBgColor1 = UIColor.whiteColor()
+
+let kPinTypes = [
+    1:["label":"Type1","price":"1.0"],
+    2:["label":"Type2","price":"2.0"],
+    3:["label":"Type3","price":"3.0"]
+]
 
 
 

@@ -11,12 +11,12 @@ import UIKit
 
 protocol ComposeDelegate {
     
-    func postAWallNote(noteType:String?,noteText:String?,noteFont:String?,noteFontSize:CGFloat?,noteFontColor:Array<CGFloat>,noteProperty:String?,imageurl:String?,isPinned:Bool)
+    func postAWallNote(noteType:String?,noteText:String?,noteFont:String?,noteFontSize:CGFloat?,noteFontColor:Array<CGFloat>,noteProperty:String?,imageurl:String?,isPinned:Bool,pinType:String?)
 }
 
 
 class Compose:UIViewController,UITextViewDelegate,UIScrollViewDelegate,ComposeNoteDelegate,CloseViewProtocolDelegate,
-UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDelegate,PinTypeBuyProtocolDelegate {
     
     
     var newNoteView:UIView?
@@ -54,6 +54,10 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     var pinchScale:CGFloat = 0.0
     var textFontSize:CGFloat = 30.0
     
+    var pinBuyView:PinBuy?
+    var activity:UIActivityIndicatorView?
+    var pinPostView:UIView?
+    
     override func viewDidLoad() {
         
         for noteTypes in kPinNotes {
@@ -67,6 +71,10 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         
         imgPicker.delegate = self
         imgPicker.allowsEditing = true
+        
+        let dim = Common.sharedCommon.calculateDimensionForDevice(30)
+        activity = UIActivityIndicatorView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width * 0.5,dim * 1.5,dim,dim))
+        self.view.addSubview(activity!)
         
     }
     
@@ -296,6 +304,56 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         }
     }
     
+    
+    // PINBUY DELEGATE METHODS
+    
+    func presentAlertController(action: UIAlertController) {
+        
+        self.presentViewController(action, animated: true) { () -> Void in
+            
+        }
+    }
+    
+    func pinPurchaseSuccessful(result:Bool,message:String?) {
+        
+        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+            
+            self.pinBuyView?.removeFromSuperview()
+            self.pinBuyView = nil
+            
+            self.notesImageView?.alpha = 1.0
+            self.polaroidImageView?.alpha = 1.0
+            self.noteTypesScroll?.alpha = 1.0
+            self.noteFontsScroll?.alpha = 1.0
+            self.noteFontSizeScroll?.alpha = 1.0
+            self.noteFontColorScroll?.alpha = 1.0
+            
+            
+            if (result == true) {
+                
+                self.checkPinAvailability()
+            }
+            else {
+                
+                Common.sharedCommon.showMessageViewWithMessage(self.view, message: message!, startTimer: true)
+            }
+            
+        }
+        
+    }
+    
+    // PinTypeBuyProtocolDelegate Methods
+    
+    func postAndDeductPinType(pintype: String) {
+        
+        let simulatePinTapGesture = UITapGestureRecognizer()
+        let simulatedpinimage = UILabel()
+        simulatedpinimage.text = pintype
+        simulatedpinimage.tag = 2
+        simulatedpinimage.addGestureRecognizer(simulatePinTapGesture)
+        self.noteTapped(simulatePinTapGesture)
+    }
+    
     // Custom Methods
     
     func checkForMovingview(numlines:Int) {
@@ -444,7 +502,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         postNote.image = UIImage(named: "noteBlue1.png")
         postNote.userInteractionEnabled = true
         postNote.tag = 1
-        let postTap = UITapGestureRecognizer(target: self, action: "postTapped:")
+        let postTap = UITapGestureRecognizer(target: self, action: "noteTapped:")
         postNote.addGestureRecognizer(postTap)
         self.newNoteView!.addSubview(postNote)
         
@@ -454,7 +512,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         pinNote.image = UIImage(named: "pin.png")
         pinNote.userInteractionEnabled = true
         pinNote.tag = 2
-        let pinTap = UITapGestureRecognizer(target: self, action: "postTapped:")
+        let pinTap = UITapGestureRecognizer(target: self, action: "checkPinAvailability")
         pinNote.addGestureRecognizer(pinTap)
         self.newNoteView!.addSubview(pinNote)
         
@@ -775,6 +833,172 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     }
     
     
+    func checkPinAvailability() {
+        
+        self.textField?.resignFirstResponder()
+        
+        let data = ["ownerid" : Common.sharedCommon.config!["ownerId"] as! String]
+        
+        activity?.startAnimating()
+        
+        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathGetPins , body: data, replace: nil, requestContentType: kContentTypes.kApplicationJson) { (result, response) -> Void in
+            
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                
+                self.activity?.stopAnimating()
+                
+            })
+            
+            if (result == true) {
+                
+                let err:String? = response.objectForKey("data")?.objectForKey("error") as? String
+                
+                if (err == nil) {
+                    
+                    let data = response.objectForKey("data") as? Dictionary<String,AnyObject>
+                    if (data!.count == 0) {
+                        
+                        self.showNoPins()
+                    }
+                    else {
+                
+                        let keys = Array(data!.keys)
+                        var totalPinCount = 0
+                        
+                        for (var idx=0;idx<keys.count;idx++) {
+                        
+                            let type = keys[idx] as String
+                            let count = String(data![type]!)
+                            
+                            totalPinCount = totalPinCount + Int(count)!
+                        
+                        }
+                        
+                        if (totalPinCount == 0) {
+                            
+                            self.showNoPins()
+                            
+                        }else {
+                            
+                            self.showPins(data!)
+                        }
+
+                        
+                        
+                    }
+                    
+                }
+                else {
+                    
+                    print(err)
+                }
+                
+            }
+            else {
+                
+                print(response["data"])
+                
+            }
+        }
+    }
+    
+    func showNoPins() {
+        
+        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+            
+            self.notesImageView?.alpha = 0.0
+            self.polaroidImageView?.alpha = 0.0
+            self.noteTypesScroll?.alpha = 0.0
+            self.noteFontsScroll?.alpha = 0.0
+            self.noteFontSizeScroll?.alpha = 0.0
+            self.noteFontColorScroll?.alpha = 0.0
+            
+            if (self.pinBuyView == nil) {
+                
+                self.pinBuyView = PinBuy(frame: CGRectMake(0,self.notesImageView!.frame.origin.y,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - self.notesImageView!.frame.origin.y))
+                self.pinBuyView!.pinBuyDelegate = self
+                self.newNoteView!.addSubview(self.pinBuyView!)
+            }
+        }
+    }
+    
+    func showPins(data:Dictionary<String,AnyObject>) {
+        
+        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+            
+            if (self.pinPostView == nil) {
+            
+                let width = Common.sharedCommon.calculateDimensionForDevice(100)
+                let height = Common.sharedCommon.calculateDimensionForDevice(30)
+            
+                self.pinPostView = UIView(frame: CGRectMake(0,0,(width * CGFloat(data.count)) + width ,height))
+                self.pinPostView!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, self.composeTypeImageView!.center.y + height)
+                self.pinPostView!.backgroundColor = UIColor.clearColor()
+                self.newNoteView!.addSubview(self.pinPostView!)
+                
+                var xPos:CGFloat = 0.0
+                let yPos:CGFloat = 0.0
+                
+                let keys = Array(data.keys)
+                
+                for (var idx=0;idx<keys.count;idx++) {
+                    
+                    let pinType = PinTypeView(frame: CGRectMake(xPos,yPos,width,height))
+                    pinType.pinTypeDelegate = self
+                    self.pinPostView!.addSubview(pinType)
+                    
+                    let type = keys[idx] as String
+                    let count = String(data[type]!)
+                    
+                    
+                    pinType.pinText!.text = type
+                    pinType.pinCount!.text = count
+                    
+                    xPos = xPos + width
+                }
+                
+                /*let buyButton = UIButton(frame: CGRectMake(xPos,yPos,width,height))
+                buyButton.setTitle("Buy", forState: UIControlState.Normal)
+                buyButton.titleLabel!.font = UIFont(name: "Roboto", size: 14.0)
+                self.newNoteView!.addSubview(buyButton)*/
+                
+            
+            }
+            
+        }
+        
+    }
+    
+    
+    func noteTapped(sender:UITapGestureRecognizer) {
+        
+        if (self.pinBuyView != nil) {
+            
+            dispatch_async(dispatch_get_main_queue()) { () -> Void in
+                
+                
+                self.pinBuyView!.removeFromSuperview()
+                self.pinBuyView = nil
+                
+                
+                self.notesImageView?.alpha = 1.0
+                self.polaroidImageView?.alpha = 1.0
+                self.noteTypesScroll?.alpha = 1.0
+                self.noteFontsScroll?.alpha = 1.0
+                self.noteFontSizeScroll?.alpha = 1.0
+                self.noteFontColorScroll?.alpha = 1.0
+                
+            }
+            
+            
+        }
+        else {
+            
+            self.postTapped(sender)
+        }
+    }
+    
+    
     func postTapped(sender:UITapGestureRecognizer) {
         
         var characterCount:Int?
@@ -832,13 +1056,17 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate {
                 }
                 
                 var isPinned = false
+                var pinType = ""
                 
                 if (sender.view!.tag == 2) {
                     
                     isPinned = true
+                    pinType = (sender.view! as! UILabel).text!
+                    print(pinType)
+                    
                 }
                     
-                self.composeDelegate!.postAWallNote(kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex] as String, noteText: enteredText!, noteFont: kSupportedFonts[selectedFontIndex], noteFontSize: textFontSize , noteFontColor: kFontColor[selectedFontColorIndex],noteProperty:composeProperty,imageurl: imgFileName, isPinned:isPinned)
+                self.composeDelegate!.postAWallNote(kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex] as String, noteText: enteredText!, noteFont: kSupportedFonts[selectedFontIndex], noteFontSize: textFontSize , noteFontColor: kFontColor[selectedFontColorIndex],noteProperty:composeProperty,imageurl: imgFileName, isPinned:isPinned,pinType:pinType)
                 
             }
             

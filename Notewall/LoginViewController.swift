@@ -19,6 +19,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
     var userName:CustomTextField?
     var password:CustomTextField?
     var closeButton:CloseView?
+    var resendEmail:CustomButton?
     var activity:UIActivityIndicatorView?
     var fbVerticalConstraint:[NSLayoutConstraint]?
     var googleVerticalConstraint:[NSLayoutConstraint]?
@@ -67,6 +68,15 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         mailSignInButton!.userInteractionEnabled = true
         let mtap = UITapGestureRecognizer(target: self, action: "mailButtonTapped:")
         mailSignInButton!.addGestureRecognizer(mtap)
+        
+        
+        resendEmail = CustomButton(frame: CGRectMake(0,0,200,50), buttonTitle: "Resend Email", normalColor: UIColor.whiteColor(), highlightColor: UIColor.blackColor())
+        resendEmail?.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, UIScreen.mainScreen().bounds.size.height * 0.25)
+        resendEmail?.autoresizingMask = UIViewAutoresizing.FlexibleBottomMargin.union(.FlexibleTopMargin).union(.FlexibleLeftMargin).union(.FlexibleRightMargin)
+        resendEmail!.backgroundColor = UIColor.clearColor()
+        resendEmail!.alpha = 0.0
+        resendEmail!.addTarget(self, action: "resendConfirmationEmail", forControlEvents: UIControlEvents.TouchUpInside)
+        self.view.addSubview(resendEmail!)
         
         self.calculateConstraints()
         
@@ -183,6 +193,50 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         NSLayoutConstraint.activateConstraints(emailVerticalConstraint!)
         NSLayoutConstraint.activateConstraints(horizontalConstraint!)
         
+    }
+    
+    
+    func resendConfirmationEmail() {
+        
+        let ownerID = Common.sharedCommon.config!["ownerId"] as! String
+        var data = [String:AnyObject]()
+        data = ["ownerid" : ownerID as String]
+        
+        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathResendMail , body: data, replace: nil, requestContentType: kContentTypes.kApplicationJson) { (result, response) -> Void in
+            
+            if (result == true) {
+                
+                let err:String? = response.objectForKey("data")?.objectForKey("error") as? String
+                
+                if (err == nil) {
+                    
+                    Common.sharedCommon.showMessageViewWithMessage(self.view, message: "Mail Sent", startTimer: true)
+                    
+                }
+                else {
+                    
+                    if err!.rangeOfString("Quota") != nil {
+                        
+                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                            
+                            self.resendEmail!.alpha = 0.0
+                            
+                        })
+                        
+                        Common.sharedCommon.showMessageViewWithMessage(self.view, message: "Too many emails sent", startTimer: true)
+                    }
+                    else {
+                        
+                        Common.sharedCommon.showMessageViewWithMessage(self.view, message: err!, startTimer: true)
+                    }
+                }
+                
+            }
+            else {
+                
+                
+            }
+        }
     }
     
     
@@ -482,9 +536,11 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
                         dispatch_async(dispatch_get_main_queue() , { () -> Void in
                             
                             self.screenName?.alpha = 0.0
+                            self.resendEmail!.alpha = 1.0
                         })
                         
                         Common.sharedCommon.showMessageViewWithMessage(self.view, message: "Awaiting registration confirmation", startTimer:true)
+                        
                     }
                     
                     

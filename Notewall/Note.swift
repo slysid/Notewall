@@ -23,6 +23,7 @@ class Note:UIImageView {
     var noteTag:Int = 0
     var sourceWallNote:WallNote?
     var polaroid:UIImageView?
+    var pinImage:UIImageView?
     
     init(frame: CGRect, wallnote:WallNote,expiryDate:String) {
         
@@ -74,6 +75,17 @@ class Note:UIImageView {
 
             
         }
+        
+        let pinDim = Common.sharedCommon.calculateDimensionForDevice(30)
+        self.pinImage = UIImageView(frame: CGRectMake((self.bounds.size.width * 0.5),Common.sharedCommon.calculateDimensionForDevice(10),pinDim,pinDim))
+        self.pinImage!.image = UIImage(named:"pin.png")
+        self.addSubview(self.pinImage!)
+        
+        if (self.sourceWallNote!.isPinned == false) {
+            
+            pinImage!.alpha = 0.0
+        }
+
         
         self.userInteractionEnabled = true
         self.noteTag = wallnote.noteTag

@@ -17,6 +17,13 @@ class CacheManager:NSObject {
     var myFavsNotesDataList:Array<Dictionary<String,AnyObject>> = []
     var selectedOwnerNotesDataList:Array<Dictionary<String,AnyObject>> = []
     
+    
+    var allNotes:Array<WallNote> = []
+    var myNotes:Array<WallNote> = []
+    var favNotes:Array<WallNote> = []
+    var selectedOwnerNotes:Array<WallNote> = []
+    
+    
     override init() {
         
         
@@ -79,13 +86,19 @@ class CacheManager:NSObject {
         let onlyOwnerFavPredicate = NSPredicate(format: "owners contains[c] %@", ownerid)
         self.myFavsNotesDataList = ((self.allNotesDataList as NSArray).filteredArrayUsingPredicate(onlyOwnerFavPredicate) as? Array<Dictionary<String,AnyObject>>)!
         
+        self.myNotes = self.allNotes.filter({$0.ownerID == ownerid})
+        self.favNotes = self.allNotes.filter({$0.favedOwners!.contains(ownerid)})
+        
     }
     
     
     func removeNoteFromCache(note:WallNote) {
         
-        let index = self.allNotesDataList.indexOf({$0["noteID"] as! String == note.stickyNoteID!})
-        self.allNotesDataList.removeAtIndex(index!)
+        /*let index = self.allNotesDataList.indexOf({$0["noteID"] as! String == note.stickyNoteID!})
+        self.allNotesDataList.removeAtIndex(index!)*/
+        
+        let index = self.allNotes.indexOf(note)
+        self.allNotes.removeAtIndex(index!)
         
         self.filterResults()
         
@@ -99,10 +112,24 @@ class CacheManager:NSObject {
     
     func replaceWallNote(note:WallNote,key:String,value:AnyObject?) {
         
-        let index = self.allNotesDataList.indexOf({$0["noteID"] as! String == note.stickyNoteID!})
+       /* let index = self.allNotesDataList.indexOf({$0["noteID"] as! String == note.stickyNoteID!})
         var tempNote = self.allNotesDataList[index!]
         tempNote[key] = value
-        self.allNotesDataList[index!] = tempNote
+        self.allNotesDataList[index!] = tempNote */
+        
+        var index = 0
+        for n in self.allNotes {
+            
+            if n.stickyNoteID == note.stickyNoteID {
+                
+                let tempNote = self.allNotes[index]
+                tempNote.setValue(value, forKey: key)
+                self.allNotes[index] = tempNote
+                break
+            }
+            
+            index = index + 1
+        }
         
         self.filterResults()
     }
@@ -113,6 +140,11 @@ class CacheManager:NSObject {
         self.myNotesDataList.removeAll()
         self.myFavsNotesDataList.removeAll()
         self.selectedOwnerNotesDataList.removeAll()
+        
+        self.allNotes.removeAll()
+        self.myNotes.removeAll()
+        self.favNotes.removeAll()
+        self.selectedOwnerNotes.removeAll()
         
     }
     
