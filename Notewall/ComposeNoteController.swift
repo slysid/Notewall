@@ -931,9 +931,9 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
                 let width = Common.sharedCommon.calculateDimensionForDevice(100)
                 let height = Common.sharedCommon.calculateDimensionForDevice(30)
             
-                self.pinPostView = UIView(frame: CGRectMake(0,0,(width * CGFloat(data.count)) + width ,height))
+                self.pinPostView = UIView(frame: CGRectMake(0,0,width * CGFloat(data.count) ,height))
                 self.pinPostView!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, self.composeTypeImageView!.center.y + height)
-                self.pinPostView!.backgroundColor = UIColor.clearColor()
+                self.pinPostView!.backgroundColor = UIColor.grayColor()
                 self.newNoteView!.addSubview(self.pinPostView!)
                 
                 var xPos:CGFloat = 0.0

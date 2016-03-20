@@ -662,11 +662,10 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
                             }) { (Bool) -> Void in
         
-        
-                                    note!.sourceWallNote!.removeAttributes(note!.sourceWallNote!)
-                                    self.blowUpRemovalCommonActions(note!)
-                                    CacheManager.sharedCacheManager.removeNoteFromCache(note!.sourceWallNote!)
-                                    self.fillInDataSource(false,ignoreCache:true,overrideDatasourceAPIWith:kAllowedPaths.kPathGetAllNotes)
+                                CacheManager.sharedCacheManager.removeNoteFromCache(note!.sourceWallNote!)
+                                note!.sourceWallNote!.removeAttributes(note!.sourceWallNote!)
+                                self.blowUpRemovalCommonActions(note!)
+                                self.fillInDataSource(false,ignoreCache:true,overrideDatasourceAPIWith:kAllowedPaths.kPathGetAllNotes)
         
                         }
                 })

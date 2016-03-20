@@ -79,7 +79,8 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
                 dict["price"] = (product as SKProduct).localizedPrice()
                 dict["title"] = (product as SKProduct).localizedTitle
                 dict["product"] = product as SKProduct
-                dict["pincount"] = products[dict["title"] as! String]
+                let identifier = (product as SKProduct).productIdentifier
+                dict["pincount"] = self.products[identifier]
                 dict["description"] = (product as SKProduct).localizedDescription
                 
                 productNames[index] = dict
@@ -285,7 +286,7 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
     
     func updatePinCount() {
         
-        if (self.selectedProductIndex > 0) {
+        if (self.selectedProductIndex >= 0) {
             
             let productType = productNames[ self.selectedProductIndex]!["title"] as! String
             let pinCount = productNames[ self.selectedProductIndex]!["pincount"] as! Int
@@ -293,6 +294,8 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
             
             
             Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathUpdatePinCount , body: data, replace: nil, requestContentType: kContentTypes.kApplicationJson , completion: { (result, response) -> Void in
+                
+                self.selectedProductIndex = -1
                 
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     

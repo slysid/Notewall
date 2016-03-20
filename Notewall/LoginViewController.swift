@@ -601,6 +601,8 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         
         print(response)
         
+        self.resendEmail!.alpha = 0.0
+        
         Common.sharedCommon.config!["loggedInMode"] = loggedInMode
         Common.sharedCommon.config!["ownerId"] = response["ownerid"] as! String
         Common.sharedCommon.config!["screenname"] = response["screenname"] as! String

@@ -97,8 +97,20 @@ class CacheManager:NSObject {
         /*let index = self.allNotesDataList.indexOf({$0["noteID"] as! String == note.stickyNoteID!})
         self.allNotesDataList.removeAtIndex(index!)*/
         
-        let index = self.allNotes.indexOf(note)
-        self.allNotes.removeAtIndex(index!)
+        //let index = self.allNotes.indexOf(note)
+        //self.allNotes.removeAtIndex(index!)
+        
+        var index = 0
+        for n in self.allNotes {
+            
+            if n.stickyNoteID == note.stickyNoteID {
+            
+                self.allNotes.removeAtIndex(index)
+                break
+            }
+            
+            index = index + 1
+        }
         
         self.filterResults()
         

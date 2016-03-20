@@ -29,6 +29,7 @@ class PinTypeView:UIView {
         self.pinText!.textColor = UIColor.whiteColor()
         self.pinText!.font = UIFont(name: "Roboto", size: 14.0)
         self.pinText!.userInteractionEnabled = true
+        self.pinText!.backgroundColor = UIColor.blackColor()
         self.addSubview(pinText!)
         
         let pinTextTap = UITapGestureRecognizer(target: self, action: "pinTextTapped:")
