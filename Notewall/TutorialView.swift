@@ -47,11 +47,11 @@ class TutorialView:UIView,CloseViewProtocolDelegate {
         self.tutText!.textAlignment = NSTextAlignment.Center
         self.addSubview(self.tutText!)
         
-        let leftSwipe = UISwipeGestureRecognizer(target: self, action: "swiped:")
+        let leftSwipe = UISwipeGestureRecognizer(target: self, action: #selector(TutorialView.swiped(_:)))
         leftSwipe.direction = .Left
         self.tutText!.addGestureRecognizer(leftSwipe)
         
-        let rightSwipe = UISwipeGestureRecognizer(target: self, action: "swiped:")
+        let rightSwipe = UISwipeGestureRecognizer(target: self, action: #selector(TutorialView.swiped(_:)))
         rightSwipe.direction = .Right
         self.tutText!.addGestureRecognizer(rightSwipe)
         

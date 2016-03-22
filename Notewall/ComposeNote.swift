@@ -37,10 +37,10 @@ class ComposeNote:UIImageView {
         composeTextView!.userInteractionEnabled = false
         self.addSubview(composeTextView!)
         
-        let noteTap = UITapGestureRecognizer(target: self, action: "dimissKeyboard")
+        let noteTap = UITapGestureRecognizer(target: self, action: #selector(ComposeNote.dimissKeyboard))
         self.addGestureRecognizer(noteTap)
         
-        let noteSwipe = UISwipeGestureRecognizer(target: self, action: "noteSwiped")
+        let noteSwipe = UISwipeGestureRecognizer(target: self, action: #selector(ComposeNote.noteSwiped))
         noteSwipe.direction = .Down
         self.addGestureRecognizer(noteSwipe)
         

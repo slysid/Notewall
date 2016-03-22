@@ -13,6 +13,7 @@ protocol OptionsOptionViewProtocolDelegate {
     
     func followingUpdated(followingID:String)
     func showNotesForSelectedFollowingOwner(dataList:NSArray)
+    func showNotesForSelectedFollowingOwnerInWall(dataList:NSArray)
 }
 
 class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
@@ -27,12 +28,14 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
     var followedDict:Dictionary<String,String> = [:]
     var followed:Array<String> = []
     var optionsOptionsDelegate:OptionsOptionViewProtocolDelegate?
+    var fromSettings:Bool = false
     
-    override init(frame: CGRect) {
+    init(frame: CGRect,fromSettings:Bool) {
         
         super.init(frame:frame)
         
         self.backgroundColor = kOptionsBgColor
+        self.fromSettings = fromSettings
         
         let ownerId = Common.sharedCommon.config!["ownerId"] as! String
         let data = ["ownerid" : ownerId]
@@ -105,10 +108,19 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
         var cell = tableView.dequeueReusableCellWithIdentifier("cell")
         if (cell == nil) {
             
+            var textSize:CGFloat = Common.sharedCommon.calculateDimensionForDevice(20.0)
+            
+            if self.fromSettings == false {
+                
+                textSize = Common.sharedCommon.calculateDimensionForDevice(17.0)
+                
+            }
+            
             cell = UITableViewCell(style: UITableViewCellStyle.Default , reuseIdentifier: "cell")
             cell?.textLabel!.backgroundColor = self.backgroundColor
             cell?.contentView.backgroundColor = self.backgroundColor
             cell?.textLabel!.textColor = UIColor.blackColor()
+            cell?.textLabel!.font = UIFont(name: "Roboto", size: textSize)
             
             let bgView = UIView()
             bgView.backgroundColor = self.backgroundColor
@@ -116,13 +128,14 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
             cell?.selectedBackgroundView = bgView
             
             
-            let showButton = CustomButton(frame: CGRectMake(0,0,Common.sharedCommon.calculateDimensionForDevice(70) ,cell!.contentView.frame.size.height), buttonTitle: "Show", normalColor: UIColor.whiteColor(), highlightColor: nil)
+            let showButton = CustomButton(frame: CGRectMake(0,0,Common.sharedCommon.calculateDimensionForDevice(70) ,cell!.contentView.frame.size.height), buttonTitle: "Show", normalColor: UIColor.redColor(), highlightColor: nil)
+            showButton.backgroundColor = UIColor.clearColor()
             showButton.userInteractionEnabled = true
             showButton.center = CGPointMake(cell!.contentView.frame.size.width - (showButton.frame.size.width * 0.75), cell!.contentView.frame.size.height * 0.5)
             showButton.indexPath = indexPath
             //showButton.setTitle("Show", forState: UIControlState.Normal)
             //showButton.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
-            showButton.addTarget(self, action: "showButtonTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+            showButton.addTarget(self, action: #selector(OptionsOptionView.showButtonTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
             showButton.hidden = true
             cell!.contentView.addSubview(showButton)
             
@@ -148,14 +161,21 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
     
     func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         
+        var textSize:CGFloat = Common.sharedCommon.calculateDimensionForDevice(24.0)
+        
+        if self.fromSettings == false {
+            
+            textSize = Common.sharedCommon.calculateDimensionForDevice(20.0)
+            
+        }
         
         let sectionLabel = UILabel(frame: CGRectMake(0,0,self.followersTable!.frame.size.width,tableSectionHeight))
         sectionLabel.textAlignment = NSTextAlignment.Center
         sectionLabel.textColor = UIColor.blackColor()
-        sectionLabel.font = UIFont(name: "Roboto", size: 24.0)
+        sectionLabel.font = UIFont(name: "Roboto", size: textSize)
         sectionLabel.tag = section
         sectionLabel.userInteractionEnabled = true
-        let tap = UITapGestureRecognizer(target: self, action: "sectionTapped:")
+        let tap = UITapGestureRecognizer(target: self, action: #selector(OptionsOptionView.sectionTapped(_:)))
         sectionLabel.addGestureRecognizer(tap)
         
         
@@ -223,7 +243,15 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
     
     func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
         
-         return UITableViewCellEditingStyle.Delete
+        if (self.fromSettings == true) {
+            
+             return UITableViewCellEditingStyle.Delete
+        }
+        else {
+            
+             return UITableViewCellEditingStyle.None
+        }
+        
     }
     
     func tableView(tableView: UITableView, willBeginEditingRowAtIndexPath indexPath: NSIndexPath) {
@@ -308,7 +336,11 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
         if (followersTable == nil) {
             
             let xPos:CGFloat = 10
-            let yPos = Common.sharedCommon.calculateDimensionForDevice(70)
+            var yPos = Common.sharedCommon.calculateDimensionForDevice(70)
+            if (self.fromSettings == false) {
+                
+                yPos = 0
+            }
             let width = self.frame.size.width - (2 * xPos)
             let height = self.frame.size.height - (2 * yPos)
             
@@ -370,9 +402,17 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
             
             CacheManager.sharedCacheManager.selectedOwnerNotes = CacheManager.sharedCacheManager.allNotes.filter({$0.ownerID == selectedOwner!})
             
-            if (self.optionsOptionsDelegate != nil) {
+            if (self.optionsOptionsDelegate != nil && self.fromSettings == true) {
                 
                 self.optionsOptionsDelegate!.showNotesForSelectedFollowingOwner(CacheManager.sharedCacheManager.selectedOwnerNotes)
+            }
+            else {
+                
+                if (self.optionsOptionsDelegate != nil) {
+                    
+                    self.optionsOptionsDelegate!.showNotesForSelectedFollowingOwnerInWall(CacheManager.sharedCacheManager.selectedOwnerNotes)
+                    
+                }
             }
         }
     }

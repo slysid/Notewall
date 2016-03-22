@@ -9,6 +9,13 @@
 import Foundation
 import UIKit
 
+
+protocol CacheManagerProtocolDelegate {
+    
+    func requestToRunAPIDataSource()
+}
+
+
 class CacheManager:NSObject {
     
     static let sharedCacheManager = CacheManager()
@@ -22,6 +29,8 @@ class CacheManager:NSObject {
     var myNotes:Array<WallNote> = []
     var favNotes:Array<WallNote> = []
     var selectedOwnerNotes:Array<WallNote> = []
+    
+    var cacheDelegate:CacheManagerProtocolDelegate?
     
     
     override init() {
@@ -160,4 +169,12 @@ class CacheManager:NSObject {
         
     }
     
+    func resetCache() {
+        
+        if (self.cacheDelegate != nil) {
+            
+            self.cacheDelegate!.requestToRunAPIDataSource()
+        }
+    }
+
 }

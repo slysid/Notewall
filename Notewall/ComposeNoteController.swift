@@ -16,7 +16,7 @@ protocol ComposeDelegate {
 
 
 class Compose:UIViewController,UITextViewDelegate,UIScrollViewDelegate,ComposeNoteDelegate,CloseViewProtocolDelegate,
-UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDelegate,PinTypeBuyProtocolDelegate {
+UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDelegate,PinButtonProtocolDelegate {
     
     
     var newNoteView:UIView?
@@ -94,10 +94,10 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
     
     override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
         
-        if (self.composeType == kComposeTypes.kComposePicture) {
+       /* if (self.composeType == kComposeTypes.kComposePicture) {
             
             return UIInterfaceOrientationMask.Portrait
-        }
+        } */
         
         return UIInterfaceOrientationMask.All
     }
@@ -132,6 +132,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         }
         
     }
+    
     
     //UIScrollView Delegate Methods
     
@@ -468,7 +469,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         bgImage.userInteractionEnabled = true
         self.newNoteView!.addSubview(bgImage)
         self.view.addSubview(newNoteView!)
-        let tap = UITapGestureRecognizer(target: self, action: "dimissKeyboard")
+        let tap = UITapGestureRecognizer(target: self, action: #selector(Compose.dimissKeyboard))
         bgImage.addGestureRecognizer(tap)
         
         
@@ -481,7 +482,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             self.composeTypeImageView!.userInteractionEnabled = true
             self.view.addSubview(self.composeTypeImageView!)
             
-            let composeTap = UITapGestureRecognizer(target: self, action: "changeCompseMode")
+            let composeTap = UITapGestureRecognizer(target: self, action: #selector(Compose.changeCompseMode))
             self.composeTypeImageView!.addGestureRecognizer(composeTap)
         }
         
@@ -502,7 +503,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         postNote.image = UIImage(named: "noteBlue1.png")
         postNote.userInteractionEnabled = true
         postNote.tag = 1
-        let postTap = UITapGestureRecognizer(target: self, action: "noteTapped:")
+        let postTap = UITapGestureRecognizer(target: self, action: #selector(Compose.noteTapped(_:)))
         postNote.addGestureRecognizer(postTap)
         self.newNoteView!.addSubview(postNote)
         
@@ -512,7 +513,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         pinNote.image = UIImage(named: "pin.png")
         pinNote.userInteractionEnabled = true
         pinNote.tag = 2
-        let pinTap = UITapGestureRecognizer(target: self, action: "checkPinAvailability")
+        let pinTap = UITapGestureRecognizer(target: self, action: #selector(Compose.checkPinAvailability))
         pinNote.addGestureRecognizer(pinTap)
         self.newNoteView!.addSubview(pinNote)
         
@@ -530,8 +531,8 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         }
         else if (cType == kComposeTypes.kComposePicture){
             
-            let value = UIInterfaceOrientation.Portrait.rawValue
-            UIDevice.currentDevice().setValue(value, forKey: "orientation")
+            //let value = UIInterfaceOrientation.Portrait.rawValue
+            //UIDevice.currentDevice().setValue(value, forKey: "orientation")
             self.composeTypeImageView!.image = UIImage(named: "notes.png")
             self.composeImageNote()
         }
@@ -652,13 +653,13 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         textField = notesImageView!.composeTextView
         textField!.delegate = self
         self.newNoteView!.addSubview(notesImageView!)
-        let rightSwipe = UISwipeGestureRecognizer(target: self, action: "composeNoteChangeType:")
+        let rightSwipe = UISwipeGestureRecognizer(target: self, action: #selector(Compose.composeNoteChangeType(_:)))
         rightSwipe.direction = .Right
         self.notesImageView!.addGestureRecognizer(rightSwipe)
-        let leftSwipe = UISwipeGestureRecognizer(target: self, action: "composeNoteChangeType:")
+        let leftSwipe = UISwipeGestureRecognizer(target: self, action: #selector(Compose.composeNoteChangeType(_:)))
         leftSwipe.direction = .Left
         self.notesImageView!.addGestureRecognizer(leftSwipe)
-        let pinch = UIPinchGestureRecognizer(target: self, action: "handlePinch:")
+        let pinch = UIPinchGestureRecognizer(target: self, action: #selector(Compose.handlePinch(_:)))
         self.notesImageView!.addGestureRecognizer(pinch)
         
         var xOffset:CGFloat = 5.0
@@ -748,21 +749,23 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         
         let dim = Common.sharedCommon.calculateDimensionForDevice(60)
         
-        let cameraImg = UIImageView(frame: CGRectMake(0,0,dim,dim))
+        let cameraImg = UIImageView(frame: CGRectMake(Common.sharedCommon.calculateDimensionForDevice(50),UIScreen.mainScreen().bounds.size.height * 0.75,dim,dim))
         cameraImg.image = UIImage(named: "camera.png")
-        cameraImg.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.25, self.polaroidImageView!.center.y + self.polaroidImageView!.frame.size.height)
+        //cameraImg.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.25, self.polaroidImageView!.center.y + self.polaroidImageView!.frame.size.height)
         cameraImg.userInteractionEnabled = true
         self.newNoteView!.addSubview(cameraImg)
-        let cameratap = UITapGestureRecognizer(target: self, action: "cameraTapped")
+        let cameratap = UITapGestureRecognizer(target: self, action: #selector(Compose.cameraTapped))
         cameraImg.addGestureRecognizer(cameratap)
+        cameraImg.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin.union(.FlexibleBottomMargin)
         
-        let photoLibImg = UIImageView(frame: CGRectMake(0,0,dim,dim))
+        let photoLibImg = UIImageView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width - (2 *  Common.sharedCommon.calculateDimensionForDevice(50)),cameraImg.frame.origin.y,dim,dim))
         photoLibImg.image = UIImage(named: "photolib.png")
-        photoLibImg.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.75, self.polaroidImageView!.center.y + self.polaroidImageView!.frame.size.height)
+        //photoLibImg.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.75, self.polaroidImageView!.center.y + self.polaroidImageView!.frame.size.height)
         photoLibImg.userInteractionEnabled = true
         self.newNoteView!.addSubview(photoLibImg)
-        let photolibtap = UITapGestureRecognizer(target: self, action: "photolibTapped")
+        let photolibtap = UITapGestureRecognizer(target: self, action: #selector(Compose.photolibTapped))
         photoLibImg.addGestureRecognizer(photolibtap)
+        photoLibImg.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin.union(.FlexibleBottomMargin).union(.FlexibleLeftMargin)
         
     }
     
@@ -865,7 +868,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
                         let keys = Array(data!.keys)
                         var totalPinCount = 0
                         
-                        for (var idx=0;idx<keys.count;idx++) {
+                        for idx in 0 ..< keys.count {
                         
                             let type = keys[idx] as String
                             let count = String(data![type]!)
@@ -928,41 +931,34 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             
             if (self.pinPostView == nil) {
             
-                let width = Common.sharedCommon.calculateDimensionForDevice(100)
+                let width = Common.sharedCommon.calculateDimensionForDevice(70)
                 let height = Common.sharedCommon.calculateDimensionForDevice(30)
             
                 self.pinPostView = UIView(frame: CGRectMake(0,0,width * CGFloat(data.count) ,height))
                 self.pinPostView!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, self.composeTypeImageView!.center.y + height)
-                self.pinPostView!.backgroundColor = UIColor.grayColor()
+                self.pinPostView!.backgroundColor = UIColor.clearColor()
                 self.newNoteView!.addSubview(self.pinPostView!)
                 
-                var xPos:CGFloat = 0.0
-                let yPos:CGFloat = 0.0
+                var percent:CGFloat = 0.25
+                var xPos:CGFloat = self.pinPostView!.frame.size.width * percent
+                let yPos:CGFloat = height * 0.5
                 
-                let keys = Array(data.keys)
+                var keys = Array(data.keys)
                 
-                for (var idx=0;idx<keys.count;idx++) {
-                    
-                    let pinType = PinTypeView(frame: CGRectMake(xPos,yPos,width,height))
-                    pinType.pinTypeDelegate = self
-                    self.pinPostView!.addSubview(pinType)
+                for idx in 0 ..< keys.count {
                     
                     let type = keys[idx] as String
                     let count = String(data[type]!)
-                    
-                    
-                    pinType.pinText!.text = type
-                    pinType.pinCount!.text = count
-                    
-                    xPos = xPos + width
-                }
-                
-                /*let buyButton = UIButton(frame: CGRectMake(xPos,yPos,width,height))
-                buyButton.setTitle("Buy", forState: UIControlState.Normal)
-                buyButton.titleLabel!.font = UIFont(name: "Roboto", size: 14.0)
-                self.newNoteView!.addSubview(buyButton)*/
-                
             
+                    
+                    let pinType = PinButton(frame:CGRectMake(0,0,height,height),type:type,PinCount:count)
+                    pinType.pinButtonDelegate = self
+                    pinType.center = CGPointMake(xPos,yPos)
+                    self.pinPostView!.addSubview(pinType)
+                    
+                    percent = percent + 0.25
+                    xPos = self.pinPostView!.frame.size.width * percent
+                }
             }
             
         }
@@ -1062,8 +1058,6 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
                     
                     isPinned = true
                     pinType = (sender.view! as! UILabel).text!
-                    print(pinType)
-                    
                 }
                     
                 self.composeDelegate!.postAWallNote(kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex] as String, noteText: enteredText!, noteFont: kSupportedFonts[selectedFontIndex], noteFontSize: textFontSize , noteFontColor: kFontColor[selectedFontColorIndex],noteProperty:composeProperty,imageurl: imgFileName, isPinned:isPinned,pinType:pinType)

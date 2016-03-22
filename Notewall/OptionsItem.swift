@@ -44,7 +44,7 @@ class OptionsItem:UIView {
         //titleLabel.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleWidth)
         self.addSubview(titleLabel!)
         
-        let tap = UITapGestureRecognizer(target: self, action: "tapped:")
+        let tap = UITapGestureRecognizer(target: self, action: #selector(OptionsItem.tapped(_:)))
         titleLabel!.addGestureRecognizer(tap)
         
         if (withText != nil) {

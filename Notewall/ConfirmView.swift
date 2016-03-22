@@ -39,7 +39,7 @@ class ConfirmView:UIView {
         let okBoundry = UIView(frame: CGRectMake(0,textLabel.bounds.size.height,self.bounds.size.width * 0.5,self.bounds.size.height * 0.30))
         okBoundry.userInteractionEnabled = true
         self.addSubview(okBoundry)
-        let okTap = UITapGestureRecognizer(target: self, action: "okTapped")
+        let okTap = UITapGestureRecognizer(target: self, action: #selector(ConfirmView.okTapped))
         okBoundry.addGestureRecognizer(okTap)
         
         let okImage = UIImageView(frame: CGRectMake(0,0,self.bounds.size.height * 0.30,self.bounds.size.height * 0.30))
@@ -50,7 +50,7 @@ class ConfirmView:UIView {
         let cancelBoundry = UIView(frame: CGRectMake(okBoundry.bounds.size.width,okBoundry.frame.origin.y,self.bounds.size.width * 0.5,self.bounds.size.height * 0.30))
         cancelBoundry.userInteractionEnabled = true
         self.addSubview(cancelBoundry)
-        let cancelTap = UITapGestureRecognizer(target: self, action: "cancelTapped")
+        let cancelTap = UITapGestureRecognizer(target: self, action: #selector(ConfirmView.cancelTapped))
         cancelBoundry.addGestureRecognizer(cancelTap)
         
         let cancelImage = UIImageView(frame: CGRectMake(0,0,okImage.frame.size.width,okImage.frame.size.height))

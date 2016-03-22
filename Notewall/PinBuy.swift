@@ -154,7 +154,7 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
         
         
         //for key in productNames.keys {
-        for var idx=0;idx<productNames.count;idx++ {
+        for idx in 0 ..< productNames.count {
             
             var getIndex = idx
             
@@ -192,7 +192,7 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
             let buyButton = CustomButton(frame: CGRectMake(priceLabel.frame.origin.x + priceLabel.frame.size.width,priceLabel.frame.origin.y,buttonWidth,priceLabel.frame.size.height), buttonTitle: "BUY", normalColor: UIColor.whiteColor(), highlightColor: UIColor.blackColor())
             buyButton.tag = index
             buyButton.backgroundColor = UIColor.clearColor()
-            buyButton.addTarget(self, action: "buyButtonTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+            buyButton.addTarget(self, action: #selector(PinBuy.buyButtonTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
             self.addSubview(buyButton)
             
             let description = UILabel(frame: CGRectMake(typeLabel.frame.origin.x, typeLabel.frame.origin.y + typeLabel.frame.size.height,priceLabelWidth * 2,labelHeight * 0.25))

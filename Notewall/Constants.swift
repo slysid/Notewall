@@ -91,7 +91,7 @@ let kBG1:[String:Any] = ["bg":"bg1.png","datasource":kAllowedPaths.kPathGetAllNo
 let kBG2:[String:Any] = ["bg":"bg2.jpg","datasource":kAllowedPaths.kPathGetNotesForOwner,"icon":"my.png"]
 let kBG3:[String:Any] = ["bg":"bg3.jpg","datasource":kAllowedPaths.kPathGetFavNotesForOwner,"icon":"heart.png"]
 let kBG4:[String:Any] = ["bg":"bg4.jpg","datasource":kAllowedPaths.kPathNil,"icon":"followers.png"]
-let kBackGrounds = [kBG1,kBG2,kBG3]
+let kBackGrounds = [kBG1,kBG2,kBG3,kBG4]
 
 /*let kStickyNotes = ["noteBlue1.png",
     "noteGreen1.png","notePink1.png",
@@ -180,7 +180,8 @@ let kGeneralMenuOptions = [1:["title":"PROFILE","icon":"my.png","selector":"opti
 
 let kMenuColor = UIColor(red: CGFloat(236.0/255.0), green: CGFloat(79.0/255.0), blue: (79.0/255.0), alpha: 1.0)
 //let kOptionsBgColor = UIColor(red: CGFloat(195.0/255.0), green: CGFloat(58.0/255.0), blue: (58.0/255.0), alpha: 1.0)
-let kOptionsBgColor = UIColor(red: CGFloat(66.0/255.0), green: CGFloat(121.0/255.0), blue: (132.0/255.0), alpha: 1.0)
+//let kOptionsBgColor = UIColor(red: CGFloat(66.0/255.0), green: CGFloat(121.0/255.0), blue: (132.0/255.0), alpha: 1.0)
+let kOptionsBgColor = UIColor(patternImage:UIImage(named:"white.jpg")!)
 let kOptionsBgColor1 = UIColor.whiteColor()
 
 let kPinTypes = [

@@ -117,7 +117,7 @@ class WallNote:UIImageView {
         }
         
         self.userInteractionEnabled = true
-        let tap = UITapGestureRecognizer(target: self, action: "wallNoteTapped:")
+        let tap = UITapGestureRecognizer(target: self, action: #selector(WallNote.wallNoteTapped(_:)))
         self.addGestureRecognizer(tap)
         self.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
         

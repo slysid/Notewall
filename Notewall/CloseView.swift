@@ -24,7 +24,7 @@ class CloseView:UIImageView {
         
         self.image = UIImage(named: "close.png")
         self.userInteractionEnabled = true
-        let closeImgTap = UITapGestureRecognizer(target: self, action: "buttonTapped:")
+        let closeImgTap = UITapGestureRecognizer(target: self, action: #selector(CloseView.buttonTapped(_:)))
         self.addGestureRecognizer(closeImgTap)
         
     }

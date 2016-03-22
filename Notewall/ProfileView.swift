@@ -67,7 +67,7 @@ class ProfileView:UIView,UITextFieldDelegate {
         changeScreenNameImageView!.alpha = 0.0
         changeScreenNameImageView!.userInteractionEnabled = true
         self.addSubview(changeScreenNameImageView!)
-        let editTap = UITapGestureRecognizer(target:self, action: "editTapped")
+        let editTap = UITapGestureRecognizer(target:self, action: #selector(ProfileView.editTapped))
         changeScreenNameImageView!.addGestureRecognizer(editTap)
         
         emailLabel = UILabel(frame: CGRectMake(nameView!.frame.origin.x,nameView!.frame.origin.y + nameView!.frame.size.height + distanceBetween,nameView!.frame.size.width ,nameView!.frame.size.height))
@@ -95,7 +95,7 @@ class ProfileView:UIView,UITextFieldDelegate {
         changePasswordImageView!.alpha = 0.0
         changePasswordImageView!.userInteractionEnabled = true
         self.addSubview(changePasswordImageView!)
-        let passTap = UITapGestureRecognizer(target:self, action: "passTapped")
+        let passTap = UITapGestureRecognizer(target:self, action: #selector(ProfileView.passTapped))
         changePasswordImageView!.addGestureRecognizer(passTap)
         
         let dim = Common.sharedCommon.calculateDimensionForDevice(50)

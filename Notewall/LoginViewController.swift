@@ -50,7 +50,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         googleSignButton!.image = UIImage(named: "google.png")
         self.view!.addSubview(googleSignButton!)
         googleSignButton!.userInteractionEnabled = true
-        let gtap = UITapGestureRecognizer(target: self, action: "gButtonTapped")
+        let gtap = UITapGestureRecognizer(target: self, action: #selector(LoginViewController.gButtonTapped))
         googleSignButton!.addGestureRecognizer(gtap)
         
         fbSignInButton = UIImageView()
@@ -58,7 +58,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         fbSignInButton!.image = UIImage(named: "fb.png")
         self.view!.addSubview(fbSignInButton!)
         fbSignInButton!.userInteractionEnabled = true
-        let ftap = UITapGestureRecognizer(target: self, action: "fbButtonTapped")
+        let ftap = UITapGestureRecognizer(target: self, action: #selector(LoginViewController.fbButtonTapped))
         fbSignInButton!.addGestureRecognizer(ftap)
         
         mailSignInButton = UIImageView()
@@ -66,7 +66,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         mailSignInButton!.image = UIImage(named: "mail.png")
         self.view!.addSubview(mailSignInButton!)
         mailSignInButton!.userInteractionEnabled = true
-        let mtap = UITapGestureRecognizer(target: self, action: "mailButtonTapped:")
+        let mtap = UITapGestureRecognizer(target: self, action: #selector(LoginViewController.mailButtonTapped(_:)))
         mailSignInButton!.addGestureRecognizer(mtap)
         
         
@@ -75,7 +75,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         resendEmail?.autoresizingMask = UIViewAutoresizing.FlexibleBottomMargin.union(.FlexibleTopMargin).union(.FlexibleLeftMargin).union(.FlexibleRightMargin)
         resendEmail!.backgroundColor = UIColor.clearColor()
         resendEmail!.alpha = 0.0
-        resendEmail!.addTarget(self, action: "resendConfirmationEmail", forControlEvents: UIControlEvents.TouchUpInside)
+        resendEmail!.addTarget(self, action: #selector(LoginViewController.resendConfirmationEmail), forControlEvents: UIControlEvents.TouchUpInside)
         self.view.addSubview(resendEmail!)
         
         self.calculateConstraints()
@@ -90,7 +90,7 @@ class LoginViewController:UIViewController,GIDSignInUIDelegate,GIDSignInDelegate
         }
         else if (Common.sharedCommon.config!["isFirstLogin"] as! Bool == true) {
             
-            self.performSelector("showTutorialView", withObject: nil, afterDelay: 1.0)
+            self.performSelector(#selector(LoginViewController.showTutorialView), withObject: nil, afterDelay: 1.0)
             
         }
         

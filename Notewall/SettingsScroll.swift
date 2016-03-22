@@ -51,7 +51,7 @@ class SettingsScroll:UIView {
             let image = UIImage(named:"notesL.png")
             self.titleImage!.image = image
             
-            for (var index = 0;index < fillSettings.count; index++) {
+            for index in 0 ..< fillSettings.count {
                 
                 let img = UIImageView(frame: CGRectMake(xPos, yPos, width, height))
                 img.image = UIImage(named: fillSettings[index] as! String)
@@ -66,7 +66,7 @@ class SettingsScroll:UIView {
             let image = UIImage(named:"fonts.png")
             self.titleImage!.image = image
             
-            for (var index = 0;index < fillSettings.count; index++) {
+            for index in 0 ..< fillSettings.count {
                 
                 let lbl = UILabel(frame: CGRectMake(xPos, yPos, width, height))
                 let font = UIFont(name: fillSettings[index] as! String, size: 20.0)
@@ -88,7 +88,7 @@ class SettingsScroll:UIView {
             let image = UIImage(named:"size.png")
             self.titleImage!.image = image
             
-            for (var index = 0;index < fillSettings.count; index++) {
+            for index in 0 ..< fillSettings.count {
                 
                 let lbl = UILabel(frame: CGRectMake(xPos, yPos, width, height))
                 let font = UIFont(name: "Thonburi-Bold", size: 20.0)
@@ -109,7 +109,7 @@ class SettingsScroll:UIView {
             let image = UIImage(named:"colors.png")
             self.titleImage!.image = image
             
-            for (var index = 0;index < kFontColor.count; index++) {
+            for index in 0 ..< kFontColor.count {
                 
                 let v = UIView(frame: CGRectMake(xPos, yPos, width, height))
                 v.backgroundColor =   fillSettings[index] as? UIColor

@@ -16,7 +16,7 @@ protocol NoteWallProtocolDelegate {
     func handleLogout()
 }
 
-class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegate, NoteDelegate,UITextViewDelegate,ComposeDelegate, CloseViewProtocolDelegate, ConfirmProtocolDelegate,OptionsViewProtocolDelegate,ProfileViewProtocolDelegate, OptionsOptionViewProtocolDelegate {
+class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegate, NoteDelegate,UITextViewDelegate,ComposeDelegate, CloseViewProtocolDelegate, ConfirmProtocolDelegate,OptionsViewProtocolDelegate,ProfileViewProtocolDelegate, OptionsOptionViewProtocolDelegate,CacheManagerProtocolDelegate {
     
     var bgImage:UIImageView?
     var transImage:UIImageView?
@@ -47,6 +47,9 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var aboutView:AboutView?
     var filledInOptionsView:UIView? = nil
     var activity:UIActivityIndicatorView? = nil
+    var refreshImage:UIImageView?
+    var hamburgerImage:UIImageView?
+    var hamburgerTableView:OptionsOptionView?
     
     var screenWidth:CGFloat = UIScreen.mainScreen().bounds.size.width
     var screenHeight:CGFloat = UIScreen.mainScreen().bounds.size.height
@@ -54,7 +57,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     override func viewDidLoad() {
         
-
+        CacheManager.sharedCacheManager.cacheDelegate = self
         
         //self.view.backgroundColor = UIColor(red: CGFloat(195.0/255.0), green: CGFloat(58.0/255.0), blue: (58.0/255.0), alpha: 1.0)
         self.view.backgroundColor = UIColor.blackColor()
@@ -76,7 +79,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.bgScrollView!.canCancelContentTouches = true
         self.view.addSubview(self.bgScrollView!) */
 
-        
         self.loadMainView(resetDataSource:true)
         
     }
@@ -85,7 +87,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     override func viewDidAppear(animated: Bool) {
         
-        //self.loadMainView()
+        
         
     }
     
@@ -149,7 +151,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             backgroundImage!.image = UIImage(named: self.backgroundImageName!)
             self.masterView!.addSubview(backgroundImage!)
             
-            let bgImageSwipe = UISwipeGestureRecognizer(target: self, action: "changeNoteWall:")
+            let bgImageSwipe = UISwipeGestureRecognizer(target: self, action: #selector(NotewallController.changeNoteWall(_:)))
             bgImageSwipe.direction = .Right
             backgroundImage!.addGestureRecognizer(bgImageSwipe)
             
@@ -158,7 +160,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             singleTap.numberOfTapsRequired = 1
             backgroundImage!.addGestureRecognizer(singleTap)*/
             
-            let doubleTap = UITapGestureRecognizer(target: self, action: "switchToCompose:")
+            let doubleTap = UITapGestureRecognizer(target: self, action: #selector(NotewallController.switchToCompose(_:)))
             //doubleTap.numberOfTapsRequired = 2
             doubleTap.numberOfTapsRequired = 1
             backgroundImage!.addGestureRecognizer(doubleTap)
@@ -173,14 +175,36 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             wallTypeNotifyImage!.image = UIImage(named: self.wallTypeNotifyImageName!)
             wallTypeNotifyImage!.userInteractionEnabled = true
             self.view.addSubview(wallTypeNotifyImage!)
-            let notifyTap = UITapGestureRecognizer(target: self, action: "showOptionsMenu")
+            let notifyTap = UITapGestureRecognizer(target: self, action: #selector(NotewallController.showOptionsMenu))
             wallTypeNotifyImage!.addGestureRecognizer(notifyTap)
             
-            logOutButton = CloseView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width - (1.5 * Common.sharedCommon.calculateDimensionForDevice(30)), Common.sharedCommon.calculateDimensionForDevice(5), Common.sharedCommon.calculateDimensionForDevice(30), Common.sharedCommon.calculateDimensionForDevice(30)))
-            logOutButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin
-            logOutButton!.image = UIImage(named: "logout.png")
-            logOutButton!.closeViewDelegate = self
-            //self.masterView!.addSubview(logOutButton!)
+            
+            self.refreshImage = UIImageView(frame: CGRectMake(0,0,wallTypeDim,wallTypeDim))
+            self.refreshImage!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width - self.refreshImage!.frame.size.width * 0.5 , wallTypeDim * 0.5)
+            self.refreshImage!.image = UIImage(named: "refresh.png")
+            self.refreshImage!.userInteractionEnabled = true
+            self.refreshImage!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin
+            self.view.addSubview(self.refreshImage!)
+            let refreshTap = UITapGestureRecognizer(target: self, action: #selector(NotewallController.refreshTapped))
+            self.refreshImage!.addGestureRecognizer(refreshTap)
+            
+            
+            self.hamburgerImage = UIImageView(frame: CGRectMake(0,0,wallTypeDim,wallTypeDim))
+            self.hamburgerImage!.center = CGPointMake(self.hamburgerImage!.frame.size.width * 0.5 , wallTypeDim * 0.5)
+            self.hamburgerImage!.image = UIImage(named: "hamburger.png")
+            self.hamburgerImage!.userInteractionEnabled = true
+            self.hamburgerImage!.autoresizingMask = UIViewAutoresizing.FlexibleRightMargin
+            self.view.addSubview(self.hamburgerImage!)
+            self.hamburgerImage!.alpha = 0.0
+            let hamburgerTap = UITapGestureRecognizer(target: self, action: #selector(NotewallController.showHamburgerOptions))
+            self.hamburgerImage!.addGestureRecognizer(hamburgerTap)
+            
+            if (self.dataSourceAPI == kAllowedPaths.kPathNil) {
+                
+                self.hamburgerImage!.alpha = 1.0
+                self.hamburgerImage!.userInteractionEnabled = true
+            }
+            
             
         }
         
@@ -191,19 +215,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
         }
         self.masterView!.addSubview(activity!)
-        
-       /* if (CacheManager.sharedCacheManager.allNotesDataList.count == 0 ) {
-            
-            self.fillInDataSource(true,ignoreCache:true,overrideDatasourceAPIWith:nil)
-            
-        }
-        else if (resetDataSource == true) {
-        
-            
-            self.fillInDataSource(true,ignoreCache:false,overrideDatasourceAPIWith:nil)
-            
-        } */
-        
         
         if (CacheManager.sharedCacheManager.allNotes.count == 0 ) {
             
@@ -238,109 +249,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             self.activity!.stopAnimating()
         }
     }
-    
-    
-
-  /*  func fillInDataSource(refreshUI:Bool,ignoreCache:Bool,overrideDatasourceAPIWith:kAllowedPaths?) {
-        
-        let data = ["ownerid" : Common.sharedCommon.config!["ownerId"] as! String]
-        
-        self.activityStartAnimating()
-        
-        CacheManager.sharedCacheManager.decideOnCall(ignoreCache) { (result, response) -> () in
-            
-            self.activityStopAnimating()
-            
-            if (result == true) {
-                
-                self.activityStartAnimating()
-                
-                var finalDatasourceAPI = self.dataSourceAPI!
-                
-                if (overrideDatasourceAPIWith != nil) {
-                    
-                    finalDatasourceAPI = overrideDatasourceAPIWith!
-                }
-                
-                Common.sharedCommon.postRequestAndHadleResponse(finalDatasourceAPI, body: data, replace: nil,requestContentType:kContentTypes.kApplicationJson) { (result, response) -> Void in
-                    
-                    self.activityStopAnimating()
-                    
-                    if (result == true) {
-                        
-                        if (response["data"]!["error"] != nil) {
-                            
-                            Common.sharedCommon.showMessageViewWithMessage(self.view, message: response["data"]!["error"] as! String,startTimer:false)
-                            
-                        }
-                        else {
-                            
-                            
-                            let respData = response.objectForKey("data")
-                            self.notesDataList = respData! as! Array<Dictionary<String, AnyObject>>
-                            
-                            if (self.dataSourceAPI! == kAllowedPaths.kPathGetAllNotes) {
-                                
-                                CacheManager.sharedCacheManager.allNotesDataList = respData! as! Array<Dictionary<String, AnyObject>>
-                                CacheManager.sharedCacheManager.filterResults()
-                            }
-                            
-                            
-                            if (refreshUI == true) {
-                                
-                                dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                                    
-                                    self.showExistingNotes()
-                                })
-                                
-                            }
-                            
-                        }
-                        
-                    }
-                    else {
-                        
-                        Common.sharedCommon.showMessageViewWithMessage(self.view, message: "Network Error",startTimer:false)
-                        print(response)
-                    }
-                }
-                
-            }
-            else {
-                
-                if response.rangeOfString("Denied") != nil {
-                    
-                     self.noteWallDelegate!.handleLogout()
-                }
-                else {
-                    
-                    switch self.dataSourceAPI! {
-                        
-                    case kAllowedPaths.kPathGetAllNotes:
-                        self.notesDataList = CacheManager.sharedCacheManager.allNotesDataList
-                    case kAllowedPaths.kPathGetNotesForOwner:
-                        self.notesDataList = CacheManager.sharedCacheManager.myNotesDataList
-                    case kAllowedPaths.kPathGetFavNotesForOwner:
-                        self.notesDataList = CacheManager.sharedCacheManager.myFavsNotesDataList
-                    default:
-                        break
-                        
-                    }
-                    
-                    if (refreshUI == true) {
-                        
-                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                            
-                            self.showExistingNotes()
-                        })
-                        
-                    }
-                }
-
-            }
-        }
-        
-    } */
     
     
     func fillInDataSource(refreshUI:Bool,ignoreCache:Bool,overrideDatasourceAPIWith:kAllowedPaths?) {
@@ -441,6 +349,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             case kAllowedPaths.kPathGetFavNotesForOwner:
                 self.notesDataList = CacheManager.sharedCacheManager.favNotes
             default:
+                self.notesDataList = []
                 break
                 
             }
@@ -520,6 +429,12 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
     }
     
+    // CACHEMANAGER DELEGATE METHODS
+    
+    func requestToRunAPIDataSource() {
+        
+        self.fillInDataSource(false, ignoreCache: true, overrideDatasourceAPIWith: kAllowedPaths.kPathGetAllNotes)
+    }
 
     
     //Scrollview Delegate methods
@@ -544,7 +459,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             self.view.addSubview(favButton!)
             favButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
             
-            let tap = UITapGestureRecognizer(target: self, action: "favButtonTapped")
+            let tap = UITapGestureRecognizer(target: self, action: #selector(NotewallController.favButtonTapped))
             favButton!.addGestureRecognizer(tap)
         }
         
@@ -556,7 +471,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             self.view.addSubview(followButton!)
             followButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
             
-            let tap = UITapGestureRecognizer(target: self, action: "followButtonTapped")
+            let tap = UITapGestureRecognizer(target: self, action: #selector(NotewallController.followButtonTapped))
             followButton!.addGestureRecognizer(tap)
         }
         
@@ -610,7 +525,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             
                 self.masterView!.alpha = 0.6
-                self.logOutButton!.hidden = true
             
             
             }) { (Bool) -> Void in
@@ -623,12 +537,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     
     func wallNoteMovedToPoint(note: WallNote, point: CGPoint) {
-        
-        /* note.pinPoint = point
-        let index = CacheManager.sharedCacheManager.allNotesDataList.indexOf({$0["noteID"] as! String == note.stickyNoteID!})
-        var tempNote = CacheManager.sharedCacheManager.allNotesDataList[index!]
-        tempNote["pinPoint"] = [point.x,point.y]
-        CacheManager.sharedCacheManager.allNotesDataList[index!] = tempNote */
         
         note.pinPoint = point
         let index = CacheManager.sharedCacheManager.allNotes.indexOf({$0.stickyNoteID == note.stickyNoteID!})
@@ -748,7 +656,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     func postAWallNote(noteType: String?, noteText: String?, noteFont: String?, noteFontSize:CGFloat?, noteFontColor:Array<CGFloat>, noteProperty:String?, imageurl:String?, isPinned:Bool, pinType:String?) {
         
-       let ownerID = Common.sharedCommon.config!["ownerId"] as! String
+        let ownerID = Common.sharedCommon.config!["ownerId"] as! String
         let point = Common.sharedCommon.getACoordinate(screenWidth, screenheight: screenHeight)
         let xPoint = point.x
         let yPoint = point.y
@@ -769,25 +677,11 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     
-                    let newNote = response["data"]![0] as! Dictionary<String, AnyObject>
+                    let data = response["data"]! as! Array<Dictionary<String,AnyObject>>
+                    let newNote = data[0]
                     let note = WallNote(frame: CGRectMake(100, 30, Common.sharedCommon.calculateDimensionForDevice(kNoteDim),Common.sharedCommon.calculateDimensionForDevice(kNoteDim)), data: newNote)
-                    
-                    //let note = WallNote(frame: CGRectMake(100, 30, Common.sharedCommon.calculateDimensionForDevice(kNoteDim), Common.sharedCommon.calculateDimensionForDevice(kNoteDim)), noteType: noteType, noteText: noteText!, noteFont: noteFont, noteFontSize:noteFontSize!, noteFontColor:RBGColor, isNote:isNote, imageFileName:imageurl, isPinned:isPinned)
-                    //let note = WallNote(frame: CGRectMake(xPoint, yPoint, Common.sharedCommon.calculateDimensionForDevice(kNoteDim), Common.sharedCommon.calculateDimensionForDevice(kNoteDim)), noteType: noteType, noteText: noteText!, noteFont: noteFont, noteFontSize:noteFontSize!, noteFontColor:RBGColor, isNote:isNote, imageFileName:imageurl, isPinned:isPinned)
-                    /* note.stickyNoteID = newNote["noteID"] as? String
-                    note.favedOwners = newNote["owners"] as? Array<String>
-                    note.stickyNoteCreationDate = newNote["creationDate"] as? String
-                    note.stickyNoteDeletionDate = newNote["deletionDate"] as? String
-                    note.followingNoteOwner = newNote["followingNoteOwner"] as? Bool
-                    note.ownerID = newNote["ownerID"] as? String
-                    note.ownerName = newNote["screenName"] as? String
-                    note.pinPoint = CGPointMake(0,0) */
                     note.wallnoteDelegate = self
                     self.masterView!.addSubview(note)
-                    
-                    //self.fillInDataSource(false,ignoreCache:true,overrideDatasourceAPIWith:kAllowedPaths.kPathGetAllNotes)
-                    //CacheManager.sharedCacheManager.allNotesDataList.append(newNote as! ([String : AnyObject]))
-                    //CacheManager.sharedCacheManager.filterResults()
                     
                     self.fillInDataSource(false,ignoreCache:true,overrideDatasourceAPIWith:kAllowedPaths.kPathGetAllNotes)
                     CacheManager.sharedCacheManager.allNotes.append(note)
@@ -898,7 +792,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             //let yPos = self.wallTypeNotifyImage!.frame.origin.y + self.wallTypeNotifyImage!.frame.size.height
             //optionsOptionView = OptionsOptionView(frame: CGRectMake(0,-UIScreen.mainScreen().bounds.size.height,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - yPos))
-            optionsOptionView = OptionsOptionView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height))
+            optionsOptionView = OptionsOptionView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height),fromSettings:true)
             self.optionsOptionView!.optionsOptionsDelegate = self
             
             self.view.addSubview(optionsOptionView!)
@@ -1088,10 +982,20 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.masterView = nil
         self.wallTypeNotifyImage!.removeFromSuperview()
         self.wallTypeNotifyImage = nil
-        print(dataList)
         self.loadMainView(resetDataSource:false)
         self.transImage!.image = nil
         
+    }
+    
+    func showNotesForSelectedFollowingOwnerInWall(dataList:NSArray) {
+        
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            
+             self.notesDataList = dataList as! Array<WallNote>
+             self.showHamburgerOptions()
+             self.removeExistingNotes()
+             self.showExistingNotes()
+        })
     }
     
     
@@ -1168,80 +1072,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         
     }
-    
-    
-    
-    /* func showExistingNotes() {
-        
-        if (self.notesDataList.count > 0 ){
-            
-            let dim = Common.sharedCommon.calculateDimensionForDevice(kNoteDim)
-            //let point = Common.sharedCommon.getACoordinate(screenWidth, screenheight: screenHeight)
-            //let xPoint = point.x
-            //let yPoint = point.y
-            
-            let printNote = notesDataList[0]
-            var noteProperty = false
-            
-            if printNote["noteProperty"] as? String == "N" {
-                
-                noteProperty = true
-            }
-            
-            let noteText = printNote["noteText"] as! String
-            let noteTextFont = printNote["noteTextFont"] as! String
-            let noteTextFontSize = printNote["noteTextFontSize"] as! CGFloat
-            let noteType = printNote["noteType"] as! String
-            let noteTextColor = printNote["noteTextColor"] as! Array<CGFloat>
-            let imageName = printNote["imageurl"] as! String
-            let isPinned = printNote["notePinned"] as! Bool
-            let pinPointData = printNote["pinPoint"] as! Array<CGFloat>
-            let pinPoint = CGPointMake(pinPointData[0],pinPointData[1])
-            
-            
-            let note = WallNote(frame: CGRectMake(0,0,dim,dim), noteType:noteType, noteText: noteText, noteFont:noteTextFont, noteFontSize:noteTextFontSize, noteFontColor:Common.sharedCommon.formColorWithRGB(noteTextColor), isNote:noteProperty, imageFileName: imageName, isPinned:isPinned)
-            note.center = pinPoint
-            note.stickyNoteID = printNote["noteID"] as? String
-            note.favedOwners = printNote["owners"] as? Array<String>
-            note.stickyNoteCreationDate = printNote["creationDate"] as? String
-            note.stickyNoteDeletionDate = printNote["deletionDate"] as? String
-            note.followingNoteOwner = printNote["followingNoteOwner"] as? Bool
-            note.ownerID = printNote["ownerID"] as? String
-            note.ownerName = printNote["screenName"] as? String
-            note.pinPoint = pinPoint
-            note.wallnoteDelegate = self
-            self.masterView!.addSubview(note)
-            
-            dispatch_async(dispatch_get_main_queue()) { () -> Void in
-                
-                UIView.animateWithDuration(0.00001, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
-
-                    
-                    note.frame = CGRectMake(note.frame.origin.x, note.frame.origin.y, dim, dim)
-                    //note.center = CGPointMake(xPoint,yPoint)
-                    note.center = pinPoint
-                    
-                    }, completion: { (Bool) -> Void in
-                        
-                        if (self.notesDataList.count > 1) {
-                            
-                            self.notesDataList.removeFirst()
-                            self.showExistingNotes()
-                        }
-                        
-                })
-                
-            }
-            
-        }
-        else {
-            
-            
-            self.showNoNotes()
-        }
-        
-    } */
-    
     
     
     func showExistingNotes() {
@@ -1338,7 +1168,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     func showNoNotes() {
         
-        if (messageView == nil) {
+        if (messageView == nil && self.dataSourceAPI != kAllowedPaths.kPathNil) {
             
             let dim = Common.sharedCommon.calculateDimensionForDevice(40)
             messageView = UILabel(frame: CGRectMake(0,(UIScreen.mainScreen().bounds.size.height * 0.5) - (dim * 0.5),UIScreen.mainScreen().bounds.size.width,dim))
@@ -1419,7 +1249,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 //self.noteLifeLabel!.removeFromSuperview()
                 //self.noteLifeLabel = nil
                 self.allBlownUpNotes.removeAll()
-                self.logOutButton!.hidden = false
                 
             })
         }
@@ -1453,6 +1282,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.backgroundImageName = kBackGrounds[self.backgroundImageIndex]["bg"] as? String
         self.dataSourceAPI = kBackGrounds[self.backgroundImageIndex]["datasource"] as? kAllowedPaths
         self.wallTypeNotifyImageName = kBackGrounds[self.backgroundImageIndex]["icon"] as? String
+        self.wallTypeNotifyImage!.userInteractionEnabled = true
         
         transImage!.image = nil
         transImage!.image = UIImage(named: self.backgroundImageName!)
@@ -1471,6 +1301,12 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 self.wallTypeNotifyImage = nil
                 self.activity?.removeFromSuperview()
                 self.activity = nil
+                self.refreshImage!.removeFromSuperview()
+                self.refreshImage = nil
+                self.hamburgerImage!.removeFromSuperview()
+                self.hamburgerImage = nil
+                self.hamburgerTableView?.removeFromSuperview()
+                self.hamburgerTableView = nil
                 self.loadMainView(resetDataSource:true)
                 self.transImage!.image = nil
                 
@@ -1704,6 +1540,67 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
         }
         
+    }
+    
+    
+    
+    func showHamburgerOptions() {
+        
+       if (self.hamburgerTableView  == nil) {
+        
+            self.hamburgerTableView  = OptionsOptionView(frame: CGRectMake(-UIScreen.mainScreen().bounds.size.width,self.hamburgerImage!.frame.size.height, UIScreen.mainScreen().bounds.size.width,300),fromSettings:false)
+            self.hamburgerTableView!.optionsOptionsDelegate = self
+            self.view.addSubview(self.hamburgerTableView!)
+        
+            dispatch_async(dispatch_get_main_queue(), { 
+                
+                UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { 
+                    
+                    self.masterView!.alpha = 0.3
+                    self.refreshImage!.alpha = 0.0
+                    self.wallTypeNotifyImage!.userInteractionEnabled = false
+                    
+                    self.hamburgerTableView!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5,self.hamburgerTableView!.center.y)
+                    
+                    }, completion: { (Bool) in
+                        
+                })
+                
+                
+            })
+        }
+       else {
+        
+        
+        dispatch_async(dispatch_get_main_queue(), {
+            
+            UIView.animateWithDuration(0.1, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: {
+                
+                self.masterView!.alpha = 1.0
+                self.refreshImage!.alpha = 1.0
+                
+                self.hamburgerTableView!.center = CGPointMake(-UIScreen.mainScreen().bounds.size.width,self.hamburgerTableView!.center.y)
+                
+                    }, completion: { (Bool) in
+                    
+                        self.hamburgerTableView!.removeFromSuperview()
+                        self.hamburgerTableView = nil
+                         self.wallTypeNotifyImage!.userInteractionEnabled = true
+                })
+            
+            
+            })
+        
+        }
+
+    }
+    
+    
+    func refreshTapped() {
+        
+        self.refreshImage!.transform = CGAffineTransformMakeRotation(0.34906585);
+        self.removeExistingNotes()
+        self.fillInDataSource(true, ignoreCache: true, overrideDatasourceAPIWith: kAllowedPaths.kPathGetAllNotes)
     }
 
     

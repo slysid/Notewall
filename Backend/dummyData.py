@@ -42,8 +42,8 @@ def __createNotes():
         index = random.randint(0,maxInt)
         randomOwner = allOwners[index]
         
-        xPoint  = random.randint(100,300)
-        yPoint  = random.randint(70,400)
+        xPoint  = random.randint(150,350)
+        yPoint  = random.randint(150,350)
         
         note = Notes(ownerId=randomOwner,
                      noteType=noteTypes[randomNoteIndex],

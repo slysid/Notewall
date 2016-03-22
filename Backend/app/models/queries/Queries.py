@@ -593,7 +593,15 @@ class OwnerQueries():
           if owner == None:
                resp = {'error' : 'Given owner id not found'}
           else:
-               resp = owner.pins
+               pindata = owner.pins
+               if 'Gold' not in pindata:
+                  pindata['Gold'] = 0
+               if 'Silver' not in pindata:
+                    pindata['Silver'] = 0
+               if 'Bronze' not in pindata:
+                    pindata['Bronze'] =0
+                    
+               resp = pindata
                
           return {'data' : resp}
      

@@ -94,15 +94,15 @@ class Note:UIImageView {
         /*let tap = UITapGestureRecognizer(target: self, action: "temp:")
         self.addGestureRecognizer(tap)*/
         
-        let rightSwipe = UISwipeGestureRecognizer(target: self, action: "rightSwiped:")
+        let rightSwipe = UISwipeGestureRecognizer(target: self, action: #selector(Note.rightSwiped(_:)))
         rightSwipe.direction = UISwipeGestureRecognizerDirection.Right
         self.addGestureRecognizer(rightSwipe)
         
-        let downSwipe = UISwipeGestureRecognizer(target: self, action: "downSwiped:")
+        let downSwipe = UISwipeGestureRecognizer(target: self, action: #selector(Note.downSwiped(_:)))
         downSwipe.direction = UISwipeGestureRecognizerDirection.Down
         self.addGestureRecognizer(downSwipe)
         
-        let tap = UITapGestureRecognizer(target: self, action: "noteTapped:")
+        let tap = UITapGestureRecognizer(target: self, action: #selector(Note.noteTapped(_:)))
         self.addGestureRecognizer(tap)
         
     }

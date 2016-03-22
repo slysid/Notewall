@@ -318,7 +318,7 @@ class Common:NSObject {
                 
                 if (startTimer == true) {
                     
-                    self.timer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: Common.sharedCommon, selector: "updateTimer", userInfo: nil, repeats: true)
+                    self.timer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: Common.sharedCommon, selector: #selector(Common.updateTimer), userInfo: nil, repeats: true)
                 }
                 
                 
