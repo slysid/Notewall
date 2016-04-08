@@ -16,7 +16,7 @@ protocol NoteWallProtocolDelegate {
     func handleLogout()
 }
 
-class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegate, NoteDelegate,UITextViewDelegate,ComposeDelegate, CloseViewProtocolDelegate, ConfirmProtocolDelegate,OptionsViewProtocolDelegate,ProfileViewProtocolDelegate, OptionsOptionViewProtocolDelegate,CacheManagerProtocolDelegate {
+class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegate, NoteDelegate,UITextViewDelegate,ComposeDelegate, CloseViewProtocolDelegate, ConfirmProtocolDelegate,OptionsViewProtocolDelegate, OptionsOptionViewProtocolDelegate,CacheManagerProtocolDelegate,SettingsControllerProtocolDelegate {
     
     var bgImage:UIImageView?
     var transImage:UIImageView?
@@ -30,7 +30,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var dataSourceAPI:kAllowedPaths?
     var backgroundImageName:String?
     var allBlownUpNotes:Array<WallNote> = []
-    //var notesDataList:Array<Dictionary<String,AnyObject>> = []
     var notesDataList:Array<WallNote> = []
     var favButton:UIImageView?
     var followButton:UIImageView?
@@ -42,7 +41,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var wallTypeNotifyImageName:String?
     var options:OptionsView?
     var subOptions:OptionsView?
-    var profileView:ProfileView?
     var optionsOptionView:OptionsOptionView?
     var aboutView:AboutView?
     var filledInOptionsView:UIView? = nil
@@ -50,6 +48,10 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var refreshImage:UIImageView?
     var hamburgerImage:UIImageView?
     var hamburgerTableView:OptionsOptionView?
+    var settingsController:SettingsController?
+    var profileController:ProfileController?
+    var followersController:FollowersController?
+    var paymentController:PaymentController?
     
     var screenWidth:CGFloat = UIScreen.mainScreen().bounds.size.width
     var screenHeight:CGFloat = UIScreen.mainScreen().bounds.size.height
@@ -59,7 +61,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         CacheManager.sharedCacheManager.cacheDelegate = self
         
-        //self.view.backgroundColor = UIColor(red: CGFloat(195.0/255.0), green: CGFloat(58.0/255.0), blue: (58.0/255.0), alpha: 1.0)
         self.view.backgroundColor = UIColor.blackColor()
         self.backgroundImageName = kBackGrounds[backgroundImageIndex]["bg"] as? String
         self.dataSourceAPI = kBackGrounds[backgroundImageIndex]["datasource"] as? kAllowedPaths
@@ -155,6 +156,10 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             bgImageSwipe.direction = .Right
             backgroundImage!.addGestureRecognizer(bgImageSwipe)
             
+            let bgImageSwipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(NotewallController.changeNoteWall(_:)))
+            bgImageSwipeLeft.direction = .Left
+            backgroundImage!.addGestureRecognizer(bgImageSwipeLeft)
+            
             
            /* let singleTap = UITapGestureRecognizer(target: self, action: "changeNoteWall:")
             singleTap.numberOfTapsRequired = 1
@@ -187,6 +192,14 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             self.view.addSubview(self.refreshImage!)
             let refreshTap = UITapGestureRecognizer(target: self, action: #selector(NotewallController.refreshTapped))
             self.refreshImage!.addGestureRecognizer(refreshTap)
+            self.refreshImage!.alpha = 0.0
+            self.refreshImage!.userInteractionEnabled = false
+            
+            if (self.dataSourceAPI == kAllowedPaths.kPathGetAllNotes) {
+                
+                self.refreshImage!.alpha = 1.0
+                self.refreshImage!.userInteractionEnabled = true
+            }
             
             
             self.hamburgerImage = UIImageView(frame: CGRectMake(0,0,wallTypeDim,wallTypeDim))
@@ -437,7 +450,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     }
 
     
-    //Scrollview Delegate methods
+    //SCROLLVIEW DELEGATE METHODS
     
     func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
         
@@ -445,7 +458,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
     }
     
-    // WallNote Delegate
+    // WALLNOTE DELEGATE METHODS
     
     func blowupWallNote(note: WallNote) {
         
@@ -493,9 +506,17 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.setFollowImage(note)
         
         let v = Note(frame: note.frame, wallnote:note, expiryDate:note.stickyNoteDeletionDate!)
+        v.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleBottomMargin).union(.FlexibleTopMargin)
         v.noteDelegate = self
         //v.sourceWallNote = note
         self.view.addSubview(v)
+        
+        var pinYOffset:CGFloat = 0
+        
+        if (note.isNote == true) {
+            
+            pinYOffset = Common.sharedCommon.calculateDimensionForDevice(17)
+        }
         
         
         UIView.animateWithDuration(0.3, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
@@ -511,7 +532,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             }
             
                 v.frame = CGRectMake(0, 0, Common.sharedCommon.calculateDimensionForDevice(kBlownupNoteDim), Common.sharedCommon.calculateDimensionForDevice(kBlownupNoteDim))
-                v.pinImage?.center = CGPointMake(v.frame.size.width * 0.5,v.pinImage!.center.y)
+                v.pinImage?.center = CGPointMake(v.frame.size.width * 0.5,v.pinImage!.center.y + pinYOffset)
                 let center = CGPointMake(self.blownUpCenterX, UIScreen.mainScreen().bounds.size.height * 0.60)
                 v.center = center
                 //self.bgScrollView!.zoomToRect(self.view.frame, animated: true)
@@ -545,7 +566,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         CacheManager.sharedCacheManager.allNotes[index!] = tempNote
     }
     
-    // Confirm Delegate
+    // CONFIRM DELEGATE METHODS
     
     func okTapped(sender: ConfirmView, requester: AnyObject?) {
         
@@ -591,7 +612,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     }
     
     
-    //Note Delegate
+    //NOTE DELEGATE METHODS
     
     func removeNoteFromView(note: Note) {
         
@@ -652,7 +673,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
     }
     
-    // Compose Delegate Methods
+    // COMPOSE DELEGATE METHODS
     
     func postAWallNote(noteType: String?, noteText: String?, noteFont: String?, noteFontSize:CGFloat?, noteFontColor:Array<CGFloat>, noteProperty:String?, imageurl:String?, isPinned:Bool, pinType:String?) {
         
@@ -699,7 +720,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
     }
     
-    // CloseView Delegate Methods
+    // CLOSEVIEW DELEGATE METHODS
     
     func handleCloseViewTap() {
         
@@ -754,12 +775,12 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     func optionItemGeneral() {
         
         self.animateView(nil)
-        self.showSubOptionsMenu()
+        //self.showSubOptionsMenu()
     }
     
     func optionItemProfile() {
         
-        if (profileView != filledInOptionsView) {
+      /*  if (profileView != filledInOptionsView) {
             
             profileView = nil
         }
@@ -777,7 +798,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             self.view.insertSubview(profileView!, belowSubview: subOptions!)
             self.animateView(profileView!)
             
-        }
+        } */
         
     }
     
@@ -788,10 +809,14 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             optionsOptionView = nil
         }
         
+        self.optionsOptionView?.removeFromSuperview()
+        self.optionsOptionView = nil
+        
         if (optionsOptionView == nil) {
             
             //let yPos = self.wallTypeNotifyImage!.frame.origin.y + self.wallTypeNotifyImage!.frame.size.height
             //optionsOptionView = OptionsOptionView(frame: CGRectMake(0,-UIScreen.mainScreen().bounds.size.height,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - yPos))
+            
             optionsOptionView = OptionsOptionView(frame: CGRectMake(0,0,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height),fromSettings:true)
             self.optionsOptionView!.optionsOptionsDelegate = self
             
@@ -859,77 +884,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     }
     
     
-    // PROFILEVIEW DELEGATE METHODS
-    
-    
-    func updateScreenName(name: String, completion: (Bool,String) -> Void) {
-        
-        let ownerId = Common.sharedCommon.config!["ownerId"] as! String
-        let data = ["ownerid" : ownerId,"screenname":name]
-        
-        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathUpdateScreenName , body: data, replace: nil, requestContentType: kContentTypes.kApplicationJson) { (result, response) -> Void in
-            
-            if (result == true) {
-                
-                let errMsg = response.objectForKey("data")!.objectForKey("error")
-                
-                if(errMsg != nil) {
-                    
-                    let msg = response["data"]!["error"] as? String
-                    if (msg!.rangeOfString("duplicate") != nil) {
-                        
-                        Common.sharedCommon.showMessageViewWithMessage(self.view, message: "ScreenName Exists", startTimer: true)
-                    }
-                    
-                    completion(false,msg!)
-                }
-                else {
-                    
-                    Common.sharedCommon.config!["screenname"] = name
-                    completion(true,"OK")
-                }
-                
-                
-            }
-            else {
-                
-                completion(false,"Unknown Error")
-            }
-        }
-        
-    }
-    
-    func updatePassword(oldpassword: String, newpassword: String, completion: (Bool, String) -> Void) {
-        
-        let ownerId = Common.sharedCommon.config!["ownerId"] as! String
-        let data = ["ownerid" : ownerId,"oldpassword":oldpassword,"newpassword":newpassword]
-        
-        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathUpdatePaswword, body: data, replace: nil, requestContentType: kContentTypes.kApplicationJson) { (result, response) -> Void in
-            
-            
-            if (result == true) {
-                
-                let errMsg = response.objectForKey("data")!.objectForKey("error")
-                
-                if(errMsg != nil) {
-                    
-                    let msg = response["data"]!["error"] as? String
-                    completion(false,msg!)
-                }
-                else {
-                    
-                    completion(true,"OK")
-                }
-            }
-            else {
-                
-                completion(false,"Unknown Error")
-            }
-        }
-        
-    }
-    
-    
     // OPTIONSOPTIONS DELEGATE METHOD
     
     func followingUpdated(followingID: String) {
@@ -960,46 +914,63 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
 
     }
     
-    func showNotesForSelectedFollowingOwner(dataList: NSArray) {
-        
-        self.backgroundImageIndex = self.backgroundImageIndex - 1
-        
-        //self.notesDataList = dataList as! Array<Dictionary<String, AnyObject>>
-        self.notesDataList = dataList as! Array<WallNote>
-        
-        self.showOptionsMenu()
-        
-        self.backgroundImageName = "bg4.jpg"
-        self.dataSourceAPI = kBackGrounds[0]["datasource"] as? kAllowedPaths
-        self.wallTypeNotifyImageName = kBackGrounds[0]["icon"] as? String
-        
-        transImage!.image = nil
-        transImage!.image = UIImage(named: self.backgroundImageName!)
-        
-        self.backgroundImage!.removeFromSuperview()
-        self.backgroundImage = nil
-        self.masterView!.removeFromSuperview()
-        self.masterView = nil
-        self.wallTypeNotifyImage!.removeFromSuperview()
-        self.wallTypeNotifyImage = nil
-        self.loadMainView(resetDataSource:false)
-        self.transImage!.image = nil
-        
-    }
     
     func showNotesForSelectedFollowingOwnerInWall(dataList:NSArray) {
         
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+        self.notesDataList = dataList as! Array<WallNote>
+        
+        if (self.settingsController != nil) {
+            
+            self.removeSettingOptionsController()
+            self.showOptionsMenu()
+        }
+        
+        
+        if (self.dataSourceAPI == kAllowedPaths.kPathNil) {
+            
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                
+                if (self.hamburgerTableView  != nil) {
+                    
+                    self.showHamburgerOptions()
+                }
+                
+                self.removeExistingNotes()
+                self.showExistingNotes()
+            })
+        }
+        else {
+            
+            self.backgroundImageIndex = 2
+            let lSwipe = UISwipeGestureRecognizer()
+            lSwipe.direction = .Right
+            self.changeNoteWall(lSwipe)
+            
+        }
+        
+        
+      /* dispatch_async(dispatch_get_main_queue(), { () -> Void in
             
              self.notesDataList = dataList as! Array<WallNote>
              self.showHamburgerOptions()
              self.removeExistingNotes()
              self.showExistingNotes()
-        })
+        }) */
     }
     
     
-    // Custom Methods
+    // SETTINGSCONTROLLER DELEGATE METHODS
+    
+    func handleSettingsSelector(sel: String) {
+        
+        self.removeSettingOptionsController()
+        
+        let selector = Selector(sel)
+        self.performSelector(selector)
+    }
+    
+    
+    // CUSTOM METHODS
     
     func setFavImage(note:WallNote) {
         
@@ -1040,7 +1011,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     func setFollowImage(note:WallNote) {
         
-        //let favedOwners = note.favedOwners!
         let ownerId = Common.sharedCommon.config!["ownerId"] as! String
         
         if (ownerId != note.ownerID) {
@@ -1158,12 +1128,6 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             noteOwnerLabel = nil
             
         }
-        
-      /*  if (noteLifeLabel != nil) {
-            
-            noteLifeLabel!.removeFromSuperview()
-            noteLifeLabel = nil
-        } */
     }
     
     func showNoNotes() {
@@ -1184,7 +1148,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     func switchToCompose(sender:UITapGestureRecognizer) {
         
-        if (sender.numberOfTapsRequired == 1 && self.dataSourceAPI != kAllowedPaths.kPathGetFavNotesForOwner) {
+        if (sender.numberOfTapsRequired == 1 && (self.dataSourceAPI != kAllowedPaths.kPathGetFavNotesForOwner && self.dataSourceAPI != kAllowedPaths.kPathNil)) {
             
             if (self.allBlownUpNotes.count == 0) {
                 
@@ -1261,13 +1225,21 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         if (sender is UISwipeGestureRecognizer) {
             
-             self.moveWall(1)
+             self.moveWall(sender as! UISwipeGestureRecognizer)
         }
     }
     
-    func moveWall(numberOfTaps:Int) {
+    func moveWall(sender:UISwipeGestureRecognizer) {
         
-        self.backgroundImageIndex = self.backgroundImageIndex + 1
+        if (sender.direction == UISwipeGestureRecognizerDirection.Left) {
+            
+            self.backgroundImageIndex = self.backgroundImageIndex - 1
+        }
+        else {
+            
+            self.backgroundImageIndex = self.backgroundImageIndex + 1
+            
+        }
         
         
         if (self.backgroundImageIndex >= kBackGrounds.count) {
@@ -1289,7 +1261,14 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
             
-               self.masterView!.center = CGPointMake(self.masterView!.center.x + UIScreen.mainScreen().bounds.size.width, self.masterView!.center.y)
+            if (sender.direction == UISwipeGestureRecognizerDirection.Left) {
+                
+                self.masterView!.center = CGPointMake(self.masterView!.center.x - UIScreen.mainScreen().bounds.size.width, self.masterView!.center.y)
+            }
+            else {
+                
+                self.masterView!.center = CGPointMake(self.masterView!.center.x + UIScreen.mainScreen().bounds.size.width, self.masterView!.center.y)
+            }
             
             }) { (Bool) -> Void in
                 
@@ -1407,19 +1386,58 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     }
     
     
-    func removeOptionsViews() {
-        
-        if (self.profileView != nil) {
-            
-            self.profileView!.removeFromSuperview()
-            self.profileView = nil
-        }
-    }
-    
-    
     func showOptionsMenu() {
         
-        self.animateView(nil)
+        let value = UIInterfaceOrientation.Portrait.rawValue
+        UIDevice.currentDevice().setValue(value, forKey: "orientation")
+        
+        if (self.settingsController == nil) {
+            
+            self.masterView!.userInteractionEnabled = false
+            self.settingsController = SettingsController()
+            self.settingsController!.settingsDelegate = self
+            
+            self.addChildViewController(settingsController!)
+            self.view.addSubview(self.settingsController!.view)
+            self.settingsController!.didMoveToParentViewController(self)
+            
+            self.settingsController!.view.center = CGPointMake(self.settingsController!.view.center.x, -self.settingsController!.view.center.y)
+            UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: {
+                
+                self.masterView!.alpha = 0.0
+                self.settingsController!.view.center = CGPointMake(self.settingsController!.view.center.x, self.settingsController!.view.frame.size.height * 0.5)
+                self.wallTypeNotifyImage!.center = CGPointMake(self.wallTypeNotifyImage!.center.x, self.wallTypeNotifyImage!.center.y + self.settingsController!.view.frame.size.height)
+                
+                }) { (Bool) in
+                
+            }
+        }
+        else {
+            
+            UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: {
+                
+                self.removeSettingOptionsController()
+                
+                self.masterView!.alpha = 1.0
+                self.settingsController!.view.center = CGPointMake(self.settingsController!.view.center.x, -self.settingsController!.view.frame.size.height)
+                self.wallTypeNotifyImage!.center = CGPointMake(self.wallTypeNotifyImage!.center.x, self.wallTypeNotifyImage!.frame.size.height * 0.5)
+                
+                }) { (Bool) in
+                    
+                
+                    self.settingsController!.view.removeFromSuperview()
+                    self.settingsController!.removeFromParentViewController()
+                    self.settingsController = nil
+                    
+                    self.masterView!.userInteractionEnabled = true
+            }
+            
+        }
+        
+        
+        
+        
+       /* self.animateView(nil)
         
         if (subOptions != nil) {
             
@@ -1482,14 +1500,14 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 
             })
 
-        }
+        } */
         
     }
     
     
     func showSubOptionsMenu() {
         
-        self.animateView(nil)
+       /* self.animateView(nil)
         
         if (subOptions == nil) {
             
@@ -1538,7 +1556,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 
             })
             
-        }
+        } */
         
     }
     
@@ -1557,7 +1575,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { 
                     
                     self.masterView!.alpha = 0.3
-                    self.refreshImage!.alpha = 0.0
+                    //self.refreshImage!.alpha = 0.0
                     self.wallTypeNotifyImage!.userInteractionEnabled = false
                     
                     self.hamburgerTableView!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5,self.hamburgerTableView!.center.y)
@@ -1577,7 +1595,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             UIView.animateWithDuration(0.1, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: {
                 
                 self.masterView!.alpha = 1.0
-                self.refreshImage!.alpha = 1.0
+                //self.refreshImage!.alpha = 1.0
                 
                 self.hamburgerTableView!.center = CGPointMake(-UIScreen.mainScreen().bounds.size.width,self.hamburgerTableView!.center.y)
                 
@@ -1598,9 +1616,102 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     func refreshTapped() {
         
-        self.refreshImage!.transform = CGAffineTransformMakeRotation(0.34906585);
+        //self.refreshImage!.transform = CGAffineTransformMakeRotation(0.34906585);
         self.removeExistingNotes()
         self.fillInDataSource(true, ignoreCache: true, overrideDatasourceAPIWith: kAllowedPaths.kPathGetAllNotes)
+    }
+    
+    
+    func removeSettingOptionsController() {
+        
+        if (self.profileController != nil) {
+            
+            self.profileController!.view.removeFromSuperview()
+            self.profileController!.removeFromParentViewController()
+            self.profileController = nil
+        }
+        
+        
+        if (self.followersController != nil) {
+            
+            self.followersController!.view.removeFromSuperview()
+            self.followersController!.removeFromParentViewController()
+            self.followersController = nil
+        }
+        
+        if (self.paymentController != nil) {
+            
+            self.paymentController!.view.removeFromSuperview()
+            self.paymentController!.removeFromParentViewController()
+            self.paymentController = nil
+        }
+        
+        
+    }
+    
+    
+    func profileTapped() {
+        
+        if (self.profileController == nil) {
+            
+            let yPos = self.settingsController!.view.frame.size.height
+            let frame = CGRectMake(0,yPos,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - yPos)
+            self.profileController = ProfileController(frame:frame)
+            self.addGivenController(self.profileController!)
+        }
+    }
+    
+    
+    func followersTapped() {
+        
+        if (self.followersController == nil) {
+            
+            let yPos = self.settingsController!.view.frame.size.height
+            let frame = CGRectMake(0,yPos,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - yPos)
+            self.followersController  = FollowersController(frame:frame)
+            self.addGivenController(self.followersController!)
+        }
+    }
+    
+    
+    func pinTapped() {
+        
+        if (self.paymentController == nil) {
+            
+            let yPos = self.settingsController!.view.frame.size.height
+            let frame = CGRectMake(0,yPos,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - yPos)
+            self.paymentController  = PaymentController(frame:frame, overrideTextColor:nil)
+            self.addGivenController(self.paymentController!)
+        }
+    }
+    
+    
+    func addGivenController(viewcontroller:UIViewController) {
+        
+        self.addChildViewController(viewcontroller)
+        self.view.addSubview(viewcontroller.view)
+        viewcontroller.didMoveToParentViewController(self)
+        
+        self.view.insertSubview(viewcontroller.view, belowSubview:self.wallTypeNotifyImage!)
+    }
+    
+    
+    func logoutTapped() {
+        
+        self.removeSettingOptionsController()
+        
+        if (self.settingsController != nil) {
+            
+            
+            self.settingsController!.view.removeFromSuperview()
+            self.settingsController!.removeFromParentViewController()
+            self.settingsController = nil
+        }
+        
+        if (self.noteWallDelegate != nil) {
+            
+            self.noteWallDelegate!.handleLogout()
+        }
     }
 
     

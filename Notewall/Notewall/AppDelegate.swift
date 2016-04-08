@@ -45,9 +45,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
         
         
-        CacheManager.sharedCacheManager.resetCache()
-        
-        
     }
 
     func applicationWillEnterForeground(application: UIApplication) {
@@ -60,6 +57,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidBecomeActive(application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
        
+       if (Common.sharedCommon.config!["isLoggedIn"]!.boolValue == true) {
+        
+            CacheManager.sharedCacheManager.resetCache()
+        }
        
     }
 

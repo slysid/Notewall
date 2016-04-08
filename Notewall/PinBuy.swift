@@ -36,13 +36,19 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
     var transactionInProgress = false
     var selectedProductIndex = -1
     var products:Dictionary<String,Int> = [:]
+    var textColor:UIColor = UIColor.whiteColor()
     
     
-    override init(frame: CGRect) {
+    init(frame: CGRect, overrideTextColor:UIColor?) {
         
         super.init(frame:frame)
         
         self.backgroundColor = UIColor.clearColor()
+        
+        if (overrideTextColor != nil) {
+            
+            textColor = overrideTextColor!
+        }
         
         if (activity == nil) {
             
@@ -52,14 +58,24 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
             self.addSubview(activity!)
         }
         
+        dispatch_async(dispatch_get_main_queue(), {
+            
+            self.activity!.startAnimating()
+        })
+        
         SKPaymentQueue.defaultQueue().addTransactionObserver(self)
-        self.getProductIDs()
+        self.checkPinAvailability()
     }
     
 
     required init?(coder aDecoder: NSCoder) {
         
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func removeTransactionObserver() {
+        
+        SKPaymentQueue.defaultQueue().removeTransactionObserver(self)
     }
     
     
@@ -175,21 +191,21 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
             
             let typeLabel = UILabel(frame: CGRectMake(xPos,yPos,typeLabelWidth,labelHeight))
             typeLabel.textAlignment = NSTextAlignment.Left
-            typeLabel.textColor = UIColor.whiteColor()
+            typeLabel.textColor = textColor
             typeLabel.font = UIFont(name: "Roboto", size: Common.sharedCommon.calculateDimensionForDevice(25))
             typeLabel.text = typeText
             self.addSubview(typeLabel)
             
             let priceLabel = UILabel(frame: CGRectMake(typeLabel.frame.origin.x + typeLabel.frame.size.width, typeLabel.frame.origin.y,priceLabelWidth,labelHeight ))
             priceLabel.textAlignment = NSTextAlignment.Center
-            priceLabel.textColor = UIColor.whiteColor()
+            priceLabel.textColor = textColor
             priceLabel.font = UIFont(name: "Roboto", size: Common.sharedCommon.calculateDimensionForDevice(25))
             priceLabel.text = typePrice
             self.addSubview(priceLabel)
             
             
             let buttonWidth = UIScreen.mainScreen().bounds.size.width - (typeLabel.frame.size.width + priceLabel.frame.size.width)
-            let buyButton = CustomButton(frame: CGRectMake(priceLabel.frame.origin.x + priceLabel.frame.size.width,priceLabel.frame.origin.y,buttonWidth,priceLabel.frame.size.height), buttonTitle: "BUY", normalColor: UIColor.whiteColor(), highlightColor: UIColor.blackColor())
+            let buyButton = CustomButton(frame: CGRectMake(priceLabel.frame.origin.x + priceLabel.frame.size.width,priceLabel.frame.origin.y,buttonWidth,priceLabel.frame.size.height), buttonTitle: "BUY", normalColor: textColor, highlightColor: UIColor.blackColor())
             buyButton.tag = index
             buyButton.backgroundColor = UIColor.clearColor()
             buyButton.addTarget(self, action: #selector(PinBuy.buyButtonTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
@@ -197,7 +213,7 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
             
             let description = UILabel(frame: CGRectMake(typeLabel.frame.origin.x, typeLabel.frame.origin.y + typeLabel.frame.size.height,priceLabelWidth * 2,labelHeight * 0.25))
             description.textAlignment = NSTextAlignment.Left
-            description.textColor = UIColor.whiteColor()
+            description.textColor = textColor
             description.font = UIFont(name: "Roboto", size: Common.sharedCommon.calculateDimensionForDevice(12))
             description.text = desc
             self.addSubview(description)
@@ -215,9 +231,17 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
         
         if SKPaymentQueue.canMakePayments() {
             
-            activity!.startAnimating()
+            dispatch_async(dispatch_get_main_queue(), {
+                
+                self.activity!.startAnimating()
+            })
             
             Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathGetPinPacks , body: nil, replace: nil, requestContentType: kContentTypes.kApplicationJson , completion: { (result, response) -> Void in
+                
+                dispatch_async(dispatch_get_main_queue(), {
+                    
+                    self.activity!.stopAnimating()
+                })
                 
                 if (result == true) {
                     
@@ -251,12 +275,40 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
             return
         }
         
-        self.selectedProductIndex = sender.tag
-        let product = productNames[sender.tag]!["product"] as! SKProduct
+        if (self.pinBuyDelegate != nil) {
         
-        let actionSheetController = UIAlertController(title: "PINS", message: "What do you want to do?", preferredStyle: UIAlertControllerStyle.ActionSheet)
+                self.selectedProductIndex = sender.tag
+                let product = productNames[sender.tag]!["product"] as! SKProduct
         
-        let buyAction = UIAlertAction(title: "Buy", style: UIAlertActionStyle.Default) { (action) -> Void in
+                let actionSheetController = UIAlertController(title: "PINS", message: "What do you want to do?", preferredStyle: UIAlertControllerStyle.ActionSheet)
+        
+                let buyAction = UIAlertAction(title: "Buy", style: UIAlertActionStyle.Default) { (action) -> Void in
+            
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                
+                        self.activity!.startAnimating()
+                
+                    })
+            
+                    let payment = SKPayment(product: product)
+                    SKPaymentQueue.defaultQueue().addPayment(payment)
+                    self.transactionInProgress = true
+                }
+        
+                let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel) { (action) -> Void in
+            
+                        self.transactionInProgress = false
+                }
+        
+                actionSheetController.addAction(buyAction)
+                actionSheetController.addAction(cancelAction)
+        
+                self.pinBuyDelegate!.presentAlertController(actionSheetController)
+        }
+        else {
+            
+            self.selectedProductIndex = sender.tag
+            let product = productNames[sender.tag]!["product"] as! SKProduct
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 
@@ -267,19 +319,6 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
             let payment = SKPayment(product: product)
             SKPaymentQueue.defaultQueue().addPayment(payment)
             self.transactionInProgress = true
-        }
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel) { (action) -> Void in
-            
-           self.transactionInProgress = false
-        }
-        
-        actionSheetController.addAction(buyAction)
-        actionSheetController.addAction(cancelAction)
-        
-        if (self.pinBuyDelegate != nil) {
-            
-            self.pinBuyDelegate!.presentAlertController(actionSheetController)
         }
         
     }
@@ -333,6 +372,47 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
             })
             
         }
+    }
+    
+    
+    func checkPinAvailability() {
+        
+        let data = ["ownerid" : Common.sharedCommon.config!["ownerId"] as! String]
+        
+        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathGetPins , body: data, replace: nil, requestContentType: kContentTypes.kApplicationJson) { (result, response) -> Void in
+            
+            dispatch_async(dispatch_get_main_queue(), {
+                
+                self.activity!.stopAnimating()
+            })
+            
+            
+            if (result == true) {
+                
+                let err:String? = response.objectForKey("data")?.objectForKey("error") as? String
+                
+                if (err == nil) {
+                    
+                    
+                    let data = response.objectForKey("data") as? Dictionary<String,AnyObject>
+                    Common.sharedCommon.showPins(data!, attachView: self, attachPosition: CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, Common.sharedCommon.calculateDimensionForDevice(30)),delegate:nil)
+                    
+                    self.getProductIDs()
+                    
+                }
+                else {
+                    
+                    print(err)
+                }
+                
+            }
+            else {
+                
+                print(response["data"])
+                
+            }
+        }
         
     }
+    
 }

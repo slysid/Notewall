@@ -88,9 +88,9 @@ var kScreenHeight = UIScreen.mainScreen().bounds.size.height
 
 let kDefaultBGImageName = "bg1.png"
 let kBG1:[String:Any] = ["bg":"bg1.png","datasource":kAllowedPaths.kPathGetAllNotes,"icon":"notes.png"]
-let kBG2:[String:Any] = ["bg":"bg2.jpg","datasource":kAllowedPaths.kPathGetNotesForOwner,"icon":"my.png"]
-let kBG3:[String:Any] = ["bg":"bg3.jpg","datasource":kAllowedPaths.kPathGetFavNotesForOwner,"icon":"heart.png"]
-let kBG4:[String:Any] = ["bg":"bg4.jpg","datasource":kAllowedPaths.kPathNil,"icon":"followers.png"]
+let kBG2:[String:Any] = ["bg":"bg1.png","datasource":kAllowedPaths.kPathGetNotesForOwner,"icon":"my.png"]
+let kBG3:[String:Any] = ["bg":"bg1.png","datasource":kAllowedPaths.kPathGetFavNotesForOwner,"icon":"heart.png"]
+let kBG4:[String:Any] = ["bg":"bg1.png","datasource":kAllowedPaths.kPathNil,"icon":"followers.png"]
 let kBackGrounds = [kBG1,kBG2,kBG3,kBG4]
 
 /*let kStickyNotes = ["noteBlue1.png",
@@ -176,6 +176,12 @@ let kDebugAllNotesResponse = [ "data" : [
 
 let kMenuOptions = [1:["title":"GENERAL","icon":"home.png","selector":"optionItemGeneral"],2:["title":"LOGOUT","icon":"logout.png","selector":"optionItemLogout"]]
 let kGeneralMenuOptions = [1:["title":"PROFILE","icon":"my.png","selector":"optionItemProfile"],2:["title":"OPTIONS","icon":"options.png","selector":"optionItemOptions"],3:["title":"ABOUT","icon":"noteBlue3.png","selector":"optionItemAbout"]]
+let kAvailableOptionsMenu = [["label":"Troops","image":"followers.png"],["label":"Pins","image":"pin.png"]]
+let kSettingsOptions = [["icon":"my.png","selector":"profileTapped"],
+                        ["icon":"followers.png","selector":"followersTapped"],
+                        ["icon":"pin.png","selector":"pinTapped"],
+                        ["icon":"logout.png","selector":"logoutTapped"]
+]
 
 
 let kMenuColor = UIColor(red: CGFloat(236.0/255.0), green: CGFloat(79.0/255.0), blue: (79.0/255.0), alpha: 1.0)

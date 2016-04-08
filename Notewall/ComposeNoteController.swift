@@ -883,11 +883,10 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
                             
                         }else {
                             
-                            self.showPins(data!)
+                            //self.showPins(data!)
+                            let pinPoint = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, self.composeTypeImageView!.center.y + Common.sharedCommon.calculateDimensionForDevice(30))
+                            Common.sharedCommon.showPins(data!, attachView: self.newNoteView!, attachPosition: pinPoint,delegate:self)
                         }
-
-                        
-                        
                     }
                     
                 }
@@ -918,14 +917,14 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             
             if (self.pinBuyView == nil) {
                 
-                self.pinBuyView = PinBuy(frame: CGRectMake(0,self.notesImageView!.frame.origin.y,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - self.notesImageView!.frame.origin.y))
+                self.pinBuyView = PinBuy(frame: CGRectMake(0,self.notesImageView!.frame.origin.y,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - self.notesImageView!.frame.origin.y),overrideTextColor:nil)
                 self.pinBuyView!.pinBuyDelegate = self
                 self.newNoteView!.addSubview(self.pinBuyView!)
             }
         }
     }
     
-    func showPins(data:Dictionary<String,AnyObject>) {
+  /*  func showPins(data:Dictionary<String,AnyObject>) {
         
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
             
@@ -963,7 +962,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             
         }
         
-    }
+    } */
     
     
     func noteTapped(sender:UITapGestureRecognizer) {

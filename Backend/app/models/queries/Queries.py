@@ -240,8 +240,15 @@ class NoteQueries():
                note.noteTextFont = postdata['notetextfont']
                note.notePinned = postdata['notepinned']
                note.creationDate = datetime.now()
+               days = 3
+               if postdata['pintype'] == 'Bronze':
+                    days = 7
+               elif postdata['pintype'] == 'Silver':
+                    days = 15
+               elif postdata['pintype'] == 'Gold':
+                    days = 40
                if note.notePinned == True:
-                    note.noteDeletionDate = datetime.now() + timedelta(days=10)
+                    note.noteDeletionDate = datetime.now() + timedelta(days=days)
                     ownerQ = OwnerQueries()
                     ownerQ.updatePinCount(postdata['ownerid'],postdata['pintype'],-1)
                else:

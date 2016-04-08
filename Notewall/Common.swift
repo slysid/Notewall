@@ -391,4 +391,60 @@ class Common:NSObject {
         
     }
     
+    
+    func showPins(data:Dictionary<String,AnyObject>, attachView:UIView, attachPosition:CGPoint?, delegate:PinButtonProtocolDelegate?) {
+        
+        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+            
+            var pinPostView:UIView?
+            
+            if (pinPostView == nil) {
+                
+                let width = Common.sharedCommon.calculateDimensionForDevice(70)
+                let height = Common.sharedCommon.calculateDimensionForDevice(30)
+                
+                pinPostView = UIView(frame: CGRectMake(0,0,width * CGFloat(data.count) ,height))
+                if (attachPosition != nil) {
+                    
+                    pinPostView!.center = attachPosition!
+                }
+                else {
+                    
+                    pinPostView!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5, Common.sharedCommon.calculateDimensionForDevice(100))
+                }
+                
+                pinPostView!.backgroundColor = UIColor.clearColor()
+                attachView.addSubview(pinPostView!)
+                
+                var percent:CGFloat = 0.25
+                var xPos:CGFloat = pinPostView!.frame.size.width * percent
+                let yPos:CGFloat = height * 0.5
+                
+                var keys = Array(data.keys)
+                
+                for idx in 0 ..< keys.count {
+                    
+                    let type = keys[idx] as String
+                    let count = String(data[type]!)
+                    
+                    
+                    let pinType = PinButton(frame:CGRectMake(0,0,height,height),type:type,PinCount:count)
+                    
+                    if (delegate != nil) {
+                        
+                        pinType.pinButtonDelegate = delegate
+                    }
+                    
+                    pinType.center = CGPointMake(xPos,yPos)
+                    pinPostView!.addSubview(pinType)
+                    
+                    percent = percent + 0.25
+                    xPos = pinPostView!.frame.size.width * percent
+                }
+            }
+            
+        }
+        
+    }
+    
 }

@@ -37,13 +37,13 @@ def __createNotes():
     maxInt = len(allOwners) - 1
     noteTypes = ["noteBlue1.png","noteGreen2.png","notePink3.png","noteYellow4.png"]
     
-    for i in range(0,20):
+    for i in range(0,5):
         randomNoteIndex = random.randint(0,len(noteTypes) - 1)
         index = random.randint(0,maxInt)
         randomOwner = allOwners[index]
         
-        xPoint  = random.randint(150,350)
-        yPoint  = random.randint(150,350)
+        xPoint  = random.randint(150,250)
+        yPoint  = random.randint(150,250)
         
         note = Notes(ownerId=randomOwner,
                      noteType=noteTypes[randomNoteIndex],

@@ -338,6 +338,6 @@ def updatePinCount():
 @owners.route('/pins/products', methods=["GET"])
 def getPinProducts():
     
-    return jsonify({'data' : {'BronzeID':20,'SilverID':45,'GoldID':70}})
+    return jsonify({'data' : {'BronzeID':20,'SilverID':20,'GoldID':20}})
 
     
