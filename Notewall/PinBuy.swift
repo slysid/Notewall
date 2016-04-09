@@ -63,7 +63,6 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
             self.activity!.startAnimating()
         })
         
-        SKPaymentQueue.defaultQueue().addTransactionObserver(self)
         self.checkPinAvailability()
     }
     
@@ -275,8 +274,11 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
             return
         }
         
-        if (self.pinBuyDelegate != nil) {
         
+        if (self.pinBuyDelegate != nil) {
+            
+                SKPaymentQueue.defaultQueue().addTransactionObserver(self)
+            
                 self.selectedProductIndex = sender.tag
                 let product = productNames[sender.tag]!["product"] as! SKProduct
         
@@ -307,7 +309,7 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
         }
         else {
             
-            self.selectedProductIndex = sender.tag
+         /*   self.selectedProductIndex = sender.tag
             let product = productNames[sender.tag]!["product"] as! SKProduct
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
@@ -318,7 +320,7 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
             
             let payment = SKPayment(product: product)
             SKPaymentQueue.defaultQueue().addPayment(payment)
-            self.transactionInProgress = true
+            self.transactionInProgress = true */
         }
         
     }

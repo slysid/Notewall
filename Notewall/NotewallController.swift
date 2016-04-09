@@ -52,6 +52,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var profileController:ProfileController?
     var followersController:FollowersController?
     var paymentController:PaymentController?
+    var timer:NSTimer?
     
     var screenWidth:CGFloat = UIScreen.mainScreen().bounds.size.width
     var screenHeight:CGFloat = UIScreen.mainScreen().bounds.size.height
@@ -926,36 +927,44 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
         
         
-        if (self.dataSourceAPI == kAllowedPaths.kPathNil) {
-            
+       if (self.dataSourceAPI == kAllowedPaths.kPathNil) {
+        
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                
+            
                 if (self.hamburgerTableView  != nil) {
-                    
+                
                     self.showHamburgerOptions()
                 }
-                
+            
                 self.removeExistingNotes()
                 self.showExistingNotes()
             })
         }
         else {
             
-            self.backgroundImageIndex = 2
+            self.backgroundImageIndex = 3
             let lSwipe = UISwipeGestureRecognizer()
             lSwipe.direction = .Right
-            self.changeNoteWall(lSwipe)
-            
+            self.postNotesInMovedWall(lSwipe, resetDataSource: false)
+        
+        
         }
+    }
+    
+    
+    func overrideChangeWall(data:NSArray) {
         
-        
-      /* dispatch_async(dispatch_get_main_queue(), { () -> Void in
+       self.notesDataList = data as! Array<WallNote>
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
             
-             self.notesDataList = dataList as! Array<WallNote>
-             self.showHamburgerOptions()
-             self.removeExistingNotes()
-             self.showExistingNotes()
-        }) */
+            if (self.hamburgerTableView  != nil) {
+                
+                self.showHamburgerOptions()
+            }
+            
+            self.removeExistingNotes()
+            self.showExistingNotes()
+        })
     }
     
     
@@ -1251,6 +1260,12 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             self.backgroundImageIndex = kBackGrounds.count - 1
         }
         
+        self.postNotesInMovedWall(sender,resetDataSource:true)
+        
+    }
+    
+    func postNotesInMovedWall(sender:UISwipeGestureRecognizer,resetDataSource:Bool) {
+        
         self.backgroundImageName = kBackGrounds[self.backgroundImageIndex]["bg"] as? String
         self.dataSourceAPI = kBackGrounds[self.backgroundImageIndex]["datasource"] as? kAllowedPaths
         self.wallTypeNotifyImageName = kBackGrounds[self.backgroundImageIndex]["icon"] as? String
@@ -1270,27 +1285,28 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 self.masterView!.center = CGPointMake(self.masterView!.center.x + UIScreen.mainScreen().bounds.size.width, self.masterView!.center.y)
             }
             
-            }) { (Bool) -> Void in
-                
-                self.backgroundImage!.removeFromSuperview()
-                self.backgroundImage = nil
-                self.masterView!.removeFromSuperview()
-                self.masterView = nil
-                self.wallTypeNotifyImage!.removeFromSuperview()
-                self.wallTypeNotifyImage = nil
-                self.activity?.removeFromSuperview()
-                self.activity = nil
-                self.refreshImage!.removeFromSuperview()
-                self.refreshImage = nil
-                self.hamburgerImage!.removeFromSuperview()
-                self.hamburgerImage = nil
-                self.hamburgerTableView?.removeFromSuperview()
-                self.hamburgerTableView = nil
-                self.loadMainView(resetDataSource:true)
-                self.transImage!.image = nil
-                
-                
+        }) { (Bool) -> Void in
+            
+            self.backgroundImage!.removeFromSuperview()
+            self.backgroundImage = nil
+            self.masterView!.removeFromSuperview()
+            self.masterView = nil
+            self.wallTypeNotifyImage!.removeFromSuperview()
+            self.wallTypeNotifyImage = nil
+            self.activity?.removeFromSuperview()
+            self.activity = nil
+            self.refreshImage!.removeFromSuperview()
+            self.refreshImage = nil
+            self.hamburgerImage!.removeFromSuperview()
+            self.hamburgerImage = nil
+            self.hamburgerTableView?.removeFromSuperview()
+            self.hamburgerTableView = nil
+            self.loadMainView(resetDataSource:resetDataSource)
+            self.transImage!.image = nil
+            
+            
         }
+        
     }
     
     func favButtonTapped() {

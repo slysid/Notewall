@@ -55,6 +55,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
     var textFontSize:CGFloat = 30.0
     
     var pinBuyView:PinBuy?
+    var paymentController:PaymentController?
     var activity:UIActivityIndicatorView?
     var pinPostView:UIView?
     
@@ -220,28 +221,39 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
     
     func handleCloseViewTap() {
         
-        if (textField != nil) {
+        if (self.paymentController != nil ) {
             
-            enteredText = textField!.text!
-            textField!.resignFirstResponder()
-            textField!.removeFromSuperview()
-            textField = nil
+            self.paymentController!.view.removeFromSuperview()
+            self.paymentController!.removeFromParentViewController()
+            self.paymentController = nil
+            
         }
-        
-        if (notesImageView != nil) {
+        else {
             
-            notesImageView!.removeFromSuperview()
-            notesImageView = nil
-        }
-        
-        if (newNoteView != nil) {
+            if (textField != nil) {
+                
+                enteredText = textField!.text!
+                textField!.resignFirstResponder()
+                textField!.removeFromSuperview()
+                textField = nil
+            }
             
-            newNoteView!.removeFromSuperview()
-            newNoteView = nil
-        }
-        
-        self.dismissViewControllerAnimated(true) { () -> Void in
+            if (notesImageView != nil) {
+                
+                notesImageView!.removeFromSuperview()
+                notesImageView = nil
+            }
             
+            if (newNoteView != nil) {
+                
+                newNoteView!.removeFromSuperview()
+                newNoteView = nil
+            }
+            
+            self.dismissViewControllerAnimated(true) { () -> Void in
+                
+                
+            }
             
         }
 
@@ -319,7 +331,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
             
-            self.pinBuyView?.removeFromSuperview()
+            /*self.pinBuyView?.removeFromSuperview()
             self.pinBuyView = nil
             
             self.notesImageView?.alpha = 1.0
@@ -327,7 +339,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             self.noteTypesScroll?.alpha = 1.0
             self.noteFontsScroll?.alpha = 1.0
             self.noteFontSizeScroll?.alpha = 1.0
-            self.noteFontColorScroll?.alpha = 1.0
+            self.noteFontColorScroll?.alpha = 1.0 */
             
             
             if (result == true) {
@@ -480,7 +492,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             
             self.composeTypeImageView = UIImageView(frame: CGRectMake(0,0,composeDim,composeDim))
             self.composeTypeImageView!.userInteractionEnabled = true
-            self.view.addSubview(self.composeTypeImageView!)
+            self.newNoteView!.addSubview(self.composeTypeImageView!)
             
             let composeTap = UITapGestureRecognizer(target: self, action: #selector(Compose.changeCompseMode))
             self.composeTypeImageView!.addGestureRecognizer(composeTap)
@@ -522,7 +534,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         let closeImage = CloseView(frame: CGRectMake(UIScreen.mainScreen().bounds.width - composeDim, 0, composeDim, composeDim))
         closeImage.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleBottomMargin)
         closeImage.closeViewDelegate = self
-        self.newNoteView!.addSubview(closeImage)
+        self.view.addSubview(closeImage)
         
         if (cType == kComposeTypes.kComposeNote) {
             
@@ -877,7 +889,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
                         
                         }
                         
-                        if (totalPinCount == 0) {
+                        if (totalPinCount < 1000) {
                             
                             self.showNoPins()
                             
@@ -908,18 +920,30 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
             
-            self.notesImageView?.alpha = 0.0
+            /*self.notesImageView?.alpha = 0.0
             self.polaroidImageView?.alpha = 0.0
             self.noteTypesScroll?.alpha = 0.0
             self.noteFontsScroll?.alpha = 0.0
             self.noteFontSizeScroll?.alpha = 0.0
-            self.noteFontColorScroll?.alpha = 0.0
+            self.noteFontColorScroll?.alpha = 0.0 */
             
-            if (self.pinBuyView == nil) {
+           /* if (self.pinBuyView == nil) {
                 
                 self.pinBuyView = PinBuy(frame: CGRectMake(0,self.notesImageView!.frame.origin.y,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - self.notesImageView!.frame.origin.y),overrideTextColor:nil)
                 self.pinBuyView!.pinBuyDelegate = self
                 self.newNoteView!.addSubview(self.pinBuyView!)
+            } */
+            
+            if (self.paymentController == nil) {
+                
+                let yPos:CGFloat = 0
+                let frame = CGRectMake(0,yPos,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - yPos)
+                self.paymentController  = PaymentController(frame:frame, overrideTextColor:nil)
+                self.addChildViewController(self.paymentController!)
+                self.newNoteView!.addSubview(self.paymentController!.view)
+                self.paymentController!.didMoveToParentViewController(self)
+                
+                self.paymentController!.pinView!.pinBuyDelegate = self
             }
         }
     }
@@ -967,7 +991,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
     
     func noteTapped(sender:UITapGestureRecognizer) {
         
-        if (self.pinBuyView != nil) {
+       /* if (self.pinBuyView != nil) {
             
             dispatch_async(dispatch_get_main_queue()) { () -> Void in
                 
@@ -990,7 +1014,9 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         else {
             
             self.postTapped(sender)
-        }
+        } */
+        
+        self.postTapped(sender)
     }
     
     
