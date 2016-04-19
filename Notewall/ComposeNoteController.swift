@@ -889,7 +889,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
                         
                         }
                         
-                        if (totalPinCount < 1000) {
+                        if (totalPinCount == 0) {
                             
                             self.showNoPins()
                             

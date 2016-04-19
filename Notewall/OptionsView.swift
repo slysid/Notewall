@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-protocol OptionsViewProtocolDelegate {
+/*protocol OptionsViewProtocolDelegate {
     
     func handleTappedOptionItem(item:OptionsItem,options:Dictionary<Int,Dictionary<String,String>>)
 }
@@ -61,4 +61,4 @@ class OptionsView:UIView,OptionsItemProtocolDelegate {
         }
         
     }
-}
+} */

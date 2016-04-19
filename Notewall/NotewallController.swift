@@ -16,7 +16,7 @@ protocol NoteWallProtocolDelegate {
     func handleLogout()
 }
 
-class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegate, NoteDelegate,UITextViewDelegate,ComposeDelegate, CloseViewProtocolDelegate, ConfirmProtocolDelegate,OptionsViewProtocolDelegate, OptionsOptionViewProtocolDelegate,CacheManagerProtocolDelegate,SettingsControllerProtocolDelegate {
+class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegate, NoteDelegate,UITextViewDelegate,ComposeDelegate, CloseViewProtocolDelegate, ConfirmProtocolDelegate, OptionsOptionViewProtocolDelegate,CacheManagerProtocolDelegate,SettingsControllerProtocolDelegate {
     
     var bgImage:UIImageView?
     var transImage:UIImageView?
@@ -32,6 +32,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var allBlownUpNotes:Array<WallNote> = []
     var notesDataList:Array<WallNote> = []
     var favButton:UIImageView?
+    var favButtonLandscapeCenter:CGPoint?
+    var favButtonPotraitCenter:CGPoint?
     var followButton:UIImageView?
     var noteOwnerLabel:UILabel?
     var logOutButton:CloseView?
@@ -39,8 +41,8 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var messageView:UILabel?
     var wallTypeNotifyImage:UIImageView?
     var wallTypeNotifyImageName:String?
-    var options:OptionsView?
-    var subOptions:OptionsView?
+    //var options:OptionsView?
+    //var subOptions:OptionsView?
     var optionsOptionView:OptionsOptionView?
     var aboutView:AboutView?
     var filledInOptionsView:UIView? = nil
@@ -53,12 +55,17 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     var followersController:FollowersController?
     var paymentController:PaymentController?
     var timer:NSTimer?
+    var flagButton:UIImageView?
+    var flagButtonLandscapeCenter:CGPoint?
+    var flagButtonPotraitCenter:CGPoint?
+    
     
     var screenWidth:CGFloat = UIScreen.mainScreen().bounds.size.width
     var screenHeight:CGFloat = UIScreen.mainScreen().bounds.size.height
 
     
     override func viewDidLoad() {
+        
         
         CacheManager.sharedCacheManager.cacheDelegate = self
         
@@ -106,8 +113,45 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
         
-        screenWidth = size.width
-        screenHeight = size.height
+        coordinator.animateAlongsideTransition({ (UIViewControllerTransitionCoordinatorContext) in
+            
+            if (self.favButton != nil ) {
+                
+               if (self.favButton!.center == self.favButtonPotraitCenter) {
+                    
+                    self.favButton!.center = self.favButtonLandscapeCenter!
+                }
+                else if (self.favButton!.center == self.favButtonLandscapeCenter){
+                    
+                    self.favButton!.center = self.favButtonPotraitCenter!
+                
+                }
+            }
+            
+            if (self.flagButton != nil ) {
+                
+                if (self.flagButton!.center == self.flagButtonPotraitCenter) {
+                    
+                    self.flagButton!.center = self.flagButtonLandscapeCenter!
+                }
+                else if (self.flagButton!.center == self.flagButtonLandscapeCenter){
+                    
+                    self.flagButton!.center = self.flagButtonPotraitCenter!
+                    
+                }
+            }
+            
+            
+            }) { (UIViewControllerTransitionCoordinatorContext) in
+                
+                
+        }
+        
+    }
+    
+    override func viewWillLayoutSubviews() {
+        
+       // print("View layout subviews")
     }
     
     override func shouldAutorotate() -> Bool {
@@ -117,10 +161,10 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
         
-        if (self.options != nil) {
+        /*if (self.options != nil) {
             
             return UIInterfaceOrientationMask.Portrait
-        }
+        }*/
         
         return UIInterfaceOrientationMask.All
     }
@@ -465,22 +509,20 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         self.backgroundImage?.userInteractionEnabled = false
         
-        if (favButton == nil) {
-            
-            let favButtonDim = Common.sharedCommon.calculateDimensionForDevice(50)
-            favButton = UIImageView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width - favButtonDim - 10, favButtonDim, favButtonDim, favButtonDim))
-            favButton!.userInteractionEnabled = true
-            self.view.addSubview(favButton!)
-            favButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
-            
-            let tap = UITapGestureRecognizer(target: self, action: #selector(NotewallController.favButtonTapped))
-            favButton!.addGestureRecognizer(tap)
-        }
-        
         if (followButton == nil) {
             
             let followButtonDim = Common.sharedCommon.calculateDimensionForDevice(50)
-            followButton = UIImageView(frame: CGRectMake(10, followButtonDim, followButtonDim, followButtonDim))
+            
+            if (UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeLeft || UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeRight ) {
+                
+                followButton = UIImageView(frame: CGRectMake(10, (followButtonDim), followButtonDim, followButtonDim))
+            }
+            else {
+                
+                followButton = UIImageView(frame: CGRectMake(10, (2 * followButtonDim), followButtonDim, followButtonDim))
+            }
+            
+            
             followButton!.userInteractionEnabled = true
             self.view.addSubview(followButton!)
             followButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
@@ -489,12 +531,70 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             followButton!.addGestureRecognizer(tap)
         }
         
+        if (favButton == nil) {
+            
+            let favButtonDim = Common.sharedCommon.calculateDimensionForDevice(50)
+            
+            if (UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeLeft || UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeRight ) {
+                
+                favButton = UIImageView(frame: CGRectMake(self.followButton!.frame.origin.x,self.followButton!.frame.origin.y + self.followButton!.frame.size.height + (favButtonDim * 0.75), favButtonDim, favButtonDim))
+                
+                self.favButtonLandscapeCenter = self.favButton!.center
+                self.favButtonPotraitCenter = CGPointMake(UIScreen.mainScreen().bounds.size.height - self.followButton!.center.x,favButtonDim + (favButtonDim * 1.5))
+            }
+            else {
+                
+                favButton = UIImageView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width - favButtonDim - 10, (2 * favButtonDim), favButtonDim, favButtonDim))
+                
+                self.favButtonLandscapeCenter = CGPointMake(self.followButton!.center.x,self.followButton!.center.y + favButtonDim)
+                self.favButtonPotraitCenter = self.favButton!.center
+            }
+            
+            //favButton = UIImageView(frame: CGRectMake(UIScreen.mainScreen().bounds.size.width - favButtonDim - 10, favButtonDim, favButtonDim, favButtonDim))
+            favButton!.userInteractionEnabled = true
+            self.view.addSubview(favButton!)
+            //favButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
+            
+            let tap = UITapGestureRecognizer(target: self, action: #selector(NotewallController.favButtonTapped))
+            favButton!.addGestureRecognizer(tap)
+            
+        }
+        
+        if (flagButton == nil) {
+            
+            let favButtonDim = Common.sharedCommon.calculateDimensionForDevice(50)
+            
+            if (UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeLeft || UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeRight ) {
+                
+                flagButton = UIImageView(frame: CGRectMake(self.favButton!.frame.origin.x,self.favButton!.frame.origin.y + self.favButton!.frame.size.height + (favButtonDim * 0.75), favButtonDim, favButtonDim))
+                
+                self.flagButtonLandscapeCenter = self.flagButton!.center
+                self.flagButtonPotraitCenter = CGPointMake(UIScreen.mainScreen().bounds.size.height * 0.5,favButtonDim + (favButtonDim * 1.5))
+            }
+            else {
+                
+                flagButton = UIImageView(frame: CGRectMake((UIScreen.mainScreen().bounds.size.width * 0.5) - (favButtonDim * 0.5), (2 * favButtonDim), favButtonDim, favButtonDim))
+                
+                self.flagButtonLandscapeCenter = CGPointMake(self.followButton!.center.x,self.followButton!.center.y + (3 * favButtonDim))
+                self.flagButtonPotraitCenter = self.flagButton!.center
+            }
+            
+            flagButton!.image = UIImage(named: "flag.png")
+            flagButton!.userInteractionEnabled = true
+            self.view.addSubview(flagButton!)
+            //flagButton!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
+            
+            let tap = UITapGestureRecognizer(target: self, action: #selector(NotewallController.flagButtonTapped))
+            flagButton!.addGestureRecognizer(tap)
+            
+        }
+        
         
         if (noteOwnerLabel == nil) {
             
             let followButtonDim = Common.sharedCommon.calculateDimensionForDevice(50)
             noteOwnerLabel = UILabel(frame: CGRectMake(0, 0, Common.sharedCommon.calculateDimensionForDevice(100), followButtonDim))
-            noteOwnerLabel!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5,followButton!.center.y)
+            noteOwnerLabel!.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5,followButtonDim)
             noteOwnerLabel!.textAlignment = NSTextAlignment.Center
             noteOwnerLabel!.font = UIFont(name: "Roboto", size: 24)
             noteOwnerLabel!.textColor = UIColor.whiteColor()
@@ -505,11 +605,12 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.noteOwnerLabel!.text = note.ownerName
         self.setFavImage(note)
         self.setFollowImage(note)
+        self.setFlagImage(note)
         
+       
         let v = Note(frame: note.frame, wallnote:note, expiryDate:note.stickyNoteDeletionDate!)
-        v.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleBottomMargin).union(.FlexibleTopMargin)
+        v.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleTopMargin).union(.FlexibleBottomMargin)
         v.noteDelegate = self
-        //v.sourceWallNote = note
         self.view.addSubview(v)
         
         var pinYOffset:CGFloat = 0
@@ -520,7 +621,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         }
         
         
-        UIView.animateWithDuration(0.3, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
+         UIView.animateWithDuration(0.3, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
             
             if (self.blownUpCount == 0) {
                 
@@ -534,7 +635,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
                 v.frame = CGRectMake(0, 0, Common.sharedCommon.calculateDimensionForDevice(kBlownupNoteDim), Common.sharedCommon.calculateDimensionForDevice(kBlownupNoteDim))
                 v.pinImage?.center = CGPointMake(v.frame.size.width * 0.5,v.pinImage!.center.y + pinYOffset)
-                let center = CGPointMake(self.blownUpCenterX, UIScreen.mainScreen().bounds.size.height * 0.60)
+                let center = CGPointMake(self.blownUpCenterX, UIScreen.mainScreen().bounds.size.height * 0.53)
                 v.center = center
                 //self.bgScrollView!.zoomToRect(self.view.frame, animated: true)
             
@@ -551,6 +652,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             }) { (Bool) -> Void in
                 
+                self.refreshImage!.alpha = 0.0
                 self.blownUpCount = self.blownUpCount + 1
                 self.allBlownUpNotes.append(note)
                 
@@ -736,7 +838,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     func handleTappedOptionItem(item: OptionsItem, options: Dictionary<Int, Dictionary<String, String>>) {
         
-        for opt in self.options!.subviews {
+       /* for opt in self.options!.subviews {
             
             if (opt is OptionsItem) {
                 
@@ -762,7 +864,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         let selectorString = options[item.tag]!["selector"]
         let sel = Selector(selectorString!)
-        self.performSelector(sel)
+        self.performSelector(sel) */
     }
     
     func optionItemLogout() {
@@ -823,7 +925,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             self.view.addSubview(optionsOptionView!)
             self.view.insertSubview(self.wallTypeNotifyImage! , aboveSubview: self.optionsOptionView!)
-            self.view.insertSubview(optionsOptionView!, belowSubview: subOptions!)
+            //self.view.insertSubview(optionsOptionView!, belowSubview: subOptions!)
             self.animateView(optionsOptionView!)
             
         }
@@ -845,7 +947,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             self.view.addSubview(aboutView!)
             self.view.insertSubview(self.wallTypeNotifyImage! , aboveSubview: self.aboutView!)
-            self.view.insertSubview(aboutView!, belowSubview: subOptions!)
+            //self.view.insertSubview(aboutView!, belowSubview: subOptions!)
             self.animateView(aboutView!)
             
         }
@@ -1053,6 +1155,25 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     }
     
     
+    func setFlagImage(note:WallNote) {
+        
+        //let favedOwners = note.favedOwners!
+        let ownerId = Common.sharedCommon.config!["ownerId"] as! String
+        
+        if (note.ownerID != ownerId) {
+            
+            self.flagButton!.alpha = 1.0
+            
+        }
+        else {
+            
+            self.flagButton!.alpha = 0.0
+        }
+        
+        
+    }
+    
+    
     func showExistingNotes() {
         
         if (self.notesDataList.count > 0 ) {
@@ -1137,6 +1258,12 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             noteOwnerLabel = nil
             
         }
+        
+        if (flagButton != nil) {
+            
+            flagButton!.removeFromSuperview()
+            flagButton = nil
+        }
     }
     
     func showNoNotes() {
@@ -1189,6 +1316,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             let note = self.allBlownUpNotes.last
             self.setFavImage(note!)
             self.setFollowImage(note!)
+            self.setFlagImage(note!)
         }
         
         if (self.dataSourceAPI == kAllowedPaths.kPathGetFavNotesForOwner) {
@@ -1216,11 +1344,14 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                 self.favButton!.removeFromSuperview()
                 self.followButton!.removeFromSuperview()
                 self.noteOwnerLabel!.removeFromSuperview()
+                self.flagButton!.removeFromSuperview()
                 self.favButton = nil
                 self.followButton = nil
                 self.noteOwnerLabel = nil
+                self.flagButton = nil
                 //self.noteLifeLabel!.removeFromSuperview()
                 //self.noteLifeLabel = nil
+                self.refreshImage!.alpha = 1.0
                 self.allBlownUpNotes.removeAll()
                 
             })
@@ -1399,6 +1530,12 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             }
         }
         
+    }
+    
+    
+    func flagButtonTapped() {
+        
+        print("flag tapped")
     }
     
     
