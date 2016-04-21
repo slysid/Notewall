@@ -143,7 +143,8 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             
             let contentOffset:CGFloat = self.noteTypesScroll!.scrollView!.contentOffset.x
             selectedNoteIndex = Int(contentOffset / self.noteTypesScroll!.scrollView!.frame.size.width)
-            self.notesImageView!.image = UIImage(named: stickyNotes[selectedNoteIndex])
+            //self.notesImageView!.image = UIImage(named: stickyNotes[selectedNoteIndex])
+            self.notesImageView!.image = UIImage().noteImage(named: stickyNotes[selectedNoteIndex])
             
         }
         
@@ -512,7 +513,8 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         let xOffset = UIScreen.mainScreen().bounds.width * 0.5 - (1.5 * composeDim)
         let postNote  = UIImageView(frame: CGRectMake(xOffset, 0, composeDim, composeDim))
         postNote.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(UIViewAutoresizing.FlexibleRightMargin).union(.FlexibleBottomMargin)
-        postNote.image = UIImage(named: "noteBlue1.png")
+        //postNote.image = UIImage(named: "noteBlue1.png")
+        postNote.image = UIImage().noteImage(named: kPinNotes[self.selectedNoteIndex][self.selectedNoteInNoteIndex])
         postNote.userInteractionEnabled = true
         postNote.tag = 1
         let postTap = UITapGestureRecognizer(target: self, action: #selector(Compose.noteTapped(_:)))
@@ -591,7 +593,8 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             
             
             //self.notesImageView!.image = UIImage(named: self.stickyNotes[self.selectedNoteIndex])
-            self.notesImageView!.image = UIImage(named: kPinNotes[self.selectedNoteIndex][self.selectedNoteInNoteIndex])
+            //self.notesImageView!.image = UIImage(named: kPinNotes[self.selectedNoteIndex][self.selectedNoteInNoteIndex])
+            self.notesImageView!.image = UIImage().noteImage(named: kPinNotes[self.selectedNoteIndex][self.selectedNoteInNoteIndex])
             
              UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
                 
@@ -1106,7 +1109,8 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
     func noteSwiped() {
         
         let animateImgView = UIImageView(frame: self.notesImageView!.frame)
-        animateImgView.image = UIImage(named:kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex])
+        //animateImgView.image = UIImage(named:kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex])
+        animateImgView.image = UIImage().noteImage(named:kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex])
         self.view.addSubview(animateImgView)
         
         selectedNoteInNoteIndex = selectedNoteInNoteIndex + 1
@@ -1117,7 +1121,8 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             selectedNoteInNoteIndex = 0
         }
         
-        self.notesImageView!.image = UIImage(named:kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex])
+        //self.notesImageView!.image = UIImage(named:kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex])
+        self.notesImageView!.image = UIImage().noteImage(named:kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex])
         
         
         UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in

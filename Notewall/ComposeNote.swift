@@ -24,7 +24,8 @@ class ComposeNote:UIImageView {
         
         super.init(frame: frame)
         
-        self.image = UIImage(named: withImage)
+        //self.image = UIImage(named: withImage)
+        self.image = UIImage().noteImage(named: withImage)
         self.userInteractionEnabled = true
         
         let textFieldFrame = CGRectInset(self.bounds, Common.sharedCommon.calculateDimensionForDevice(40), Common.sharedCommon.calculateDimensionForDevice(40))

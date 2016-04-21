@@ -29,6 +29,24 @@ extension Int
 }
 
 
+extension UIImage
+{
+    func noteImage(named noteType:String) -> UIImage?
+    {
+        let imageData = Common.sharedCommon.noteImageNameDataMap[noteType]
+        if imageData == nil
+        {
+            return UIImage(named: noteType)
+        }
+        else
+        {
+            return UIImage(data: imageData!)
+        }
+        
+    }
+}
+
+
 class Common:NSObject {
     
     static let sharedCommon = Common()
@@ -36,6 +54,7 @@ class Common:NSObject {
     var timerCount:Int = 0
     var timer:NSTimer?
     var messageView:MessageView?
+    var noteImageNameDataMap:Dictionary<String,NSData> = [:]
     
     override init() {
         
@@ -444,6 +463,120 @@ class Common:NSObject {
             }
             
         }
+        
+    }
+    
+    
+    func loadNotesImagesFromDocuments() {
+        
+        let documentsURL = NSFileManager.defaultManager().URLsForDirectory(NSSearchPathDirectory.DocumentDirectory , inDomains: NSSearchPathDomainMask.AllDomainsMask).first
+        
+        do {
+            
+            let directoryContents = try NSFileManager.defaultManager().contentsOfDirectoryAtURL(documentsURL!, includingPropertiesForKeys: nil, options: NSDirectoryEnumerationOptions())
+            
+            print(directoryContents.count)
+            
+            if (directoryContents.count == 1) {
+                
+                self.getNotesImagesFromServer()
+            }
+            else {
+                
+                if let dir:NSString = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first {
+                    
+                    
+                    let path = dir.stringByAppendingPathComponent("NotesOrder.plist")
+                    let pinNotes:NSArray = NSArray(contentsOfFile: path)!
+                    kPinNotes = (pinNotes as? Array<Array<String>>)!
+                    
+                    
+                    for notesList in kPinNotes {
+                        
+                        for noteName in notesList {
+                            
+                            for content in directoryContents {
+                                
+                                let fileName = content.absoluteString.characters.split{$0 == "/"}.map(String.init).last
+                                
+                                if (fileName == noteName) {
+                                    self.noteImageNameDataMap[fileName!] = NSData(contentsOfURL: content)
+                                    break
+                                }
+                                
+                            }
+                        }
+                    }
+                    
+                }
+            }
+        }
+        catch {
+            
+        }
+        
+    }
+    
+    func getNotesImagesFromServer() {
+        
+        
+        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathNotesImages, body: nil, replace: nil, requestContentType: kContentTypes.kApplicationJson) { (result, response) in
+            
+            if (result == true) {
+                
+                let data = response["data"]!["notes"] as! NSArray
+                
+                for notesList in data {
+                    
+                    var names:Array<String> = []
+                    
+                    for note in notesList as! NSArray {
+                        
+                        let fullURL = note as? String
+                        let fileName = fullURL?.characters.split{$0 == "/"}.map(String.init).last
+                        self.downloadImages(note as? String,fileName: fileName)
+                        names.append(fileName!)
+                    }
+                    
+                    kPinNotes.append(names)
+                }
+                
+                if let dir:NSString = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first {
+                    
+                    let path = dir.stringByAppendingPathComponent("NotesOrder.plist")
+                    let pinNotes:NSArray = kPinNotes
+                    pinNotes.writeToFile(path, atomically: false)
+                    
+                }
+                
+            }
+            else {
+                
+                print("Error in getting note types")
+            }
+        }
+    }
+    
+    
+    func downloadImages(imageURL:String?,fileName:String?) {
+        
+        let sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
+        let session = NSURLSession(configuration: sessionConfiguration, delegate: nil, delegateQueue: nil)
+        let getURL = NSURL(string: imageURL!)
+        let getNSURLRequest = NSURLRequest(URL: getURL!)
+        let downloadTask = session.downloadTaskWithRequest(getNSURLRequest) { (location, response, error) in
+            
+           let imageData = NSData(contentsOfURL: location!)
+           self.noteImageNameDataMap[fileName!] = imageData
+           if let dir:NSString = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first {
+                
+                let path = dir.stringByAppendingPathComponent(fileName!)
+                imageData?.writeToFile(path, atomically: false)
+            
+            }
+        }
+        
+        downloadTask.resume()
         
     }
     

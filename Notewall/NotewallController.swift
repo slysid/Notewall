@@ -78,6 +78,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         transImage!.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
         self.view.addSubview(transImage!)
         
+        
        /* self.bgScrollView = UIScrollView(frame: self.view.bounds)
         self.bgScrollView!.autoresizingMask = UIViewAutoresizing.FlexibleHeight.union(.FlexibleWidth)
         self.bgScrollView!.backgroundColor = UIColor.clearColor()
@@ -87,8 +88,17 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         self.bgScrollView!.maximumZoomScale = 4.0
         self.bgScrollView!.canCancelContentTouches = true
         self.view.addSubview(self.bgScrollView!) */
+        
+        if (Common.sharedCommon.noteImageNameDataMap.count != 0 )
+        {
+            self.loadMainView(resetDataSource:true)
+        }
+        else {
+            
+            self.performSelector(#selector(NotewallController.loadMainView), withObject: true, afterDelay: 1.0)
+        }
 
-        self.loadMainView(resetDataSource:true)
+        
         
     }
 

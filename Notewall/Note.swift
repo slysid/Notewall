@@ -32,7 +32,8 @@ class Note:UIImageView {
         
         if (self.sourceWallNote!.isNote == true) {
             
-            let rawImage = UIImage(named: wallnote.stickyNoteType!)
+            //let rawImage = UIImage(named: wallnote.stickyNoteType!)
+            let rawImage = UIImage().noteImage(named: wallnote.stickyNoteType!)
             //let noteText = wallnote.stickyNoteDeletionDate! + (wallnote.stickyNoteText! as String)
             let textWrittenImage = Common.sharedCommon.textToImage(wallnote.stickyNoteText! as String, inImage: rawImage!, atPoint: CGPointMake(0, 0),preferredFont: wallnote.stickyNoteFont!,preferredFontSize:wallnote.stickyNoteFontSize, preferredFontColor:wallnote.stickyNoteFontColor,addExpiry:true,expiryDate:expiryDate)
             self.image = textWrittenImage

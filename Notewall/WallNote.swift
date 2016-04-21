@@ -63,7 +63,8 @@ class WallNote:UIImageView {
             self.stickyNoteFont = data["noteTextFont"] as? String
             self.stickyNoteFontSize = data["noteTextFontSize"] as? CGFloat
             self.stickyNoteFontColor = Common.sharedCommon.formColorWithRGB(data["noteTextColor"] as! Array<CGFloat>)
-            let rawImage = UIImage(named: self.stickyNoteType!)
+            //let rawImage = UIImage(named: self.stickyNoteType!)
+            let rawImage = UIImage().noteImage(named: self.stickyNoteType!)
             let textWrittenImage = Common.sharedCommon.textToImage(stickyNoteText!, inImage: rawImage!, atPoint: CGPointMake(5,10),preferredFont:self.stickyNoteFont,preferredFontSize:self.stickyNoteFontSize,preferredFontColor:self.stickyNoteFontColor,addExpiry:false,expiryDate:nil)
             self.image = textWrittenImage
             

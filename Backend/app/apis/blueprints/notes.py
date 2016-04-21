@@ -272,3 +272,32 @@ def uploaded_file(filename):
     except Exception, e:
         return jsonify({"error" : str(e)})
     
+    
+@notes.route('/notes/images',methods=['GET'])
+def getNotesImages():
+    notes = [['https://s3-eu-west-1.amazonaws.com/pinitapp/free/1/noteBlue1.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/1/noteGreen1.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/1/notePink1.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/1/noteWhite1.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/1/noteYellow1.png'],
+        
+            ['https://s3-eu-west-1.amazonaws.com/pinitapp/free/2/noteBlue2.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/2/noteGreen2.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/2/notePink2.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/2/noteWhite2.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/2/noteYellow2.png'],
+            
+            ['https://s3-eu-west-1.amazonaws.com/pinitapp/free/3/noteBlue3.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/3/noteGreen3.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/3/notePink3.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/3/noteWhite3.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/3/noteYellow3.png'],
+            
+            ['https://s3-eu-west-1.amazonaws.com/pinitapp/free/4/noteBlue4.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/4/noteGreen4.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/4/notePink4.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/4/noteWhite4.png',
+              'https://s3-eu-west-1.amazonaws.com/pinitapp/free/4/noteYellow4.png']
+        ]
+    return jsonify({'data': {'notes':notes}})
+    

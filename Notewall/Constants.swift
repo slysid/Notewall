@@ -31,6 +31,7 @@ enum kAllowedPaths {
     case kPathGetPins
     case kPathUpdatePinCount
     case kPathGetPinPacks
+    case kPathNotesImages
     case kPathNil
 }
 
@@ -98,17 +99,20 @@ let kBackGrounds = [kBG1,kBG2,kBG3,kBG4]
     "noteWhite1.png",
     "noteYellow1.png" ] */
 
-let kPinNotes = [
-["noteBlue1.png","noteGreen1.png","notePink1.png","noteWhite1.png","noteYellow1.png"],
-["noteBlue2.png","noteGreen2.png","notePink2.png","noteWhite2.png","noteYellow2.png"],
-["noteBlue3.png","noteGreen3.png","notePink3.png","noteWhite3.png","noteYellow3.png"],
-["noteBlue4.png","noteGreen4.png","notePink4.png","noteWhite4.png","noteYellow4.png"],
-]
+var kPinNotes:Array<Array<String>> = []
+
+
+/*var kPinNotes = [
+    ["noteBlue1.png","noteGreen1.png","notePink1.png","noteWhite1.png","noteYellow1.png"],
+    ["noteBlue2.png","noteGreen2.png","notePink2.png","noteWhite2.png","noteYellow2.png"],
+    ["noteBlue3.png","noteGreen3.png","notePink3.png","noteWhite3.png","noteYellow3.png"],
+    ["noteBlue4.png","noteGreen4.png","notePink4.png","noteWhite4.png","noteYellow4.png"],
+]*/
 
 let kComposeTypesData = [["icon": "noteBlue1.png"],
                           ["icon":"camera.png"]]
 
-let kDefaultNoteType = kPinNotes[0][0]
+let kDefaultNoteType = "noteBlue1.png"
 
 
 let kSupportedFonts = ["Chalkduster",
@@ -124,8 +128,8 @@ let kStickyNoteFontSize:CGFloat = 28.0
 
 let kRunMode = kRunModes.modeLive
 let kHttpProtocol = "http"
-let kHttpHost = "appgrid.qa.accedo.tv" //"172.17.50.170" //"192.168.0.12"
-let kHttpPort = "8085" //"8085"
+let kHttpHost = "192.168.0.12" //"appgrid.qa.accedo.tv" //"172.17.50.170" //"192.168.0.12"
+let kHttpPort = "5000" //"8085"
 let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/owner/register", "method" : "POST" ],
                   ["path" : "/api/notes/all", "method" : "POST"],
@@ -143,7 +147,8 @@ let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/owner/resend","method" : "POST"],
                   ["path" : "/api/owner/getpins","method" : "POST"],
                   ["path" : "/api/owner/pins/update","method" : "POST"],
-                  ["path" : "/api/pins/products","method" : "GET"]
+                  ["path" : "/api/pins/products","method" : "GET"],
+                  ["path" : "/api/notes/images","method" : "GET"]
 ]
 
 
