@@ -47,6 +47,21 @@ extension UIImage
 }
 
 
+extension UIImage
+{
+    func imageWithImage(image: UIImage, scaledToSize newSize: CGSize) -> UIImage
+    {
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
+        image.drawInRect(CGRectMake(0, 0, newSize.width, newSize.height))
+        
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return newImage;
+    }
+}
+
+
 class Common:NSObject {
     
     static let sharedCommon = Common()

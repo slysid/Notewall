@@ -47,6 +47,12 @@ enum kComposeTypes {
     case kComposePicture
 }
 
+enum kComposeNoteTypes {
+    
+    case kNoteTypeFree
+    case kNoteTypeSponsored
+}
+
 enum kContentTypes {
     
     case kApplicationJson
@@ -122,14 +128,15 @@ let kSupportedFonts = ["Chalkduster",
 
 let kFontSizes:Array<CGFloat> = [15.0,16.0,17.0,18.0,19.0,20.0,21.0,22.0,23.0,24.0,25.0,26.0,27.0,28.0,29.0,30.0,35.0,40.0,45.0,50.0,55.0,60.0]
 
-let kFontColor:Array<Array<CGFloat>> = [[0.0,0.0,0.0], [255.0,0.0,0.0],[0.0,255.0,0.0],[255.0,255.0,0.0],[96.0,96.0,96.0]]
+//let kFontColor:Array<Array<CGFloat>> = [[0.0,0.0,0.0], [255.0,0.0,0.0],[0.0,255.0,0.0],[255.0,255.0,0.0],[96.0,96.0,96.0]]
+let kFontColor:Array<Array<CGFloat>> = [[0.0,0.0,0.0]]
 
 let kStickyNoteFontSize:CGFloat = 28.0
 
 let kRunMode = kRunModes.modeLive
 let kHttpProtocol = "http"
-let kHttpHost = "192.168.0.12" //"appgrid.qa.accedo.tv" //"172.17.50.170" //"192.168.0.12"
-let kHttpPort = "5000" //"8085"
+let kHttpHost = "appgrid.qa.accedo.tv" //"appgrid.qa.accedo.tv" //"172.17.50.170" //"192.168.0.12"
+let kHttpPort = "8085" //"8085"
 let kHttpPaths = [["path" : "/api/health", "method" : "GET" ],
                   ["path" : "/api/owner/register", "method" : "POST" ],
                   ["path" : "/api/notes/all", "method" : "POST"],

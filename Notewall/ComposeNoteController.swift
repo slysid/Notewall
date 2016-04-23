@@ -48,7 +48,9 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
     var noteAdjustment:CGFloat = 40.0
     var noteDefaultYPos:CGFloat?
     var composeType:kComposeTypes = kComposeTypes.kComposeNote
+    var composeNoteType:kComposeNoteTypes = kComposeNoteTypes.kNoteTypeFree
     var composeTypeImageView:UIImageView?
+    var noteTypeImageView:UIImageView?
     var imgPicker:UIImagePickerController = UIImagePickerController()
     
     var pinchScale:CGFloat = 0.0
@@ -58,6 +60,9 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
     var paymentController:PaymentController?
     var activity:UIActivityIndicatorView?
     var pinPostView:UIView?
+    var redSlider:UISlider?
+    var blueSlider:UISlider?
+    var greenSlider:UISlider?
     
     override func viewDidLoad() {
         
@@ -139,14 +144,14 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
     
     func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
         
-        if (scrollView == noteTypesScroll?.scrollView!) {
+       /* if (scrollView == noteTypesScroll?.scrollView!) {
             
             let contentOffset:CGFloat = self.noteTypesScroll!.scrollView!.contentOffset.x
             selectedNoteIndex = Int(contentOffset / self.noteTypesScroll!.scrollView!.frame.size.width)
             //self.notesImageView!.image = UIImage(named: stickyNotes[selectedNoteIndex])
             self.notesImageView!.image = UIImage().noteImage(named: stickyNotes[selectedNoteIndex])
             
-        }
+        } */
         
         if (scrollView == noteFontsScroll?.scrollView!) {
             
@@ -156,14 +161,14 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             self.assignedTextAttributes()
         }
         
-        if (scrollView == noteFontSizeScroll?.scrollView!) {
+       /* if (scrollView == noteFontSizeScroll?.scrollView!) {
             
             let contentOffset:CGFloat = self.noteFontSizeScroll!.scrollView!.contentOffset.x
             selectedFontSizeIndex = Int(contentOffset / self.noteFontSizeScroll!.scrollView!.frame.size.width)
             
             self.assignedTextAttributes()
             
-        }
+        }*/
         
         if (scrollView == noteFontColorScroll?.scrollView!) {
             
@@ -499,6 +504,16 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             self.composeTypeImageView!.addGestureRecognizer(composeTap)
         }
         
+        if (self.noteTypeImageView == nil) {
+            
+            self.noteTypeImageView = UIImageView(frame: CGRectMake(0,self.composeTypeImageView!.frame.size.height + 5,composeDim,composeDim))
+            self.noteTypeImageView!.userInteractionEnabled = true
+            self.newNoteView!.addSubview(self.noteTypeImageView!)
+            
+            let composeTap = UITapGestureRecognizer(target: self, action: #selector(Compose.changeNoteTypeMode))
+            self.noteTypeImageView!.addGestureRecognizer(composeTap)
+        }
+        
         //let buttonWidth = Common.sharedCommon.calculateDimensionForDevice(80)
         //let buttonHeight = Common.sharedCommon.calculateDimensionForDevice(35)
         
@@ -532,6 +547,15 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         self.newNoteView!.addSubview(pinNote)
         
         
+       /* let noteCategories = ["note1.png","note2.png"]
+        let noteCategoryScrollUnitWidth:CGFloat = 30
+        let noteCategoryScroll = UIScrollView(frame: CGRectMake(0,0,noteCategoryScrollUnitWidth * 2.0,noteCategoryScrollUnitWidth))
+        noteCategoryScroll.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin)
+        noteCategoryScroll.center = CGPointMake(UIScreen.mainScreen().bounds.size.width * 0.5,pinNote.center.y + pinNote.frame.size.width)
+        noteCategoryScroll.backgroundColor = UIColor.redColor()
+        self.newNoteView!.addSubview(noteCategoryScroll) */
+        
+        
         
         let closeImage = CloseView(frame: CGRectMake(UIScreen.mainScreen().bounds.width - composeDim, 0, composeDim, composeDim))
         closeImage.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(.FlexibleBottomMargin)
@@ -541,6 +565,16 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         if (cType == kComposeTypes.kComposeNote) {
             
             self.composeTypeImageView!.image = UIImage(named: "camera.png")
+            
+            if (self.composeNoteType == kComposeNoteTypes.kNoteTypeFree){
+                
+                self.noteTypeImageView!.image = UIImage(named:"fnote.png")
+            }
+            else if (self.composeNoteType == kComposeNoteTypes.kNoteTypeSponsored){
+                
+                self.noteTypeImageView!.image = UIImage(named:"snote.png")
+            }
+            
             self.composeNewNote()
         }
         else if (cType == kComposeTypes.kComposePicture){
@@ -654,101 +688,147 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         } */
         
         
-        
-        let width = Common.sharedCommon.calculateDimensionForDevice(290)
-        noteDefaultYPos = Common.sharedCommon.calculateDimensionForDevice(30) + (width * 0.5)
-        let noteFrame = CGRectMake(0,0,width,width * 0.90)
-        notesImageView = ComposeNote(frame: noteFrame, withImage: stickyNotes[0], withFontSize:textFontSize)
-        notesImageView!.center = CGPointMake(UIScreen.mainScreen().bounds.width * 0.5 , noteDefaultYPos!)
-        notesImageView!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin)
-        notesImageView!.composeNoteDelegate = self
-        orgNotePosition = notesImageView!.frame
-        orgNoteCenter = notesImageView!.center
-        centerOffset = self.orgNoteCenter!.y
-        textField = notesImageView!.composeTextView
-        textField!.delegate = self
-        self.newNoteView!.addSubview(notesImageView!)
-        let rightSwipe = UISwipeGestureRecognizer(target: self, action: #selector(Compose.composeNoteChangeType(_:)))
-        rightSwipe.direction = .Right
-        self.notesImageView!.addGestureRecognizer(rightSwipe)
-        let leftSwipe = UISwipeGestureRecognizer(target: self, action: #selector(Compose.composeNoteChangeType(_:)))
-        leftSwipe.direction = .Left
-        self.notesImageView!.addGestureRecognizer(leftSwipe)
-        let pinch = UIPinchGestureRecognizer(target: self, action: #selector(Compose.handlePinch(_:)))
-        self.notesImageView!.addGestureRecognizer(pinch)
-        
-        var xOffset:CGFloat = 5.0
-        var yOffset:CGFloat = 0.0
-        
-        if (UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeLeft || UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeRight) {
+        if (self.composeNoteType == kComposeNoteTypes.kNoteTypeFree ) {
             
-            yOffset = UIScreen.mainScreen().bounds.height * 0.15
-        }
-        else {
+            let width = Common.sharedCommon.calculateDimensionForDevice(290)
+            noteDefaultYPos = Common.sharedCommon.calculateDimensionForDevice(30) + (width * 0.5)
+            let noteFrame = CGRectMake(0,0,width,width * 0.90)
+            notesImageView = ComposeNote(frame: noteFrame, withImage: stickyNotes[0], withFontSize:textFontSize)
+            notesImageView!.center = CGPointMake(UIScreen.mainScreen().bounds.width * 0.5 , noteDefaultYPos!)
+            notesImageView!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin)
+            notesImageView!.composeNoteDelegate = self
+            orgNotePosition = notesImageView!.frame
+            orgNoteCenter = notesImageView!.center
+            centerOffset = self.orgNoteCenter!.y
+            textField = notesImageView!.composeTextView
+            textField!.delegate = self
+            self.newNoteView!.addSubview(notesImageView!)
+            let rightSwipe = UISwipeGestureRecognizer(target: self, action: #selector(Compose.composeNoteChangeType(_:)))
+            rightSwipe.direction = .Right
+            self.notesImageView!.addGestureRecognizer(rightSwipe)
+            let leftSwipe = UISwipeGestureRecognizer(target: self, action: #selector(Compose.composeNoteChangeType(_:)))
+            leftSwipe.direction = .Left
+            self.notesImageView!.addGestureRecognizer(leftSwipe)
+            let pinch = UIPinchGestureRecognizer(target: self, action: #selector(Compose.handlePinch(_:)))
+            self.notesImageView!.addGestureRecognizer(pinch)
             
-            yOffset = notesImageView!.frame.origin.y + notesImageView!.frame.size.height - Common.sharedCommon.calculateDimensionForDevice(20)
+            var xOffset:CGFloat = 5.0
+            var yOffset:CGFloat = 0.0
+            
+            if (UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeLeft || UIDevice.currentDevice().orientation == UIDeviceOrientation.LandscapeRight) {
+                
+                yOffset = UIScreen.mainScreen().bounds.height * 0.15
+            }
+            else {
+                
+                yOffset = notesImageView!.frame.origin.y + notesImageView!.frame.size.height - Common.sharedCommon.calculateDimensionForDevice(20)
+            }
+            
+            let scrollDimWidth = Common.sharedCommon.calculateDimensionForDevice(90)
+            let scrollDimHeight = Common.sharedCommon.calculateDimensionForDevice(110)
+            
+            var frameRect = CGRectMake(xOffset,yOffset,scrollDimWidth,scrollDimHeight)
+            
+            /* noteTypesScroll = SettingsScroll(frame: frameRect, fillSettings: stickyNotes, contentTypeTitle: "NOTES")
+             noteTypesScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin
+             noteTypesScroll!.scrollView!.delegate = self
+             noteTypesScroll!.scrollView!.backgroundColor = UIColor.blackColor()
+             noteTypesScroll!.hidden = false
+             //self.newNoteView!.addSubview(noteTypesScroll!) */
+            
+            noteFontsScroll = SettingsScroll(frame: frameRect, fillSettings: kSupportedFonts, contentTypeTitle: "FONTS")
+            noteFontsScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin
+            noteFontsScroll!.scrollView!.delegate = self
+            noteFontsScroll!.scrollView!.backgroundColor = UIColor.blackColor()
+            noteFontsScroll!.hidden = false
+            self.newNoteView!.addSubview(noteFontsScroll!)
+            
+            
+            //xOffset = self.notesImageView!.frame.origin.x + self.notesImageView!.frame.size.width + Common.sharedCommon.calculateDimensionForDevice(10)
+            xOffset = UIScreen.mainScreen().bounds.width - scrollDimWidth - noteFontsScroll!.frame.origin.x
+            yOffset = self.noteFontsScroll!.frame.origin.y
+            frameRect = CGRectMake(xOffset,yOffset,noteFontsScroll!.frame.size.width,noteFontsScroll!.frame.size.height)
+            
+           /* noteFontColorScroll = SettingsScroll(frame: frameRect, fillSettings: kFontColor, contentTypeTitle:"COLORS")
+            noteFontColorScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin.union(.FlexibleLeftMargin).union(.FlexibleRightMargin)
+            noteFontColorScroll!.scrollView!.delegate = self
+            noteFontColorScroll!.hidden = false
+            self.newNoteView!.addSubview(noteFontColorScroll!) */
+            
+            
+            noteFontColorScroll = SettingsScroll(frame: frameRect, fillSettings: kFontColor, contentTypeTitle:"COLORS")
+            noteFontColorScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin.union(.FlexibleLeftMargin).union(.FlexibleRightMargin)
+            noteFontColorScroll!.scrollView!.delegate = self
+            noteFontColorScroll!.hidden = false
+            self.newNoteView!.addSubview(noteFontColorScroll!)
+            
+            let thumbSize = CGSizeMake(Common.sharedCommon.calculateDimensionForDevice(15),Common.sharedCommon.calculateDimensionForDevice(15))
+            
+            let redThumbImage = UIImage().imageWithImage(UIImage(named: "redThumb.png")!, scaledToSize: thumbSize)
+            redSlider = UISlider(frame: CGRectMake(0,30,noteFontColorScroll!.frame.size.width,20))
+            redSlider!.minimumValue = 0.0
+            redSlider!.maximumValue = 1.0
+            redSlider!.minimumTrackTintColor = UIColor.redColor()
+            redSlider!.setThumbImage(redThumbImage, forState: UIControlState.Normal)
+            self.noteFontColorScroll!.addSubview(redSlider!)
+            redSlider!.addTarget(self, action: #selector(Compose.sliderValueChanged), forControlEvents: UIControlEvents.ValueChanged)
+            
+            let blueThumbImage = UIImage().imageWithImage(UIImage(named: "blueThumb.png")!, scaledToSize: thumbSize)
+            blueSlider = UISlider(frame: CGRectMake(0,redSlider!.frame.origin.y + redSlider!.frame.size.height + 2,noteFontColorScroll!.frame.size.width,20))
+            blueSlider!.minimumValue = 0.0
+            blueSlider!.maximumValue = 1.0
+            blueSlider!.minimumTrackTintColor = UIColor.blueColor()
+            blueSlider!.setThumbImage(blueThumbImage, forState: UIControlState.Normal)
+            self.noteFontColorScroll!.addSubview(blueSlider!)
+            blueSlider!.addTarget(self, action: #selector(Compose.sliderValueChanged), forControlEvents: UIControlEvents.ValueChanged)
+            
+            let greenThumbImage = UIImage().imageWithImage(UIImage(named: "greenThumb.png")!, scaledToSize: thumbSize)
+            greenSlider = UISlider(frame: CGRectMake(0,blueSlider!.frame.origin.y + blueSlider!.frame.size.height + 2,noteFontColorScroll!.frame.size.width,20))
+            greenSlider!.minimumValue = 0.0
+            greenSlider!.maximumValue = 1.0
+            greenSlider!.minimumTrackTintColor = UIColor.greenColor()
+            greenSlider!.setThumbImage(greenThumbImage, forState: UIControlState.Normal)
+            self.noteFontColorScroll!.addSubview(greenSlider!)
+            greenSlider!.addTarget(self, action: #selector(Compose.sliderValueChanged), forControlEvents: UIControlEvents.ValueChanged)
+            
+            
+            
+            
+            /*  xOffset = self.noteTypesScroll!.frame.origin.x
+             yOffset = self.noteTypesScroll!.frame.origin.y + self.noteTypesScroll!.frame.size.height + Common.sharedCommon.calculateDimensionForDevice(15)
+             frameRect = CGRectMake(xOffset,yOffset,noteTypesScroll!.frame.size.width,noteTypesScroll!.frame.size.height)
+             
+             noteFontSizeScroll = SettingsScroll(frame: frameRect, fillSettings: kFontSizes, contentTypeTitle:"SIZE")
+             noteFontSizeScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin
+             noteFontSizeScroll!.scrollView!.delegate = self
+             noteFontSizeScroll!.hidden = false
+             //self.newNoteView!.addSubview(noteFontSizeScroll!)
+             
+             
+             xOffset = noteFontSizeScroll!.frame.size.width * CGFloat(selectedFontSizeIndex)
+             yOffset = noteFontSizeScroll!.scrollView!.frame.origin.y
+             noteFontSizeScroll!.scrollView!.scrollRectToVisible(CGRectMake(xOffset, yOffset, noteFontSizeScroll!.scrollView!.frame.size.width,noteFontSizeScroll!.scrollView!.frame.size.height), animated: false)
+             
+             xOffset = self.noteFontsScroll!.frame.origin.x
+             yOffset = self.noteFontSizeScroll!.frame.origin.y
+             frameRect = CGRectMake(xOffset,yOffset,noteTypesScroll!.frame.size.width,noteTypesScroll!.frame.size.height)
+             
+             noteFontColorScroll = SettingsScroll(frame: frameRect, fillSettings: kFontColor, contentTypeTitle:"COLORS")
+             noteFontColorScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin.union(.FlexibleLeftMargin).union(.FlexibleRightMargin)
+             noteFontColorScroll!.scrollView!.delegate = self
+             noteFontColorScroll!.hidden = false
+             self.newNoteView!.addSubview(noteFontColorScroll!) */
+            
+            self.assignedTextAttributes()
+            
         }
-        
-        let scrollDimWidth = Common.sharedCommon.calculateDimensionForDevice(90)
-        let scrollDimHeight = Common.sharedCommon.calculateDimensionForDevice(110)
-        
-        var frameRect = CGRectMake(xOffset,yOffset,scrollDimWidth,scrollDimHeight)
-        
-       /* noteTypesScroll = SettingsScroll(frame: frameRect, fillSettings: stickyNotes, contentTypeTitle: "NOTES")
-        noteTypesScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin
-        noteTypesScroll!.scrollView!.delegate = self
-        noteTypesScroll!.scrollView!.backgroundColor = UIColor.blackColor()
-        noteTypesScroll!.hidden = false
-        //self.newNoteView!.addSubview(noteTypesScroll!) */
-        
-        noteFontColorScroll = SettingsScroll(frame: frameRect, fillSettings: kFontColor, contentTypeTitle: "COLORS")
-        noteFontColorScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin
-        noteFontColorScroll!.scrollView!.delegate = self
-        noteFontColorScroll!.scrollView!.backgroundColor = UIColor.blackColor()
-        noteFontColorScroll!.hidden = false
-        self.newNoteView!.addSubview(noteFontColorScroll!)
-       
-        
-        //xOffset = self.notesImageView!.frame.origin.x + self.notesImageView!.frame.size.width + Common.sharedCommon.calculateDimensionForDevice(10)
-        xOffset = UIScreen.mainScreen().bounds.width - scrollDimWidth - noteFontColorScroll!.frame.origin.x
-        yOffset = self.noteFontColorScroll!.frame.origin.y
-        frameRect = CGRectMake(xOffset,yOffset,noteFontColorScroll!.frame.size.width,noteFontColorScroll!.frame.size.height)
-        
-        noteFontsScroll = SettingsScroll(frame: frameRect, fillSettings: kSupportedFonts, contentTypeTitle:"FONTS")
-        noteFontsScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin.union(.FlexibleLeftMargin).union(.FlexibleRightMargin)
-        noteFontsScroll!.scrollView!.delegate = self
-        noteFontsScroll!.hidden = false
-        self.newNoteView!.addSubview(noteFontsScroll!)
-        
-        
-      /*  xOffset = self.noteTypesScroll!.frame.origin.x
-        yOffset = self.noteTypesScroll!.frame.origin.y + self.noteTypesScroll!.frame.size.height + Common.sharedCommon.calculateDimensionForDevice(15)
-        frameRect = CGRectMake(xOffset,yOffset,noteTypesScroll!.frame.size.width,noteTypesScroll!.frame.size.height)
-        
-        noteFontSizeScroll = SettingsScroll(frame: frameRect, fillSettings: kFontSizes, contentTypeTitle:"SIZE")
-        noteFontSizeScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin
-        noteFontSizeScroll!.scrollView!.delegate = self
-        noteFontSizeScroll!.hidden = false
-        //self.newNoteView!.addSubview(noteFontSizeScroll!)
-        
-        
-       xOffset = noteFontSizeScroll!.frame.size.width * CGFloat(selectedFontSizeIndex)
-        yOffset = noteFontSizeScroll!.scrollView!.frame.origin.y
-        noteFontSizeScroll!.scrollView!.scrollRectToVisible(CGRectMake(xOffset, yOffset, noteFontSizeScroll!.scrollView!.frame.size.width,noteFontSizeScroll!.scrollView!.frame.size.height), animated: false)
-        
-        xOffset = self.noteFontsScroll!.frame.origin.x
-        yOffset = self.noteFontSizeScroll!.frame.origin.y
-        frameRect = CGRectMake(xOffset,yOffset,noteTypesScroll!.frame.size.width,noteTypesScroll!.frame.size.height)
-        
-        noteFontColorScroll = SettingsScroll(frame: frameRect, fillSettings: kFontColor, contentTypeTitle:"COLORS")
-        noteFontColorScroll!.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin.union(.FlexibleLeftMargin).union(.FlexibleRightMargin)
-        noteFontColorScroll!.scrollView!.delegate = self
-        noteFontColorScroll!.hidden = false
-        self.newNoteView!.addSubview(noteFontColorScroll!) */
-        
-        self.assignedTextAttributes()
+        else if (self.composeNoteType == kComposeNoteTypes.kNoteTypeSponsored) {
+            
+            
+        }
         
     }
+    
     
     func composeImageNote() {
         
@@ -805,7 +885,8 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         
         //let fontSize = kFontSizes[selectedFontSizeIndex]
         let font = kSupportedFonts[selectedFontIndex]
-        let color = Common.sharedCommon.formColorWithRGB(kFontColor[selectedFontColorIndex])
+        //let color = Common.sharedCommon.formColorWithRGB(kFontColor[selectedFontColorIndex])
+        let color = Common.sharedCommon.formColorWithRGB([CGFloat(self.redSlider!.value),CGFloat(self.greenSlider!.value),CGFloat(self.blueSlider!.value)])
         
         self.textField!.font = UIFont(name: font, size: self.textFontSize);
         self.textField!.textColor = color
@@ -1087,8 +1168,10 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
                     isPinned = true
                     pinType = (sender.view! as! UILabel).text!
                 }
-                    
-                self.composeDelegate!.postAWallNote(kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex] as String, noteText: enteredText!, noteFont: kSupportedFonts[selectedFontIndex], noteFontSize: textFontSize , noteFontColor: kFontColor[selectedFontColorIndex],noteProperty:composeProperty,imageurl: imgFileName, isPinned:isPinned,pinType:pinType)
+                
+                //noteFontColor: kFontColor[selectedFontColorIndex]
+                let color = [CGFloat(self.redSlider!.value),CGFloat(self.greenSlider!.value),CGFloat(self.blueSlider!.value)]
+                self.composeDelegate!.postAWallNote(kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex] as String, noteText: enteredText!, noteFont: kSupportedFonts[selectedFontIndex], noteFontSize: textFontSize , noteFontColor: color,noteProperty:composeProperty,imageurl: imgFileName, isPinned:isPinned,pinType:pinType)
                 
             }
             
@@ -1156,9 +1239,39 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             newNoteView!.removeFromSuperview()
             newNoteView = nil
             self.composeTypeImageView = nil
+            self.noteTypeImageView = nil
             
             self.addNewNoteView(self.composeType)
         }
+    }
+    
+    
+    func changeNoteTypeMode() {
+        
+        if (self.composeNoteType == kComposeNoteTypes.kNoteTypeFree) {
+            
+            self.composeNoteType = kComposeNoteTypes.kNoteTypeSponsored
+        }
+        else if (self.composeNoteType == kComposeNoteTypes.kNoteTypeSponsored) {
+            
+            self.composeNoteType = kComposeNoteTypes.kNoteTypeFree
+        }
+        
+        if (newNoteView != nil) {
+            
+            newNoteView!.removeFromSuperview()
+            newNoteView = nil
+            self.composeTypeImageView = nil
+            self.noteTypeImageView = nil
+            
+            self.addNewNoteView(self.composeType)
+        }
+    }
+    
+    
+    func sliderValueChanged() {
+        
+        self.assignedTextAttributes()
     }
     
     
