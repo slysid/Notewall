@@ -225,111 +225,114 @@ class Common:NSObject {
         }
         else {
             
-            let pathAttributes = kHttpPaths[path.hashValue]
-            let method = pathAttributes["method"]
-            var endpoint = pathAttributes["path"]
-            
-            if (replace != nil) {
+            if (path != kAllowedPaths.kPathNil) {
                 
-                let keys = NSArray(array:replace!.allKeys)
+                let pathAttributes = kHttpPaths[path.hashValue]
+                let method = pathAttributes["method"]
+                var endpoint = pathAttributes["path"]
                 
-                for key in keys {
+                if (replace != nil) {
                     
-                    endpoint = endpoint!.stringByReplacingOccurrencesOfString(key as! String, withString: replace!.objectForKey(key) as! String, options: NSStringCompareOptions.LiteralSearch, range: nil)
-                }
-            }
-            
-            let restRequest = formPostURLRequest(endpoint!)
-            restRequest.HTTPMethod = method!
-            
-            
-            if ((method == "POST" || method == "PUT" || method == "DELETE") && body != nil) {
-                
-                if (requestContentType == .kApplicationJson) {
+                    let keys = NSArray(array:replace!.allKeys)
                     
-                    let postBody = formPostBody(body)
-                    
-                    if (postBody == nil) {
+                    for key in keys {
                         
-                        print("Error in serializing post body")
-                    }
-                    else {
-                        
-                        restRequest.HTTPBody = postBody!
-                        restRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                        endpoint = endpoint!.stringByReplacingOccurrencesOfString(key as! String, withString: replace!.objectForKey(key) as! String, options: NSStringCompareOptions.LiteralSearch, range: nil)
                     }
                 }
-                else if (requestContentType == .kMultipartFormData) {
+                
+                let restRequest = formPostURLRequest(endpoint!)
+                restRequest.HTTPMethod = method!
+                
+                
+                if ((method == "POST" || method == "PUT" || method == "DELETE") && body != nil) {
                     
-                    
-                    let postBody = formMultipartFormData(body, imageName: body!["imageurl"] as! String)
-                    
-                    if (postBody == nil) {
+                    if (requestContentType == .kApplicationJson) {
                         
-                        print("Error in serializing post body")
-                    }
-                    else {
+                        let postBody = formPostBody(body)
                         
-                        restRequest.HTTPBody = postBody!
-                        restRequest.setValue("multipart/form-data; boundary=\"helloWSXCDF\"", forHTTPHeaderField: "Content-Type")
-                        //restRequest.setValue("base64", forHTTPHeaderField: "Content-Transfer-Encoding")
-                    }
-                    
-                }
-                
-                if (Common.sharedCommon.config!["token"] != nil) {
-                    
-                    let token = Common.sharedCommon.config!["token"] as! String + ":unused"
-                    //let token = "test:test"
-                    restRequest.setValue(token, forHTTPHeaderField: "Authorization")
-                }
-                
-                
-                
-            }
-            
-            
-            let config = NSURLSessionConfiguration.defaultSessionConfiguration()
-            config.timeoutIntervalForRequest = 15.0
-            let session = NSURLSession(configuration: config)
-            let task = session.dataTaskWithRequest(restRequest) { (data, response, error) -> Void in
-                
-                
-                if (error != nil) {
-                    
-                    let responseDict = NSDictionary(objects: [error!.description], forKeys: ["error"])
-                    completion(false,responseDict)
-                }
-                else {
-                    
-                    let responseContentType = (response as! NSHTTPURLResponse).allHeaderFields["Content-Type"]! as! String
-                    if (responseContentType.rangeOfString("image") != nil) {
-                        
-                        let responseDict = NSDictionary(objects: [data!], forKeys: ["image"])
-                        completion(true,responseDict)
-                    }
-                    else {
-                        
-                        do {
+                        if (postBody == nil) {
                             
-                            let jsonResponse = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.MutableContainers)
-                            completion(true,jsonResponse as! NSDictionary)
-                            
+                            print("Error in serializing post body")
                         }
-                        catch let err as NSError{
+                        else {
                             
-                            let responseDict = NSDictionary(objects: [err.userInfo], forKeys: ["error"])
-                            completion(false,responseDict)
+                            restRequest.HTTPBody = postBody!
+                            restRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                        }
+                    }
+                    else if (requestContentType == .kMultipartFormData) {
+                        
+                        
+                        let postBody = formMultipartFormData(body, imageName: body!["imageurl"] as! String)
+                        
+                        if (postBody == nil) {
                             
+                            print("Error in serializing post body")
+                        }
+                        else {
+                            
+                            restRequest.HTTPBody = postBody!
+                            restRequest.setValue("multipart/form-data; boundary=\"helloWSXCDF\"", forHTTPHeaderField: "Content-Type")
+                            //restRequest.setValue("base64", forHTTPHeaderField: "Content-Transfer-Encoding")
                         }
                         
                     }
                     
+                    if (Common.sharedCommon.config!["token"] != nil) {
+                        
+                        let token = Common.sharedCommon.config!["token"] as! String + ":unused"
+                        //let token = "test:test"
+                        restRequest.setValue(token, forHTTPHeaderField: "Authorization")
+                    }
+                    
+                    
+                    
                 }
+                
+                
+                let config = NSURLSessionConfiguration.defaultSessionConfiguration()
+                config.timeoutIntervalForRequest = 15.0
+                let session = NSURLSession(configuration: config)
+                let task = session.dataTaskWithRequest(restRequest) { (data, response, error) -> Void in
+                    
+                    
+                    if (error != nil) {
+                        
+                        let responseDict = NSDictionary(objects: [error!.description], forKeys: ["error"])
+                        completion(false,responseDict)
+                    }
+                    else {
+                        
+                        let responseContentType = (response as! NSHTTPURLResponse).allHeaderFields["Content-Type"]! as! String
+                        if (responseContentType.rangeOfString("image") != nil) {
+                            
+                            let responseDict = NSDictionary(objects: [data!], forKeys: ["image"])
+                            completion(true,responseDict)
+                        }
+                        else {
+                            
+                            do {
+                                
+                                let jsonResponse = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.MutableContainers)
+                                completion(true,jsonResponse as! NSDictionary)
+                                
+                            }
+                            catch let err as NSError{
+                                
+                                let responseDict = NSDictionary(objects: [err.userInfo], forKeys: ["error"])
+                                completion(false,responseDict)
+                                
+                            }
+                            
+                        }
+                        
+                    }
+                }
+                
+                task.resume()
+                
             }
-            
-            task.resume()
-            
         }
         
         
