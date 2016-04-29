@@ -30,7 +30,8 @@ protocol PinBuyProtocolDelegate {
 
 class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
     
-    var productNames:Dictionary<Int,Dictionary<String,AnyObject>> = [:]
+    //var productNames:Dictionary<Int,Dictionary<String,AnyObject>> = [:]
+    var productNames:Array<Dictionary<String,AnyObject>> = []
     var activity:UIActivityIndicatorView?
     var pinBuyDelegate:PinBuyProtocolDelegate?
     var transactionInProgress = false
@@ -98,10 +99,13 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
                 dict["pincount"] = self.products[identifier]
                 dict["description"] = (product as SKProduct).localizedDescription
                 
-                productNames[index] = dict
+                //productNames[index] = dict
+                productNames.append(dict)
                 
                 index = index + 1
             }
+            
+            print(productNames)
             
             self.showBuyView()
         }
@@ -171,7 +175,7 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
         //for key in productNames.keys {
         for idx in 0 ..< productNames.count {
             
-            var getIndex = idx
+           /* var getIndex = idx
             
             if (idx == 1){
                 
@@ -185,7 +189,11 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
             
             let typeText = productNames[getIndex]!["title"]! as! String
             let typePrice = productNames[getIndex]!["price"]! as! String
-            let desc =  productNames[getIndex]!["description"]! as! String
+            let desc =  productNames[getIndex]!["description"]! as! String */
+            
+            let typeText = productNames[idx]["title"]! as! String
+            let typePrice = productNames[idx]["price"]! as! String
+            let desc =  productNames[idx]["description"]! as! String
             
             
             let typeLabel = UILabel(frame: CGRectMake(xPos,yPos,typeLabelWidth,labelHeight))
@@ -280,7 +288,7 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
                 SKPaymentQueue.defaultQueue().addTransactionObserver(self)
             
                 self.selectedProductIndex = sender.tag
-                let product = productNames[sender.tag]!["product"] as! SKProduct
+                let product = productNames[sender.tag]["product"] as! SKProduct
         
                 let actionSheetController = UIAlertController(title: "PINS", message: "What do you want to do?", preferredStyle: UIAlertControllerStyle.ActionSheet)
         
@@ -329,8 +337,8 @@ class PinBuy:UIView,SKProductsRequestDelegate,SKPaymentTransactionObserver {
         
         if (self.selectedProductIndex >= 0) {
             
-            let productType = productNames[ self.selectedProductIndex]!["title"] as! String
-            let pinCount = productNames[ self.selectedProductIndex]!["pincount"] as! Int
+            let productType = productNames[ self.selectedProductIndex]["title"] as! String
+            let pinCount = productNames[ self.selectedProductIndex]["pincount"] as! Int
             let data = ["ownerid" : Common.sharedCommon.config!["ownerId"] as! String,"type":productType,"count":pinCount]
             
             

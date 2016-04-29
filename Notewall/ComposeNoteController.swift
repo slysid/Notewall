@@ -568,11 +568,11 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             
             if (self.composeNoteType == kComposeNoteTypes.kNoteTypeFree){
                 
-                self.noteTypeImageView!.image = UIImage(named:"fnote.png")
+                self.noteTypeImageView!.image = UIImage(named:"snote.png")
             }
             else if (self.composeNoteType == kComposeNoteTypes.kNoteTypeSponsored){
                 
-                self.noteTypeImageView!.image = UIImage(named:"snote.png")
+                self.noteTypeImageView!.image = UIImage(named:"fnote.png")
             }
             
             self.composeNewNote()
@@ -602,7 +602,12 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             
             selectedNoteIndex = selectedNoteIndex + 1
             
-            if (selectedNoteIndex >= stickyNotes.count) {
+            /*if (selectedNoteIndex >= stickyNotes.count) {
+                
+                selectedNoteIndex = 0
+            }*/
+            
+            if (selectedNoteIndex >= kPinNotes.count) {
                 
                 selectedNoteIndex = 0
             }
@@ -614,9 +619,14 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             
             selectedNoteIndex = selectedNoteIndex - 1
             
-            if (selectedNoteIndex < 0) {
+            /* if (selectedNoteIndex < 0) {
                 
                 selectedNoteIndex = stickyNotes.count - 1
+            }*/
+            
+            if (selectedNoteIndex < 0) {
+                
+                selectedNoteIndex = kPinNotes.count - 1
             }
             
             currentCenter = CGPointMake(currentCenter.x - (dummyNoteView.frame.size.width * 1.5),currentCenter.y)
@@ -628,7 +638,16 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             
             //self.notesImageView!.image = UIImage(named: self.stickyNotes[self.selectedNoteIndex])
             //self.notesImageView!.image = UIImage(named: kPinNotes[self.selectedNoteIndex][self.selectedNoteInNoteIndex])
+            
+            if (self.selectedNoteInNoteIndex > kPinNotes[self.selectedNoteIndex].count - 1) {
+                
+                 self.selectedNoteInNoteIndex = 0
+                
+            }
+                
+            
             self.notesImageView!.image = UIImage().noteImage(named: kPinNotes[self.selectedNoteIndex][self.selectedNoteInNoteIndex])
+            
             
              UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
                 
@@ -688,12 +707,12 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         } */
         
         
-        if (self.composeNoteType == kComposeNoteTypes.kNoteTypeFree ) {
+        if (self.composeNoteType == kComposeNoteTypes.kNoteTypeFree || self.composeNoteType == kComposeNoteTypes.kNoteTypeSponsored ) {
             
             let width = Common.sharedCommon.calculateDimensionForDevice(290)
             noteDefaultYPos = Common.sharedCommon.calculateDimensionForDevice(30) + (width * 0.5)
             let noteFrame = CGRectMake(0,0,width,width * 0.90)
-            notesImageView = ComposeNote(frame: noteFrame, withImage: stickyNotes[0], withFontSize:textFontSize)
+            notesImageView = ComposeNote(frame: noteFrame, withImage: kPinNotes[0][0], withFontSize:textFontSize)
             notesImageView!.center = CGPointMake(UIScreen.mainScreen().bounds.width * 0.5 , noteDefaultYPos!)
             notesImageView!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin)
             notesImageView!.composeNoteDelegate = self
@@ -1251,10 +1270,12 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         if (self.composeNoteType == kComposeNoteTypes.kNoteTypeFree) {
             
             self.composeNoteType = kComposeNoteTypes.kNoteTypeSponsored
+            kPinNotes = kSponsoredPinNotes
         }
         else if (self.composeNoteType == kComposeNoteTypes.kNoteTypeSponsored) {
             
             self.composeNoteType = kComposeNoteTypes.kNoteTypeFree
+            kPinNotes = kFreePinNotes
         }
         
         if (newNoteView != nil) {

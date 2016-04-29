@@ -123,6 +123,9 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
         super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
         
+        screenWidth = size.width
+        screenHeight = size.height
+        
         coordinator.animateAlongsideTransition({ (UIViewControllerTransitionCoordinatorContext) in
             
             if (self.favButton != nil ) {

@@ -33,6 +33,7 @@ extension UIImage
 {
     func noteImage(named noteType:String) -> UIImage?
     {
+        print(noteType)
         let imageData = Common.sharedCommon.noteImageNameDataMap[noteType]
         if imageData == nil
         {
@@ -416,8 +417,11 @@ class Common:NSObject {
     
     func getACoordinate(screenwidth:CGFloat,screenheight:CGFloat) -> CGPoint {
         
-        let xPoint = (screenwidth * 0.50) +  CGFloat(Int.random(-130 ... 130))
-        var yPoint = (screenheight * 0.50) + CGFloat(Int.random(-150 ... 150))
+        let xOffset = CGFloat(Int.random(-60 ... 60))
+        let yOffset = CGFloat(Int.random(-80 ... 80))
+        
+        let xPoint = (screenwidth * 0.50) +  xOffset
+        var yPoint = (screenheight * 0.50) + yOffset
         
         if yPoint < 40 {
             
@@ -493,8 +497,6 @@ class Common:NSObject {
             
             let directoryContents = try NSFileManager.defaultManager().contentsOfDirectoryAtURL(documentsURL!, includingPropertiesForKeys: nil, options: NSDirectoryEnumerationOptions())
             
-            print(directoryContents.count)
-            
             if (directoryContents.count == 1) {
                 
                 self.getNotesImagesFromServer()
@@ -504,12 +506,34 @@ class Common:NSObject {
                 if let dir:NSString = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first {
                     
                     
-                    let path = dir.stringByAppendingPathComponent("NotesOrder.plist")
-                    let pinNotes:NSArray = NSArray(contentsOfFile: path)!
-                    kPinNotes = (pinNotes as? Array<Array<String>>)!
+                    var path = dir.stringByAppendingPathComponent("FreeNotesOrder.plist")
+                    var pinNotes:NSArray = NSArray(contentsOfFile: path)!
+                    kFreePinNotes = (pinNotes as? Array<Array<String>>)!
                     
+                    for notesList in kFreePinNotes {
+                        
+                        for noteName in notesList {
+                            
+                            for content in directoryContents {
+                                
+                                let fileName = content.absoluteString.characters.split{$0 == "/"}.map(String.init).last
+                                
+                                if (fileName == noteName) {
+                                    self.noteImageNameDataMap[fileName!] = NSData(contentsOfURL: content)
+                                    break
+                                }
+                                
+                            }
+                        }
+                    }
                     
-                    for notesList in kPinNotes {
+                    kPinNotes = kFreePinNotes
+                    
+                    path = dir.stringByAppendingPathComponent("SponsoredNotesOrder.plist")
+                    pinNotes = NSArray(contentsOfFile: path)!
+                    kSponsoredPinNotes = (pinNotes as? Array<Array<String>>)!
+                    
+                    for notesList in kSponsoredPinNotes {
                         
                         for noteName in notesList {
                             
@@ -527,6 +551,7 @@ class Common:NSObject {
                     }
                     
                 }
+                
             }
         }
         catch {
@@ -542,7 +567,7 @@ class Common:NSObject {
             
             if (result == true) {
                 
-                let data = response["data"]!["notes"] as! NSArray
+                var data = response["data"]!["notes"]!!["free"] as! NSArray
                 
                 for notesList in data {
                     
@@ -556,16 +581,46 @@ class Common:NSObject {
                         names.append(fileName!)
                     }
                     
-                    kPinNotes.append(names)
+                    kFreePinNotes.append(names)
+                    
                 }
+                
+                data = response["data"]!["notes"]!!["sponsored"] as! NSArray
+                
+                for notesList in data {
+                    
+                    var names:Array<String> = []
+                    
+                    for note in notesList as! NSArray {
+                        
+                        let fullURL = note as? String
+                        let fileName = fullURL?.characters.split{$0 == "/"}.map(String.init).last
+                        self.downloadImages(note as? String,fileName: fileName)
+                        names.append(fileName!)
+                    }
+                    
+                    kSponsoredPinNotes.append(names)
+                }
+                
                 
                 if let dir:NSString = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first {
                     
-                    let path = dir.stringByAppendingPathComponent("NotesOrder.plist")
-                    let pinNotes:NSArray = kPinNotes
+                    let path = dir.stringByAppendingPathComponent("FreeNotesOrder.plist")
+                    let pinNotes:NSArray = kFreePinNotes
                     pinNotes.writeToFile(path, atomically: false)
                     
                 }
+                
+                
+                if let dir:NSString = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first {
+                    
+                    let path = dir.stringByAppendingPathComponent("SponsoredNotesOrder.plist")
+                    let pinNotes:NSArray = kSponsoredPinNotes
+                    pinNotes.writeToFile(path, atomically: false)
+                    
+                }
+                
+                kPinNotes = kFreePinNotes
                 
             }
             else {
@@ -577,6 +632,7 @@ class Common:NSObject {
     
     
     func downloadImages(imageURL:String?,fileName:String?) {
+        
         
         let sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
         let session = NSURLSession(configuration: sessionConfiguration, delegate: nil, delegateQueue: nil)

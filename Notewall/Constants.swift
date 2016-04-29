@@ -106,6 +106,8 @@ let kBackGrounds = [kBG1,kBG2,kBG3,kBG4]
     "noteYellow1.png" ] */
 
 var kPinNotes:Array<Array<String>> = []
+var kFreePinNotes:Array<Array<String>> = []
+var kSponsoredPinNotes:Array<Array<String>> = []
 
 
 /*var kPinNotes = [

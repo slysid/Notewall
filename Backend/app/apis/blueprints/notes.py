@@ -275,7 +275,11 @@ def uploaded_file(filename):
     
 @notes.route('/notes/images',methods=['GET'])
 def getNotesImages():
-    notes = [['https://s3-eu-west-1.amazonaws.com/pinitapp/free/1/noteBlue1.png',
+    notes = {
+        
+        'free' : [
+              
+               ['https://s3-eu-west-1.amazonaws.com/pinitapp/free/1/noteBlue1.png',
               'https://s3-eu-west-1.amazonaws.com/pinitapp/free/1/noteGreen1.png',
               'https://s3-eu-west-1.amazonaws.com/pinitapp/free/1/notePink1.png',
               'https://s3-eu-west-1.amazonaws.com/pinitapp/free/1/noteWhite1.png',
@@ -298,6 +302,12 @@ def getNotesImages():
               'https://s3-eu-west-1.amazonaws.com/pinitapp/free/4/notePink4.png',
               'https://s3-eu-west-1.amazonaws.com/pinitapp/free/4/noteWhite4.png',
               'https://s3-eu-west-1.amazonaws.com/pinitapp/free/4/noteYellow4.png']
+            ],
+            
+        'sponsored' : [
+            
+            ['https://s3-eu-west-1.amazonaws.com/pinitapp/sponsored/sponsored.png']
         ]
+    }
     return jsonify({'data': {'notes':notes}})
     
