@@ -169,15 +169,21 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
     
     override func shouldAutorotate() -> Bool {
         
+        if (self.settingsController != nil) {
+            
+            return false
+        }
+        
         return true
+        
     }
     
     override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
         
-        /*if (self.options != nil) {
+        if (self.settingsController != nil) {
             
             return UIInterfaceOrientationMask.Portrait
-        }*/
+        }
         
         return UIInterfaceOrientationMask.All
     }

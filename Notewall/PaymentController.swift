@@ -82,8 +82,15 @@ class PaymentController:UIViewController {
             self.pinView = nil
             
         }
+    }
+    
+    override func shouldAutorotate() -> Bool {
         
+        return false
+    }
+    
+    override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
         
-        
+        return UIInterfaceOrientationMask.Portrait
     }
 }
