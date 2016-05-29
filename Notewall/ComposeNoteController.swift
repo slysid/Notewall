@@ -58,11 +58,16 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
     
     var pinBuyView:PinBuy?
     var paymentController:PaymentController?
+    var noteBuyController:NoteBuyController?
     var activity:UIActivityIndicatorView?
     var pinPostView:UIView?
     var redSlider:UISlider?
     var blueSlider:UISlider?
     var greenSlider:UISlider?
+    
+    var noteLock:UIImageView?
+    var postNote:UIImageView?
+    var pinNote:UIImageView?
     
     override func viewDidLoad() {
         
@@ -504,9 +509,11 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             self.composeTypeImageView!.addGestureRecognizer(composeTap)
         }
         
+        let noteTypeImageViewDim = Common.sharedCommon.calculateDimensionForDevice(35)
+        
         if (self.noteTypeImageView == nil) {
             
-            self.noteTypeImageView = UIImageView(frame: CGRectMake(0,self.composeTypeImageView!.frame.size.height + 5,composeDim,composeDim))
+            self.noteTypeImageView = UIImageView(frame: CGRectMake(self.composeTypeImageView!.frame.size.width + 5.0 ,0,noteTypeImageViewDim,noteTypeImageViewDim))
             self.noteTypeImageView!.userInteractionEnabled = true
             self.newNoteView!.addSubview(self.noteTypeImageView!)
             
@@ -526,25 +533,25 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         self.newNoteView!.addSubview(self.postButton!)*/
         
         let xOffset = UIScreen.mainScreen().bounds.width * 0.5 - (1.5 * composeDim)
-        let postNote  = UIImageView(frame: CGRectMake(xOffset, 0, composeDim, composeDim))
-        postNote.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(UIViewAutoresizing.FlexibleRightMargin).union(.FlexibleBottomMargin)
+        postNote  = UIImageView(frame: CGRectMake(xOffset, 0, composeDim, composeDim))
+        postNote!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(UIViewAutoresizing.FlexibleRightMargin).union(.FlexibleBottomMargin)
         //postNote.image = UIImage(named: "noteBlue1.png")
-        postNote.image = UIImage().noteImage(named: kPinNotes[self.selectedNoteIndex][self.selectedNoteInNoteIndex])
-        postNote.userInteractionEnabled = true
-        postNote.tag = 1
+        postNote!.image = UIImage().noteImage(named: kPinNotes[self.selectedNoteIndex][self.selectedNoteInNoteIndex])
+        postNote!.userInteractionEnabled = true
+        postNote!.tag = 1
         let postTap = UITapGestureRecognizer(target: self, action: #selector(Compose.noteTapped(_:)))
-        postNote.addGestureRecognizer(postTap)
-        self.newNoteView!.addSubview(postNote)
+        postNote!.addGestureRecognizer(postTap)
+        self.newNoteView!.addSubview(postNote!)
         
         
-        let pinNote  = UIImageView(frame: CGRectMake(xOffset + (1.5 * composeDim), 0, composeDim, composeDim))
-        pinNote.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(UIViewAutoresizing.FlexibleRightMargin).union(.FlexibleBottomMargin)
-        pinNote.image = UIImage(named: "pin.png")
-        pinNote.userInteractionEnabled = true
-        pinNote.tag = 2
+        pinNote  = UIImageView(frame: CGRectMake(xOffset + (1.5 * composeDim), 0, composeDim, composeDim))
+        pinNote!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin).union(UIViewAutoresizing.FlexibleRightMargin).union(.FlexibleBottomMargin)
+        pinNote!.image = UIImage(named: "pin.png")
+        pinNote!.userInteractionEnabled = true
+        pinNote!.tag = 2
         let pinTap = UITapGestureRecognizer(target: self, action: #selector(Compose.checkPinAvailability))
-        pinNote.addGestureRecognizer(pinTap)
-        self.newNoteView!.addSubview(pinNote)
+        pinNote!.addGestureRecognizer(pinTap)
+        self.newNoteView!.addSubview(pinNote!)
         
         
        /* let noteCategories = ["note1.png","note2.png"]
@@ -573,6 +580,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             else if (self.composeNoteType == kComposeNoteTypes.kNoteTypeSponsored){
                 
                 self.noteTypeImageView!.image = UIImage(named:"fnote.png")
+                
             }
             
             self.composeNewNote()
@@ -712,6 +720,8 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
             let width = Common.sharedCommon.calculateDimensionForDevice(290)
             noteDefaultYPos = Common.sharedCommon.calculateDimensionForDevice(30) + (width * 0.5)
             let noteFrame = CGRectMake(0,0,width,width * 0.90)
+            
+            
             notesImageView = ComposeNote(frame: noteFrame, withImage: kPinNotes[0][0], withFontSize:textFontSize)
             notesImageView!.center = CGPointMake(UIScreen.mainScreen().bounds.width * 0.5 , noteDefaultYPos!)
             notesImageView!.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin.union(.FlexibleRightMargin)
@@ -839,6 +849,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
              self.newNoteView!.addSubview(noteFontColorScroll!) */
             
             self.assignedTextAttributes()
+            self.checkForNoteLock(kPinNotes[0][0])
             
         }
         else if (self.composeNoteType == kComposeNoteTypes.kNoteTypeSponsored) {
@@ -884,8 +895,53 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
     }
     
     
-   /* func showPreviewImage() {
+    func checkForNoteLock(noteName:String) {
         
+        if (self.composeNoteType == kComposeNoteTypes.kNoteTypeSponsored) {
+            
+            if ((Common.sharedCommon.ownerDetails!["sponsorednotes"] as? Array)!.contains(noteName)) {
+                
+                if (self.noteLock != nil) {
+                    
+                    self.noteLock!.removeFromSuperview()
+                    self.noteLock = nil
+                }
+            }
+            else {
+                
+                if (self.noteLock == nil) {
+                    
+                    let noteLockDim = Common.sharedCommon.calculateDimensionForDevice(60.0)
+                    self.noteLock = UIImageView(frame: CGRectMake(0,0,noteLockDim,noteLockDim))
+                    self.noteLock!.image = UIImage(named: "lock.png")
+                    self.noteLock!.userInteractionEnabled = true
+                    self.notesImageView!.addSubview(self.noteLock!)
+                    
+                    let noteLockTap = UITapGestureRecognizer(target: self, action: #selector(Compose.noteLockTapped))
+                    self.noteLock?.addGestureRecognizer(noteLockTap)
+                    
+                }
+                
+                self.notesImageView!.composeTextView!.resignFirstResponder()
+                self.postNote!.alpha = 0.0
+                self.pinNote!.alpha = 0.0
+                
+            }
+            
+        }
+        else {
+            
+            if (self.noteLock != nil) {
+                self.noteLock!.removeFromSuperview()
+                self.noteLock = nil
+            }
+            
+        }
+    }
+    
+    
+   /* func showPreviewImage() {
+     
         if (enteredText == nil ) {
             
             enteredText = ""
@@ -1041,7 +1097,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
                 
                 let yPos:CGFloat = 0
                 let frame = CGRectMake(0,yPos,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - yPos)
-                self.paymentController  = PaymentController(frame:frame, overrideTextColor:nil)
+                self.paymentController  = PaymentController(frame:frame, overrideTextColor:nil,module: kPaymentModulePIN)
                 self.addChildViewController(self.paymentController!)
                 self.newNoteView!.addSubview(self.paymentController!.view)
                 self.paymentController!.didMoveToParentViewController(self)
@@ -1225,6 +1281,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         
         //self.notesImageView!.image = UIImage(named:kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex])
         self.notesImageView!.image = UIImage().noteImage(named:kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex])
+        self.checkForNoteLock(kPinNotes[selectedNoteIndex][selectedNoteInNoteIndex])
         
         
         UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: { () -> Void in
@@ -1324,6 +1381,24 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate,PinBuyProtocolDe
         
     }
     
+    
+    func noteLockTapped() {
+        
+        
+        if (self.paymentController != nil) {
+            
+            self.paymentController!.view.removeFromSuperview()
+            self.paymentController = nil
+        }
+        
+        let yPos:CGFloat = 0
+        let frame = CGRectMake(0,yPos,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - yPos)
+        
+        self.paymentController  = PaymentController(frame:frame, overrideTextColor:nil,module: kPaymentModuleNote)
+        self.addChildViewController(self.paymentController!)
+        self.newNoteView!.addSubview(self.paymentController!.view)
+        self.paymentController!.didMoveToParentViewController(self)
+    }
     
     
 }

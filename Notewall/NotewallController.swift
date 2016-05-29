@@ -335,6 +335,11 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
                     finalDatasourceAPI = overrideDatasourceAPIWith!
                 }
             
+            if (finalDatasourceAPI == kAllowedPaths.kPathNil) {
+                
+                self.activityStopAnimating()
+            }
+            
                 Common.sharedCommon.postRequestAndHadleResponse(finalDatasourceAPI, body: data, replace: nil,requestContentType:kContentTypes.kApplicationJson) { (result, response) -> Void in
                 
                         self.activityStopAnimating()
@@ -1732,13 +1737,13 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
         
        if (self.hamburgerTableView  == nil) {
         
-            self.hamburgerTableView  = OptionsOptionView(frame: CGRectMake(-UIScreen.mainScreen().bounds.size.width,self.hamburgerImage!.frame.size.height, UIScreen.mainScreen().bounds.size.width,300),fromSettings:false)
+            self.hamburgerTableView  = OptionsOptionView(frame: CGRectMake(-UIScreen.mainScreen().bounds.size.width,self.hamburgerImage!.frame.size.height, UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height),fromSettings:false)
             self.hamburgerTableView!.optionsOptionsDelegate = self
             self.view.addSubview(self.hamburgerTableView!)
         
             dispatch_async(dispatch_get_main_queue(), { 
                 
-                UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { 
+                UIView.animateWithDuration(0.2, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: {
                     
                     self.masterView!.alpha = 0.3
                     //self.refreshImage!.alpha = 0.0
@@ -1846,7 +1851,7 @@ class NotewallController:UIViewController, UIScrollViewDelegate, WallNoteDelegat
             
             let yPos = self.settingsController!.view.frame.size.height
             let frame = CGRectMake(0,yPos,UIScreen.mainScreen().bounds.size.width,UIScreen.mainScreen().bounds.size.height - yPos)
-            self.paymentController  = PaymentController(frame:frame, overrideTextColor:nil)
+            self.paymentController  = PaymentController(frame:frame, overrideTextColor:nil,module:kPaymentModulePIN)
             self.addGivenController(self.paymentController!)
         }
     }

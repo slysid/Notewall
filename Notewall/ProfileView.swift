@@ -328,8 +328,15 @@ class ProfileView:UIView,UITextFieldDelegate {
             
             if (self.oldPassword!.alpha == 0.0) {
                 
-                self.defaultPosition = self.center
-                self.center = CGPointMake(self.center.x,self.center.y - (self.passwordLabel!.frame.origin.y + self.passwordLabel!.frame.size.height - (6 * distanceBetween)))
+                //self.defaultPosition = self.center
+                //self.center = CGPointMake(self.center.x,self.center.y - (self.passwordLabel!.frame.origin.y + self.passwordLabel!.frame.size.height - (6 * distanceBetween)))
+                
+                passwordLabel!.center = nameView!.center
+                changePasswordImageView!.center = changeScreenNameImageView!.center
+                
+                nameView!.alpha = 0.0
+                changeScreenNameImageView!.alpha = 0.0
+                emailLabel!.alpha = 0.0
             }
             
             changePasswordImageView!.image = UIImage(named:"cancel.png")
@@ -338,12 +345,14 @@ class ProfileView:UIView,UITextFieldDelegate {
             UIView.animateWithDuration(self.animateDuration, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
                 
                 self.oldPassword!.alpha = 1.0
+                self.oldPassword!.center =  self.emailLabel!.center
                 
                 }) { (Bool) -> Void in
                     
                     UIView.animateWithDuration(self.animateDuration, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
                         
                         self.newPassword!.alpha = 1.0
+                        self.newPassword!.center = CGPointMake(self.newPassword!.center.x,self.oldPassword!.center.y + self.oldPassword!.frame.size.height)
                         
                         }, completion: { (Bool) -> Void in
                             
@@ -351,6 +360,7 @@ class ProfileView:UIView,UITextFieldDelegate {
                            UIView.animateWithDuration(self.animateDuration, delay: 0.0, options: UIViewAnimationOptions.BeginFromCurrentState , animations: { () -> Void in
                                 
                                 self.confirmPassword!.alpha = 1.0
+                                self.confirmPassword!.center = CGPointMake(self.confirmPassword!.center.x,self.newPassword!.center.y + self.newPassword!.frame.size.height)
                                
                                 
                                 }, completion: { (Bool) -> Void in
@@ -366,7 +376,14 @@ class ProfileView:UIView,UITextFieldDelegate {
         }
         else {
             
-           self.center = self.defaultPosition!
+           //self.center = self.defaultPosition!
+            
+            nameView!.alpha = 1.0
+            changeScreenNameImageView!.alpha = 1.0
+            emailLabel!.alpha = 1.0
+            
+            self.passwordLabel!.center = CGPointMake(self.passwordLabel!.center.x,self.emailLabel!.center.y + self.emailLabel!.frame.size.height)
+            self.changePasswordImageView!.center = CGPointMake(self.changePasswordImageView!.center.x,self.emailLabel!.center.y + self.emailLabel!.frame.size.height)
            
             if (self.oldPassword!.isFirstResponder()) {
                 

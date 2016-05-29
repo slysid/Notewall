@@ -25,6 +25,7 @@ def __createOwners():
                        favorites=[],
                        followers=[],
                        following=[],
+                       sponsoredNotes=[],
                        stats = {'mailCount' : 1},
                        pins = {},
                        creationDate = datetime.datetime.now(),

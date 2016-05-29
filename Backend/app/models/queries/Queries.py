@@ -487,6 +487,7 @@ class OwnerQueries():
           return {"data" : resp}
      
      
+     
      def updateScreenName(self,ownerid,name):
           
           resp = {}
@@ -542,6 +543,7 @@ class OwnerQueries():
                resp['favorites'] = o.favorites
                resp['followers'] = o.followers
                resp['following'] = o.following
+               resp['sponsorednotes'] = o.sponsoredNotes
                
           names = {}
           for oid in resp['followers']:

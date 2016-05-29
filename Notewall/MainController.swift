@@ -126,6 +126,8 @@ class MainController:UIViewController,NoteWallProtocolDelegate {
     
     func signInApplication() {
         
+        self.getOwnerDetails()
+        
         if (self.notewallController == nil) {
             
             self.notewallController = NotewallController()
@@ -139,6 +141,34 @@ class MainController:UIViewController,NoteWallProtocolDelegate {
                 
             }
             
+        }
+    }
+    
+    
+    func getOwnerDetails() {
+        
+        
+        let ownerId = Common.sharedCommon.config!["ownerId"] as! String
+        let data = ["ownerid" : ownerId]
+        
+        Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathGetOwnerDetails , body: data, replace: nil, requestContentType: kContentTypes.kApplicationJson) { (result, response) -> Void in
+            
+            if (result == true) {
+                
+                let respData = response["data"]!
+                
+                if (respData.objectForKey("error") == nil) {
+                    
+                    Common.sharedCommon.ownerDetails = respData as? NSMutableDictionary
+                    print(Common.sharedCommon.ownerDetails)
+                    
+                }
+            }
+            else {
+                
+                print("error in getting owner details")
+               
+            }
         }
     }
     

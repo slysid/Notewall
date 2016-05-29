@@ -33,7 +33,7 @@ extension UIImage
 {
     func noteImage(named noteType:String) -> UIImage?
     {
-        print(noteType)
+        
         let imageData = Common.sharedCommon.noteImageNameDataMap[noteType]
         if imageData == nil
         {
@@ -67,6 +67,7 @@ class Common:NSObject {
     
     static let sharedCommon = Common()
     var config:NSMutableDictionary?
+    var ownerDetails:NSMutableDictionary?
     var timerCount:Int = 0
     var timer:NSTimer?
     var messageView:MessageView?

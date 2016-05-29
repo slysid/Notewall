@@ -10,6 +10,7 @@ class Owners(Document):
      favorites = ListField()
      followers = ListField()
      following = ListField()
+     sponsoredNotes = ListField()
      stats = DictField()
      pins = DictField()
      creationDate = DateTimeField(required=True)

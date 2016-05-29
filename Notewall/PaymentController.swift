@@ -13,6 +13,7 @@ class PaymentController:UIViewController {
     
     var viewRect:CGRect?
     var pinView:PinBuy?
+    var noteView:NoteBuy?
     var productNames:Dictionary<Int,Dictionary<String,AnyObject>> = [:]
     var activity:UIActivityIndicatorView?
     var pinBuyDelegate:PinBuyProtocolDelegate?
@@ -20,12 +21,14 @@ class PaymentController:UIViewController {
     var selectedProductIndex = -1
     var products:Dictionary<String,Int> = [:]
     var textColor:UIColor = UIColor.whiteColor()
+    var module:String?
     
-    init(frame:CGRect,overrideTextColor:UIColor?) {
+    init(frame:CGRect,overrideTextColor:UIColor?,module:String?) {
         
         super.init(nibName: nil, bundle: nil)
         
         self.viewRect = frame
+        self.module = module
         
         if (overrideTextColor != nil) {
             
@@ -47,10 +50,23 @@ class PaymentController:UIViewController {
     
     override func viewDidLoad() {
         
-        if (self.pinView == nil) {
+        if (self.module == "PIN") {
             
-            self.pinView = PinBuy(frame: self.viewRect!, overrideTextColor: UIColor.blackColor())
-            self.view.addSubview(self.pinView!)
+            if (self.pinView == nil) {
+                
+                self.pinView = PinBuy(frame: self.viewRect!, overrideTextColor: UIColor.blackColor())
+                self.view.addSubview(self.pinView!)
+            }
+            
+        }
+        else if (self.module == "NOTE") {
+            
+            if (self.noteView == nil) {
+                
+                self.noteView = NoteBuy(frame: self.viewRect!)
+                self.view.addSubview(self.noteView!)
+            }
+            
         }
         
     }
@@ -58,10 +74,16 @@ class PaymentController:UIViewController {
     
     override func viewWillDisappear(animated: Bool) {
         
-        self.pinView!.removeTransactionObserver()
+        if (self.pinView != nil) {
+            
+            self.pinView!.removeTransactionObserver()
+            
+            self.pinView!.removeFromSuperview()
+            self.pinView = nil
+            
+        }
         
-        self.pinView!.removeFromSuperview()
-        self.pinView = nil
+        
         
     }
 }

@@ -67,6 +67,7 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
             }
             else if (section == 1) {
                 
+                print(rowsInFollowingSection)
                 return rowsInFollowingSection
             }
             else {
@@ -311,11 +312,16 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
     }
     
     
-    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
+   /* func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
         
         if (tableView == self.followersTable) {
             
             if (self.fromSettings == true) {
+                
+                if (indexPath.section == 1) {
+                    
+                    return UITableViewCellEditingStyle.Delete
+                }
                 
                 return UITableViewCellEditingStyle.Delete
             }
@@ -329,7 +335,44 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
             
             return UITableViewCellEditingStyle.None
         }
+    
+    } */
+    
+    func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
         
+        let blockAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Block") { (UITableViewRowAction, NSIndexPath) in
+            
+            print("block")
+        }
+        
+        let deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Delete") { (UITableViewRowAction, NSIndexPath) in
+            
+              self.commitDeleteActionFor(tableView, indexPath: indexPath)
+        }
+        
+        if (tableView == self.followersTable)
+        {
+            
+            if (self.fromSettings == true)
+            {
+                
+                if (indexPath.section == 0)
+                {
+                    
+                    return [blockAction]
+                }
+                
+                return [deleteAction]
+            }
+            else
+            {
+                
+                return []
+            }
+        
+        }
+        
+        return []
         
     }
     
@@ -353,24 +396,27 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
     
 
     
-    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+    /* func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) { */
+    
+    func commitDeleteActionFor(tableView:UITableView,indexPath: NSIndexPath)
+    {
         
-        
-        if (tableView == self.followersTable) {
-            
-            if editingStyle == .Delete {
+        if (tableView == self.followersTable)
+        {
                 
                 let section = indexPath.section
                 let row = indexPath.row
                 let ownerName = tableView.cellForRowAtIndexPath(indexPath)?.textLabel!.text
                 var selectedOwner:String?
                 
-                if (section == 0) {
+                if (section == 0)
+                {
                     
                     self.followed.removeAtIndex(row)
                     selectedOwner = self.followedDict[ownerName!]
                 }
-                else if (section == 1) {
+                else if (section == 1)
+                {
                     
                     self.following.removeAtIndex(row)
                     selectedOwner = self.followingDict[ownerName!]
@@ -378,6 +424,7 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
                 
                 rowsInFollowersSection = self.followed.count
                 rowsInFollowingSection = self.following.count
+            
                 
                 let ownerID = Common.sharedCommon.config!["ownerId"] as! String
                 let paramData = NSDictionary(objects: [selectedOwner!], forKeys: ["<followownerid>"])
@@ -385,35 +432,40 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
                 
                 Common.sharedCommon.postRequestAndHadleResponse(kAllowedPaths.kPathFollow, body: data, replace: paramData, requestContentType: kContentTypes.kApplicationJson, completion: { (result, response) -> Void in
                     
-                    if (result == true) {
+                    if (result == true)
+                    {
                         
-                        if (response["error"] == nil) {
+                        if (response["error"] == nil)
+                        {
                             
                             dispatch_async(dispatch_get_main_queue() , { () -> Void in
                                 
-                                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Fade)
+                                //tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Fade)
                                 
-                                if (self.optionsOptionsDelegate != nil) {
+                                self.sectionTapped(nil)
+                                
+                                if (self.optionsOptionsDelegate != nil)
+                                {
                                     
                                     self.optionsOptionsDelegate!.followingUpdated(selectedOwner!)
                                 }
                             })
                             
                         }
-                        else {
+                        else
+                        {
                             
                             print(response)
                         }
                         
                     }
-                    else {
+                    else
+                    {
                         
                         print(response)
                     }
                     
                 })
-                
-            }
         }
     }
     
@@ -504,9 +556,18 @@ class OptionsOptionView:UIView,UITableViewDataSource,UITableViewDelegate {
         }
     }
     
-    func sectionTapped(sender:UITapGestureRecognizer) {
+    func sectionTapped(sender:UITapGestureRecognizer?) {
         
-        let tappedIndex = (sender.view as? UILabel)?.tag
+        var tappedIndex = 0
+        
+        if (sender != nil)
+        {
+            tappedIndex = ((sender!.view as? UILabel)?.tag)!
+        }
+        else
+        {
+            tappedIndex = 1
+        }
         
         rowsInFollowersSection = 0
         rowsInFollowingSection = 0
